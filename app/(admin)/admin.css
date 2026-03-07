@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+html {
+  font-family: var(--font-inter);
+}
+
+.a-section--container {
+  @apply space-y-[1.5rem];
+}
+
+.a-text--title {
+  @apply text-[1.5rem] text-neutral-800 font-semibold flex items-baseline gap-4;
+}
+
+.a-text--sidebar {
+  @apply text-[1.4rem] text-neutral-700 font-medium py-[.5rem] px-4 rounded-[.7rem] flex items-baseline gap-4 hover:bg-neutral-100 active:bg-neutral-100;
+}
+
+.a-text--section {
+  font-size: 1.4rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.a-section--title {
+  @apply text-[1.4rem] font-medium;
+}
+
+.a-text--body {
+  @apply text-[1.4rem] leading-[2rem] text-neutral-700;
+}
+
+.a-text--sub {
+  @apply text-[1.4rem] leading-[2rem] italic text-neutral-600;
+}
+
+.a-section--box {
+  @apply border border-[#e3e3e3] bg-white pt-6 pb-7 px-6 rounded-[1rem] space-y-2;
+}
+
+.a-text--label {
+  @apply text-[1.4rem] block;
+}
+
+.a-input {
+  @apply w-full bg-white border border-neutral-300 text-[1.4rem] font-medium py-[.5rem] px-4 rounded-[.5rem] block;
+}
+
+.a-text--warning {
+  @apply text-[1.2rem] font-medium bg-yellow-50 text-yellow-700 py-2 px-4 rounded-[.3rem] cursor-pointer transition;
+}
+
+.a-text--error {
+  @apply text-[1.2rem] font-medium text-red-700 bg-red-50 py-1.5 px-4 rounded-[.3rem] cursor-pointer transition;
+}
+
+.a-text--button {
+  @apply text-[1.3rem] font-medium capitalize py-2 px-4.5 rounded-[.2rem] cursor-pointer transition;
+}
+
+.a-text--table-section-head {
+  @apply font-medium capitalize text-[1.4rem] leading-[1.8rem];
+}
+
+.a-text--table-head {
+  @apply font-medium capitalize text-[1.4rem] text-neutral-400 leading-[1.8rem];
+}
+
+.a-text--table-data {
+  @apply text-[1.4rem] leading-[2rem] font-medium;
+}
+
+.a-shimmer-animation {
+  animation: shimmer-anime 2s infinite;
+}
+
+@keyframes shimmer-anime {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+html {
+  font-family: var(--font-inter);
+  font-size: 10px;
+}
+
+.header {
+  @apply flex items-center gap-12 w-[95%] mx-auto py-[1.2rem];
+}
+
+.button {
+  @apply px-8 py-4 text-[1.5rem] font-medium rounded-[.3rem] transition;
+}
+
+.box--form {
+  @apply w-full max-w-[50rem] flex flex-col translate-y-[6rem] rounded-[1rem] py-8 px-12;
+}
+
+.input--form {
+  @apply w-full border border-neutral-400 py-4 px-4 text-[1.6rem] rounded-[.5rem];
+}
+.error--input {
+  @apply text-[1.55rem] text-red-800 mt-1 ml-2;
+}
+
+.text--body {
+  @apply text-[1.4rem];
+}
+
+.text--links {
+  @apply text-[1.4rem] py-2 px-2 font-medium;
+}
+
+.shimmer {
+  @apply py-5 bg-gradient-to-r from-neutral-200 via-neutral-400 to-neutral-200 overflow-x-hidden;
+  background-size: 200% 100%;
+  animation: anime--shimmer 1s infinite;
+}
+
+@keyframes anime--shimmer {
+  0% {
+    background-position: -100%, 0;
+  }
+  100% {
+    background-position: 100%, 0;
+  }
+}
