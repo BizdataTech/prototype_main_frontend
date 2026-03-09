@@ -9,7 +9,9 @@ const AdminBreadCrumbs = ({ data, length }) => {
       <div className="flex items-center gap-4 text-[1.4rem] text-neutral-500 ">
         {data.map((d, i) => (
           <div key={i}>
-            <Link href={d.path}>{d.title}</Link>
+            <Link href={d.path} className="underline last:no-underline">
+              {d.title}
+            </Link>
             <div className="last:hidden">
               <CaretRight />
             </div>

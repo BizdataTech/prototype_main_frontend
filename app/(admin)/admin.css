@@ -73,6 +73,26 @@ html {
   animation: shimmer-anime 2s infinite;
 }
 
+.a-shimmer--container {
+  @apply bg-neutral-200 overflow-x-hidden rounded-[1rem] relative;
+}
+.a-shimmer--mask {
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent;
+}
+
+.a-shimmer--animation_2 {
+  animation: shimmer--animation 2s infinite;
+}
+
+@keyframes shimmer--animation {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 @keyframes shimmer-anime {
   from {
     transform: translateX(-50%);
