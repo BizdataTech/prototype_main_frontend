@@ -2,7 +2,7 @@ import { MagnifyingGlass } from "phosphor-react";
 
 const SearchSection = ({ placeholder }) => {
   return (
-    <div className="relative w-3/6  bg-neutral-200 ">
+    <div className="relative w-3/6  bg-neutral-200 rounded-[.5rem] ">
       <input
         type="text"
         placeholder={placeholder}
