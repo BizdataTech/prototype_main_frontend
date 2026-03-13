@@ -21,7 +21,7 @@ const useAttributeCollection = () => {
     }
   };
 
-  return { attributeCollections };
+  return { attributeCollections, refetch: getAttributeCollections };
 };
 
 export default useAttributeCollection;

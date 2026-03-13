@@ -42,7 +42,7 @@ html {
 }
 
 .a-input {
-  @apply w-full bg-white border border-neutral-300 text-[1.4rem] font-medium py-[.5rem] px-4 rounded-[.5rem] block;
+  @apply w-full bg-white border border-neutral-300 text-[1.4rem] font-medium py-[.5rem] px-4 rounded-[.5rem] block outline-none;
 }
 
 .a-text--warning {
@@ -73,14 +73,14 @@ html {
   animation: shimmer-anime 2s infinite;
 }
 
-.a-shimmer--container {
+.a-animation--container {
   @apply bg-neutral-200 overflow-x-hidden rounded-[1rem] relative;
 }
-.a-shimmer--mask {
+.a-animation--mask {
   @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent;
 }
 
-.a-shimmer--animation_2 {
+.a-animation--effect {
   animation: shimmer--animation 2s infinite;
 }
 

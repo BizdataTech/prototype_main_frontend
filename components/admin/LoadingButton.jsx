@@ -5,7 +5,7 @@ import { Spinner } from "phosphor-react";
 const LoadingButton = ({ buttonText, loadingText, loadingStat }) => {
   return (
     <button
-      className={`bg-black text-white py-5 font-medium rounded-[.8rem] mt-12 ${loadingStat ? "cursor-not-allowed opacity-70" : "cursor-pointer"} hover:bg-neutral-800 active:bg-black transition-colors`}
+      className={`bg-black text-white py-4 font-medium rounded-[.5rem] mt-8 ${loadingStat ? "cursor-not-allowed opacity-70" : "cursor-pointer"} hover:bg-neutral-800 active:bg-black transition-colors`}
       type="submit"
       disabled={loadingStat}
     >
