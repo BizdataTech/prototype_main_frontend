@@ -50,7 +50,7 @@ const Categories = () => {
             (item, i) => (
               <div
                 key={i}
-                className="text-[1.4rem] font-medium last:text-end p-4"
+                className="text-[1.4rem] font-medium  text-center first:text-start last:text-end p-4"
               >
                 {item}
               </div>

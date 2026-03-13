@@ -14,6 +14,8 @@ const useCategories = () => {
   const [errors, setErrors] = useState({});
   const [navbar, setNavbar] = useState(false);
 
+  const [attributeCollection, setAttributeCollection] = useState(null);
+
   const router = useRouter();
   const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const searchParams = useSearchParams();
@@ -27,7 +29,7 @@ const useCategories = () => {
         `${BACKEND_API_URL}/api/auto-categories/${category_id}`,
         {
           method: "GET",
-        }
+        },
       );
       const data = await response.json();
       if (response.ok) {
@@ -58,7 +60,7 @@ const useCategories = () => {
         `${BACKEND_API_URL}/api/auto-categories?filter=all&current_page=${currentPage}`,
         {
           method: "GET",
-        }
+        },
       );
       const data = await response.json();
       if (response.ok) {
@@ -76,7 +78,7 @@ const useCategories = () => {
         `${BACKEND_API_URL}/api/auto-categories?filter=level`,
         {
           method: "GET",
-        }
+        },
       );
       const data = await response.json();
       if (response.ok) {
@@ -110,7 +112,7 @@ const useCategories = () => {
     try {
       const response = await fetch(
         `${BACKEND_API_URL}/api/auto-categories?filter=parent&level=${level}`,
-        { method: "GET" }
+        { method: "GET" },
       );
       const data = await response.json();
       if (response.ok) {
@@ -141,7 +143,7 @@ const useCategories = () => {
       else {
         const response = await fetch(
           `${BACKEND_API_URL}/api/auto-categories?filter=title&title=${categoryTitle}&actual_title=${actualCategoryTitle}`,
-          { method: "GET" }
+          { method: "GET" },
         );
         const data = await response.json();
         if (response.ok) {
@@ -168,6 +170,7 @@ const useCategories = () => {
         level: selectedLevel,
         isNavItem: navbar,
         parent: selectedParent,
+        attribute_collection: attributeCollection,
       };
       let response;
       if (action === "create") {
@@ -187,7 +190,7 @@ const useCategories = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(data),
-          }
+          },
         );
       }
 
@@ -209,7 +212,7 @@ const useCategories = () => {
         `http://localhost:4000/api/auto-categories/${deleteid}`,
         {
           method: "DELETE",
-        }
+        },
       );
       const data = await response.json();
       if (response.ok) {
@@ -253,6 +256,7 @@ const useCategories = () => {
     handleParent,
     submitCategory,
     deleteCategory,
+    setAttributeCollection,
     navbar,
     setNavbar,
     errors,

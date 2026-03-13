@@ -1,6 +1,7 @@
 "use client";
 
 import useCategories from "../useCategories.js";
+import AttributeSection from "./AttributeSection.jsx";
 
 const CategoryManagement = () => {
   const {
@@ -13,17 +14,18 @@ const CategoryManagement = () => {
     handleSelectedLevel,
     parents,
     selectedParent,
-    handleParent,    
+    handleParent,
     navbar,
     setNavbar,
     errors,
     submitCategory,
     deleteCategory,
+    setAttributeCollection,
   } = useCategories();
 
   return (
-    <section className="flex gap-6 pb-4">
-      <div className="left w-7/12 flex flex-col gap-6">
+    <main className="flex gap-6 pb-4">
+      <section className="w-7/12 flex flex-col gap-6">
         {/* title section */}
         <div className="section--category__name a-section--box">
           <div className="flex justify-between items-center">
@@ -147,8 +149,9 @@ const CategoryManagement = () => {
             </button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <AttributeSection setCollection={setAttributeCollection} />
+    </main>
   );
 };
 
