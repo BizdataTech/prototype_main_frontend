@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
-const useProducts = () => {
+const useProducts = (id = null) => {
+  const [product, setProduct] = useState(null);
+  const [updateData, setUpdateData] = useState({});
+
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -12,9 +16,6 @@ const useProducts = () => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
-  // ui related variables
-  const [apiLoading, setApiLoading] = useState(false);
-
   // input field schema
   let generalDataSchema = {
     product_title: "",
@@ -23,10 +24,12 @@ const useProducts = () => {
     stock: 0,
   };
 
-  let adminFieldSchema = {
-    part_number: "",
-    oem_number: "",
-  };
+  // attribute fields
+  const [attributes, setAttributes] = useState(null);
+
+  // handle input fields
+  let [generalData, setGeneralData] = useState(generalDataSchema);
+  let [attributeValues, setAttributeValues] = useState({});
 
   // getting all products
   const [products, setProducts] = useState(null);
@@ -41,26 +44,23 @@ const useProducts = () => {
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        let response = await fetch(
-          `http://localhost:4000/api/auto-products?filter=admin-products&current_page=${currentPage}`,
-          {
-            method: "GET",
-          },
-        );
-        let data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-        else {
-          setProducts(data.products);
-          setTotalPages(data.total_pages);
-        }
-      } catch (error) {
-        console.log("error:", error.message);
-      }
-    };
     fetchProducts();
   }, [currentPage]);
+
+  useEffect(() => {
+    let getProduct = async () => {
+      try {
+        let res = await axios.get(`${BACKEND_URL}/api/products/${id}`, {
+          withCredentials: true,
+        });
+        console.log("proudct update data:", res.data.product);
+        setProduct(res.data.product);
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    if (id) getProduct();
+  }, []);
 
   useEffect(() => {
     const getCategories = async () => {
@@ -92,8 +92,55 @@ const useProducts = () => {
     getBrands();
   }, []);
 
+  useEffect(() => {
+    const getCategoryAttributes = async () => {
+      try {
+        let res = await axios.get(
+          `${BACKEND_URL}/api/categories/${selectedCategory._id}/attribute-collections`,
+          { withCredentials: true },
+        );
+        setAttributes(res.data.attributes);
+
+        if (selectedCategory._id !== product.category._id)
+          setAttributeValues({});
+        else setAttributeValues(product.attributes);
+        // when category is changed, category attributes are refetched all the time. but the product's attribute value for update stays same.
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+
+    if (selectedCategory) getCategoryAttributes();
+  }, [selectedCategory]);
+
+  const fetchProducts = async () => {
+    try {
+      let response = await fetch(
+        `http://localhost:4000/api/auto-products?filter=admin-products&current_page=${currentPage}`,
+        {
+          method: "GET",
+        },
+      );
+      let data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setProducts(data.products);
+      setTotalPages(data.total_pages);
+    } catch (error) {
+      console.log("error:", error.message);
+    }
+  };
+
   const handleCategory = (category) => {
     setSelectedCategory(category);
+    if (product)
+      setUpdateData((prev) => {
+        let new_update = { ...prev };
+        delete new_update.attributes;
+        if (category._id !== product.category._id)
+          new_update.category = category._id;
+        else delete new_update.category;
+        return new_update;
+      });
     setErrors((prev) => {
       let { category, ...rest } = prev;
       return rest;
@@ -102,6 +149,11 @@ const useProducts = () => {
 
   const handleBrand = (brand) => {
     setSelectedBrand(brand);
+    if (product && brand._id !== product.brand._id)
+      setUpdateData((prev) => ({
+        ...prev,
+        brand: brand._id,
+      }));
     setErrors((prev) => {
       let { brand, ...rest } = prev;
       return rest;
@@ -114,22 +166,34 @@ const useProducts = () => {
     });
   };
 
-  // handle input fields
-  let [generalData, setGeneralData] = useState(generalDataSchema);
-  let [adminFields, setAdminFields] = useState(adminFieldSchema);
+  useEffect(() => {
+    if (!product) return;
+    let { product_title, description, price, stock, ...rest } = product;
+    setGeneralData({
+      product_title,
+      description,
+      price: String(price),
+      stock,
+    });
+    setSelectedCategory(rest.category);
+    setSelectedBrand(rest.brand);
+    setAttributeValues(rest.attributes);
+    setImages(rest.images);
+  }, [product]);
 
   let handleInput = (event) => {
     let { name, value } = event.target;
-    if (Object.keys(generalDataSchema).includes(name))
-      setGeneralData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    else if (Object.keys(adminFieldSchema).includes(name))
-      setAdminFields((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+    setGeneralData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (product)
+      setUpdateData((prev) => {
+        let new_update = { ...prev };
+        if (value.trim() === String(product[name])) delete new_update[name];
+        else new_update[name] = value;
+        return new_update;
+      });
     if (value.trim().length) {
       setErrors((prev) => {
         let { [name]: _, ...rest } = prev;
@@ -139,8 +203,34 @@ const useProducts = () => {
     return;
   };
 
+  const handleAttributeInputFields = (e) => {
+    let { name, value } = e.target;
+    setAttributeValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (product) {
+      setUpdateData((prev) => {
+        let new_update = { ...prev };
+        new_update.attributes = new_update.attributes || {};
+        if (value === product.attributes[name])
+          delete new_update.attributes[name];
+        else new_update.attributes[name] = value;
+
+        if (!Object.keys(new_update.attributes).length)
+          delete new_update.attributes;
+        return new_update;
+      });
+    }
+  };
+
   const handleImages = (image_object) => {
     setImages((prev) => [...prev, image_object]);
+    if (product)
+      setUpdateData((prev) => ({
+        ...prev,
+        images: [...(prev.images || []), image_object.file],
+      }));
     if (!images.length)
       return setErrors((prev) => {
         let { images, ...rest } = prev;
@@ -148,14 +238,47 @@ const useProducts = () => {
       });
   };
 
-  const createProduct = async () => {
+  const cancelImages = (image) => {
+    setImages((prev) =>
+      prev.filter((obj) => {
+        if (image.public_id) return obj.public_id !== image.public_id;
+        return obj.preview !== image.preview;
+      }),
+    );
+
+    if (image.public_id)
+      setUpdateData((prev) => ({
+        ...prev,
+        cancelledPubliIds: [...(prev.cancelledPubliIds || []), image.public_id],
+      }));
+    else
+      setUpdateData((prev) => {
+        let new_update = { ...prev };
+        new_update.images = new_update.images.filter(
+          (imgFile) => imgFile !== image.file,
+        );
+        if (!new_update.images.length) delete new_update.images;
+        return new_update;
+      });
+  };
+
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    let product_update = false;
+    if (product_update) {
+      console.log("update data:", updateData);
+      return;
+    }
+
     let error_obj = {};
     let data = {
       ...generalData,
-      ...adminFields,
+      attributes: attributeValues,
       category: selectedCategory,
       brand: selectedBrand,
     };
+
     Object.entries(data).forEach(([key, value]) => {
       if (typeof value === "string" && !value.trim())
         error_obj[key] = `${key.split("_").join(" ")} required`;
@@ -176,66 +299,79 @@ const useProducts = () => {
       });
 
     let formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === "category" || key === "brand") {
-        formData.append(key, value._id);
-      } else formData.append(key, value.trim());
-    });
-    images.forEach((image) => formData.append("image", image.file));
-
+    let res;
     try {
-      setApiLoading(true);
-      let response = await fetch(`${BACKEND_URL}/api/auto-products`, {
-        method: "POST",
-        body: formData,
-      });
-      let result = await response.json();
-      if (!response.ok) throw new Error(result.message);
-      console.log(result.message);
-      router.push("/admin/products");
-    } catch (error) {
-      console.log("error:", error.message);
-    }
-  };
+      if (product) {
+        Object.entries(updateData).forEach(([key, value]) => {
+          if (["category", "brand"].includes(key)) formData.append(key, value);
+          else if (key === "images")
+            value.forEach((file) => formData.append("image", file));
+          else if (typeof value === "object")
+            formData.append(key, JSON.stringify(value));
+          else formData.append(key, value);
+        });
 
-  const deleteAllProducts = async () => {
-    try {
-      let response = await fetch(`${BACKEND_URL}/api/products`, {
-        method: "DELETE",
-      });
-      let data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      else {
-        toast.success(data.message);
+        setLoading(true);
+        res = await axios.patch(
+          `${BACKEND_URL}/api/products/${product._id}`,
+          formData,
+          {
+            withCredentials: true,
+          },
+        );
+        setLoading(false);
+        toast.success(res.data?.message || "Product Updated");
+        router.replace("/admin/products");
+      } else {
+        Object.entries(data).forEach(([key, value]) => {
+          if (key === "category" || key === "brand") {
+            formData.append(key, value._id);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else formData.append(key, value.trim());
+        });
+        images.forEach((image) => formData.append("image", image.file));
+
+        setLoading(true);
+        res = await axios.post(`${BACKEND_URL}/api/auto-products`, formData, {
+          withCredentials: true,
+        });
+        setLoading(false);
+        toast.success(res.data?.message || "Product Created");
+        router.push("/admin/products");
       }
     } catch (error) {
-      console.error(error.message);
+      setLoading(false);
+      console.log(error.message);
     }
   };
 
   return {
+    refetch: fetchProducts,
     data: {
       generalData,
-      adminFields,
       handleInput,
     },
     images,
     handleImages,
+    cancelImages,
     controlPage,
     currentPage,
     totalPages,
-    deleteAllProducts,
     brands,
     selectedBrand,
     handleBrand,
     categories,
     selectedCategory,
+    attributes,
+    attributeValues,
+    handleAttributeInputFields,
     handleCategory,
     products,
     vehicle_utility_object: {},
     getChildCategories,
-    createProduct,
-    apiLoading,
+    handleSubmit,
+    loading,
     errors,
   };
 };

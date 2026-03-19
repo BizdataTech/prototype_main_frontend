@@ -1,15 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "phosphor-react";
 import useProducts from "../useProducts";
 import CategoryList from "./CategoryList";
 import { InputLabel } from "@/components/admin/InputLabel";
 import Images from "./Images";
+import Attributes from "./Attributes";
+import { useSearchParams } from "next/navigation";
 
 const ProductManagement = () => {
+  let searchParams = useSearchParams();
+  let id = searchParams.get("id");
+  // updation next
   const {
     data,
+    attributes,
+    attributeValues,
+    handleAttributeInputFields,
     categories,
     brands,
     selectedCategory,
@@ -18,12 +26,13 @@ const ProductManagement = () => {
     handleCategory,
     images,
     handleImages,
-    createProduct,
-    apiLoading,
+    cancelImages,
+    handleSubmit,
+    loading,
     errors,
-  } = useProducts();
+  } = useProducts(id);
 
-  let { generalData, adminFields, handleInput } = data;
+  let { generalData, handleInput } = data;
   const levelCategories = categories.filter((category) => category.level === 1);
   const [isOpen, setIsOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
@@ -41,6 +50,7 @@ const ProductManagement = () => {
   const image_util = {
     images,
     handleImages,
+    cancelImages,
   };
 
   return (
@@ -48,7 +58,7 @@ const ProductManagement = () => {
       <div className="w-full flex flex-col gap-6">
         <div className="a-section--box flex flex-col gap-2">
           <div className="flex gap-4 items-center">
-            <div className="space-y-2 w-full">
+            <div className="flex flex-col gap-2 w-full">
               <InputLabel label="Title" error={errors.product_title} />
               <input
                 type="text"
@@ -61,7 +71,7 @@ const ProductManagement = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <div className="w-full space-y-2">
+            <div className="w-full flex flex-col gap-2">
               <InputLabel label="Brand" error={errors.brand} />
               <div className="relative z-10">
                 <div
@@ -88,7 +98,7 @@ const ProductManagement = () => {
                 )}
               </div>
             </div>
-            <div className="w-full space-y-2">
+            <div className="w-full flex flex-col gap-2">
               {/* label */}
               <InputLabel label="Category" error={errors.category} />
               {/* input field */}
@@ -100,30 +110,6 @@ const ProductManagement = () => {
                 </div>
                 {isOpen && <CategoryList utils={utilObject} />}
               </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-full flex flex-col gap-2">
-              <InputLabel label="Part Number" error={errors.part_number} />
-              <input
-                name="part_number"
-                type="text"
-                className="a-input uppercase"
-                placeholder="Eg: 72180TM0T51"
-                value={adminFields?.part_number}
-                onChange={handleInput}
-              />
-            </div>
-            <div className="w-full flex flex-col gap-2">
-              <InputLabel label="OEM Reference" error={errors.oem_number} />
-              <input
-                name="oem_number"
-                type="text"
-                className="a-input uppercase"
-                placeholder="Eg: 0242236566"
-                value={adminFields?.oem_number}
-                onChange={handleInput}
-              />
             </div>
           </div>
 
@@ -150,13 +136,13 @@ const ProductManagement = () => {
                 name="stock"
                 className="a-input"
                 placeholder="Eg: 2"
-                value={generalData?.stock.toLocaleString("en-IN")}
+                value={generalData?.stock}
                 onChange={handleInput}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <InputLabel label="Description" error={errors.description} />
             <textarea
               name="description"
@@ -168,18 +154,29 @@ const ProductManagement = () => {
             />
           </div>
         </div>
+        <Attributes
+          attributes={attributes}
+          values={attributeValues}
+          handleInputs={handleAttributeInputFields}
+        />
         <Images utility_object={image_util} error={errors.images} />
         <button
-          className="a-text--button self-end bg-black text-white !px-[4rem] !py-[1rem] !text-[1.4rem] mt-[2rem]"
-          onClick={createProduct}
+          className={`a-text--button self-end bg-black text-white !px-[4rem] !py-[1rem] !text-[1.4rem] mt-[2rem] ${loading ? "!cursor-not-allowed opacity-70" : "cursor-pointer"}`}
+          onClick={handleSubmit}
+          disabled={loading}
         >
-          {apiLoading ? (
-            <div className="flex items-center gap-2">
-              <div>Creating Product</div>
-              <Spinner className="w-[2rem] h-[2rem] animate-spin" />
+          {loading ? (
+            <div className="flex justify-center items-center gap-1">
+              Processing{" "}
+              <Spinner
+                className="w-[1.8rem] h-[1.8rem] animate-spin"
+                weight="bold"
+              />
             </div>
+          ) : id ? (
+            "Update Product"
           ) : (
-            "Create this product"
+            "Create Product"
           )}
         </button>
       </div>

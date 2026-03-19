@@ -1,6 +1,7 @@
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const AttributeSection = ({ setCollection }) => {
   let [collections, setCollections] = useState([]);
@@ -41,14 +42,17 @@ const AttributeSection = ({ setCollection }) => {
 
       <div className="flex flex-col gap-1">
         <div className="a-text--body">Collections (optional)</div>
-        <select name="" id="" className="a-input cursor-pointer">
+        <select
+          name=""
+          id=""
+          className="a-input cursor-pointer"
+          onChange={(e) => setCollection(e.target.value)}
+        >
           <option value="" className="cursor-pointer" disabled selected>
             Select One Collection
           </option>
           {collections.map((coll) => (
-            <option onClick={() => setCollection(coll._id)}>
-              {coll.collection_name}
-            </option>
+            <option value={coll._id}>{coll.collection_name}</option>
           ))}
         </select>
       </div>

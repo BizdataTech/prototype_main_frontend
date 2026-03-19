@@ -154,7 +154,7 @@ const Form = ({ id, refetch, updateData }) => {
         <div className="w-full">
           <InputLabel label={"Input Type"} error={errors?.input_type} />
           <select className="a-input" name="input_type" onChange={handleInput}>
-            {["text", "select", "mulit-select"].map((item) => (
+            {["text", "select", "multi-select"].map((item) => (
               <option
                 value={item}
                 className="capitalize"

@@ -9,9 +9,10 @@ import { CaretLeft, CaretRight } from "phosphor-react";
 import TableEmptyRow from "@/components/admin/TableEmptyRow";
 import TableLoadingRow from "@/components/admin/LoadingRow";
 import SearchSection from "@/components/admin/SearchSections";
+import Product from "./Product";
 
 const Products = () => {
-  let { products, deleteAllProducts, controlPage, totalPages, currentPage } =
+  let { refetch, products, controlPage, totalPages, currentPage } =
     useProducts();
   return (
     <main className="w-full max-w-full min-h-[88svh] flex flex-col gap-6">
@@ -25,12 +26,14 @@ const Products = () => {
         </Link>
       </div>
       <div className="a-section--box !p-0 text-[1.4rem]">
-        <div className="grid grid-cols-4">
-          {["Title", "Category", "Brand", "Options"].map((item, i) => (
-            <div key={i} className="font-medium last:text-end p-4">
-              {item}
-            </div>
-          ))}
+        <div className="grid grid-cols-5">
+          {["Title", "Category", "Brand", "Created At", "Options"].map(
+            (item, i) => (
+              <div key={i} className="font-medium last:text-end p-4">
+                {item}
+              </div>
+            ),
+          )}
         </div>
         {products === null && <TableLoadingRow />}
         {products && products.length === 0 && (
@@ -38,23 +41,8 @@ const Products = () => {
         )}
         {products &&
           products.length >= 0 &&
-          products.map((product, index) => (
-            <div
-              key={index}
-              className="flex justify-between py-4 px-4 border-b-0 border-neutral-200 last:border-b-0 text-[1.3rem] text-neutral-800 items-center even:bg-neutral-100"
-            >
-              <div className="grid grid-cols-4 w-[80%] gap-[2rem]">
-                <div>{product?.product_title}</div>
-                <div>{product?.category?.title}</div>
-                <div>{product?.brand?.brand_name}</div>
-                <div>{product?.total_variants}</div>
-              </div>
-              <div className="">
-                <div>
-                  <DotsThree weight="bold" className="w-[5rem] h-8" />
-                </div>
-              </div>
-            </div>
+          products.map((product, i) => (
+            <Product product={product} key={i} refetch={refetch} />
           ))}
       </div>
       <div className="flex justify-end items-center  gap-8 mt-auto">
