@@ -1,24 +1,59 @@
 import LoadingButton from "@/components/admin/LoadingButton";
+import axios from "axios";
 import { Upload, X } from "phosphor-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-const BrandForm = ({ refetch, close }) => {
+const BrandForm = ({ refetch, close, id }) => {
   let fileInputRef = useRef(null);
+
   let [file, setFile] = useState(null);
   let [previewURL, setPreviewURL] = useState(null);
   let [brandName, setBrandName] = useState("");
   let [errors, setErrors] = useState({});
   let [loading, setLoading] = useState(false);
 
+  let [brand, setBrand] = useState(null);
+  let [updateData, setUpdateData] = useState({});
+
   let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  useEffect(() => {
+    if (!id) return;
+    const getData = async () => {
+      try {
+        let res = await axios.get(`${BACKEND_URL}/api/brands/${id}`, {
+          withCredentials: true,
+        });
+        setBrand(res.data?.brand);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    getData();
+  }, [id]);
+
+  useEffect(() => {
+    if (!brand) return;
+    setPreviewURL(brand.image.url);
+    setBrandName(brand.brand_name);
+  }, [brand]);
 
   const openSystemFiles = () => {
     fileInputRef.current.click();
   };
 
-  const handleBrandName = (event) => {
-    setBrandName(event.target.value);
+  const handleBrandName = (e) => {
+    let value = e.target.value;
+    setBrandName(value);
+    if (brand)
+      setUpdateData((prev) => {
+        let new_update = { ...prev };
+        if (value.trim() === brand.brand_name) delete new_update.brand_name;
+        else new_update.brand_name = value;
+        return new_update;
+      });
+
     setErrors((prev) => {
       let { brand_name, ...rest } = prev;
       return rest;
@@ -31,7 +66,13 @@ const BrandForm = ({ refetch, close }) => {
       return null;
     }
 
-    setFile(file);
+    if (brand)
+      setUpdateData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+    else setFile(file);
+
     const url = URL.createObjectURL(file);
     setPreviewURL(url);
     setErrors((prev) => {
@@ -40,7 +81,8 @@ const BrandForm = ({ refetch, close }) => {
     });
   };
 
-  const submitBrand = async () => {
+  const submitBrand = async (e) => {
+    e.preventDefault();
     try {
       let error_object = {};
       if (!brandName.trim()) error_object.brand_name = "Brand Name Required";
@@ -57,26 +99,41 @@ const BrandForm = ({ refetch, close }) => {
       }
 
       let formData = new FormData();
-      formData.append("image", file);
-      formData.append("brand_name", brandName);
+      let res;
 
       setLoading(true);
-      let response = await fetch(`${BACKEND_URL}/api/brands`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+      if (brand) {
+        Object.entries(updateData).forEach(([key, value]) =>
+          formData.append(key, value),
+        );
+        res = await axios.patch(
+          `${BACKEND_URL}/api/brands/${brand._id}`,
+          formData,
+          { withCredentials: true },
+        );
+      } else {
+        formData.append("image", file);
+        formData.append("brand_name", brandName);
+
+        res = await axios.post(`${BACKEND_URL}/api/brands`, formData, {
+          withCredentials: true,
+        });
+      }
       setLoading(false);
-      let result = await response.json();
-      if (!response.ok) throw new Error(result.message);
-      toast.success(result.message);
+
+      toast.success(res.data?.message);
       setPreviewURL(null);
       setBrandName("");
-      refetch();
+
+      if (update) {
+        setBrand(null);
+        setUpdateData({});
+      }
       close();
-    } catch (error) {
+      refetch();
+    } catch (err) {
       setLoading(false);
-      console.log("error", error.message);
+      console.log("error", err.message);
     }
   };
   return (

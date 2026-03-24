@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 const useBrand = () => {
@@ -13,15 +14,13 @@ const useBrand = () => {
 
   let getBrands = async () => {
     try {
-      let response = await fetch(`${BACKEND_URL}/api/brands`, {
-        method: "GET",
+      let res = await axios.get(`${BACKEND_URL}/api/brands`, {
+        withCredentials: true,
       });
-      let result = await response.json();
-      if (!response.ok) throw new Error(result.message);
-      console.log("brands:", result.brands);
-      setBrands(result.brands);
-    } catch (error) {
-      console.log("error:", error.message);
+      console.log("brands:", res.data?.brands);
+      setBrands(res.data?.brands);
+    } catch (err) {
+      console.log("error:", err.message);
     }
   };
 

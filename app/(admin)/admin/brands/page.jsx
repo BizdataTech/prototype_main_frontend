@@ -11,6 +11,7 @@ import Brand from "./Brand";
 
 const Brands = () => {
   const { brands, refetch } = useBrand();
+  const [selectedBrand, setSelectedBrand] = useState(null);
   const [box, setBox] = useState(false);
 
   return (
@@ -42,13 +43,26 @@ const Brands = () => {
         {brands &&
           brands.length >= 1 &&
           brands.map((brand, i) => (
-            <Brand brand={brand} key={brand._id} slno={i + 1} />
+            <Brand
+              key={brand._id}
+              brand={brand}
+              slno={i + 1}
+              refetch={refetch}
+              open={() => {
+                setSelectedBrand(brand._id);
+                setBox(true);
+              }}
+            />
           ))}
       </div>
       {box &&
         createPortal(
           <div className="fixed inset-0 bg-black/30 z-100 flex items-center justify-center">
-            <BrandForm refetch={refetch} close={() => setBox(false)} />
+            <BrandForm
+              refetch={refetch}
+              close={() => setBox(false)}
+              id={selectedBrand}
+            />
           </div>,
           document.body,
         )}
