@@ -116,7 +116,7 @@ const useProducts = (id = null) => {
   const fetchProducts = async () => {
     try {
       let response = await fetch(
-        `http://localhost:4000/api/auto-products?filter=admin-products&current_page=${currentPage}`,
+        `http://localhost:4000/api/products?filter=admin-products&current_page=${currentPage}`,
         {
           method: "GET",
         },
@@ -333,7 +333,7 @@ const useProducts = (id = null) => {
         images.forEach((image) => formData.append("image", image.file));
 
         setLoading(true);
-        res = await axios.post(`${BACKEND_URL}/api/auto-products`, formData, {
+        res = await axios.post(`${BACKEND_URL}/api/products`, formData, {
           withCredentials: true,
         });
         setLoading(false);

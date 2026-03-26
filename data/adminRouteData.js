@@ -54,13 +54,13 @@ export default [
     breadcrumbs: "Admin Users",
   },
   {
-    path: "/admin/ui",
-    sidebar_title: "Home Interface",
-    page_title: "Admin UI Management",
+    path: "/admin/home-layout",
+    sidebar_title: "Home Layout",
+    page_title: "Home Layout Management",
     icon_class: "fa-solid fa-palette",
     sidebar: true,
-    slug: "ui",
-    breadcrumbs: "Admin UI",
+    slug: "home-layout",
+    breadcrumbs: "Home Layout Management",
   },
   {
     path: "/admin/categories/category-management",
