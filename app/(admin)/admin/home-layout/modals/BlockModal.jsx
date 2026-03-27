@@ -9,21 +9,75 @@ import {
 } from "phosphor-react";
 import Category from "../components/Category";
 import useModal from "./useModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 
-const BlockModal = ({ close, refetch }) => {
+const BlockModal = ({ close, block, refetch }) => {
   let { products, category, setCategory } = useModal();
   let [title, setTitle] = useState("");
   let slug = title.trim().toLowerCase().replace(/\s+/g, "-");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [errors, setErrors] = useState({});
 
+  const [blockData, setBlockData] = useState(null);
+  const [updateData, setUpdateData] = useState({});
+
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+  useEffect(() => {
+    const getBlockData = async () => {
+      try {
+        let res = await axios.get(
+          `${BACKEND_URL}/api/content-blocks/${block}`,
+          { withCredentials: true },
+        );
+        setBlockData(res.data?.block);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    if (block) getBlockData();
+  }, [block]);
+
+  useEffect(() => {
+    if (!blockData) return;
+    let { title, products } = blockData;
+    setTitle(title);
+    setSelectedProducts(products);
+  }, [blockData]);
+
+  useEffect(() => {
+    if (blockData) {
+      let same =
+        blockData &&
+        blockData.products.length === selectedProducts.length &&
+        blockData.products.every((item) =>
+          selectedProducts.some((pro) => item._id === pro._id),
+        );
+      if (same)
+        return setUpdateData((prev) => {
+          let new_update = { ...prev };
+          delete new_update.products;
+          return new_update;
+        });
+      setUpdateData((prev) => ({
+        ...prev,
+        products: selectedProducts,
+      }));
+    }
+  }, [selectedProducts]);
+
   const handleInput = (e) => {
-    setTitle(e.target.value);
+    let value = e.target.value;
+    setTitle(value);
+    if (block)
+      setUpdateData((prev) => {
+        let new_update = { ...prev };
+        if (blockData.title === value.trim()) delete new_update.title;
+        else new_update.title = value;
+        return new_update;
+      });
     setErrors((prev) => {
       let { title, ...rest } = prev;
       return rest;
@@ -65,9 +119,16 @@ const BlockModal = ({ close, refetch }) => {
     }
     try {
       let res;
-      let update = false;
       setLoading(true);
-      if (update) {
+      if (block) {
+        if (updateData.products)
+          updateData.products = updateData.products.map((pro) => pro._id);
+        if (updateData.title) updateData.slug = slug;
+        res = await axios.patch(
+          `${BACKEND_URL}/api/content-blocks/${blockData._id}`,
+          updateData,
+          { withCredentials: true },
+        );
       } else {
         res = await axios.post(
           `${BACKEND_URL}/api/content-blocks`,

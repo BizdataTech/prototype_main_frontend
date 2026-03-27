@@ -3,7 +3,7 @@ import Sections from "./Sections";
 
 export default function UI() {
   return (
-    <section className="flex flex-col gap-6">
+    <section className="flex flex-col gap-4">
       <Contents />
       <Sections />
     </section>
