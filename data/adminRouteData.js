@@ -80,4 +80,13 @@ export default [
     slug: "product-management",
     breadcrumbs: "Product Management",
   },
+  {
+    path: "/admin/home-layout/section-management",
+    sidebar_title: "Home Layout",
+    page_title: "Section Management",
+    icon_class: "fa-solid fa-gear",
+    sidebar: false,
+    slug: "section-management",
+    breadcrumbs: "Section Management",
+  },
 ];

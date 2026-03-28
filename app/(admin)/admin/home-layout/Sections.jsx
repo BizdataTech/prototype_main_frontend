@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -37,9 +38,12 @@ const Sections = () => {
           <p className="a-text--body">
             Section are the building blocks of the home page. They needed to be
             added inorder to build the home page layout.{" "}
-            <span className="text-purple-700 underline cursor-pointer">
+            <Link
+              className="text-purple-700 underline cursor-pointer"
+              href="/admin/home-layout/section-management"
+            >
               Add new section
-            </span>
+            </Link>
           </p>
         </div>
       )}
