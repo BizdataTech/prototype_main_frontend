@@ -11,7 +11,7 @@ const Footer = () => {
         className="py-16"
         style={{ backgroundColor: "black", color: "white" }}
       >
-        <div className="w-[90%] mx-auto flex justify-between">
+        <div className="w-[95%] mx-auto flex justify-between">
           <div>
             <h3 className="font-medium text-[1.7rem] mb-4">About</h3>
             <ul className="space-y-1 text-[1.5rem]">

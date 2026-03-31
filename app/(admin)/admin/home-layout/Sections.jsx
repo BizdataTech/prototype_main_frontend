@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
+import { DotsThree } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -11,7 +12,7 @@ const Sections = () => {
 
   useEffect(() => {
     getSections();
-  });
+  }, []);
 
   const getSections = async () => {
     try {
@@ -19,6 +20,7 @@ const Sections = () => {
         withCredentials: true,
       });
       setSections(res.data?.sections);
+      console.log("sections:", res.data?.sections);
     } catch (err) {
       console.log(err.message);
       toast.error("Something Went Wrong");
@@ -45,6 +47,38 @@ const Sections = () => {
               Add new section
             </Link>
           </p>
+        </div>
+      )}
+      {sections && sections.length >= 1 && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="a-section--title">Sections</div>
+            <Link
+              href={"/admin/home-layout/section-management"}
+              className="text-purple-700 underline text-[1.4rem]"
+            >
+              Add new section
+            </Link>
+          </div>
+
+          <section className="a-section--box a-section--title !p-2">
+            <div className="flex items-center justify-between">
+              <div className="p-2">Section Type</div>
+              <div className="p-2">Options</div>
+            </div>
+            <div>
+              {sections.map((obj) => (
+                <div className="flex items-center justify-between odd:bg-neutral-100 p-2">
+                  <div className="capitalize">
+                    {obj.section_type.replace("_", " ")}
+                  </div>
+                  <div className="mr-6">
+                    <DotsThree className="w-[2rem] h-[2rem]" weight="bold" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       )}
     </section>

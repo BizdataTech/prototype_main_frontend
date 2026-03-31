@@ -85,20 +85,3 @@ frontend/
 2. Add `page.jsx` component
 3. Create custom hook in same folder (`use[PageName].js`)
 4. Add route to `data/adminRouteData.js`
-
-### Use Admin Context
-
-
-### Make API Calls
-
-```jsx
-import axios from "axios";
-
-const fetchData = async () => {
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const res = await axios(`${BACKEND_URL}/api/endpoint`, {
-    withCredentials: true,
-  });
-  return res.data;
-};
-```

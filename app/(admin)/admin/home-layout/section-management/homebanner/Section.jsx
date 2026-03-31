@@ -3,9 +3,11 @@ import Banner from "./Banner";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Spinner } from "phosphor-react";
 
 const HomeBannerSection = () => {
-  let [bannerType, setBannerType] = useState("carousel");
+  let [bannerType, setBannerType] = useState("single");
   let [multiple, setMultiple] = useState(true);
 
   const bannerSchema = {
@@ -21,6 +23,7 @@ const HomeBannerSection = () => {
   let [bannerBox, setBannerBox] = useState(false);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const router = useRouter();
 
   useEffect(() => {
     setMultiple(bannerType === "carousel" ? true : false);
@@ -30,6 +33,8 @@ const HomeBannerSection = () => {
     setBanners((prev) => [...prev, currentBanner]);
     setCurrentBanner(bannerSchema);
   };
+
+  const [loading, setLoading] = useState(false);
 
   const submitBannerSection = async () => {
     try {
@@ -46,11 +51,16 @@ const HomeBannerSection = () => {
         }
       });
 
+      setLoading(true);
       let res = await axios.post(`${BACKEND_URL}/api/home-sections`, formData, {
         withCredentials: true,
       });
-      toast.message(res.data?.message);
+      setLoading(false);
+
+      toast.success(res.data?.message);
+      router.replace("/admin/home-layout");
     } catch (error) {
+      setLoading(false);
       console.log(error.message);
       toast.error("Something Went Wrong!");
     }
@@ -123,10 +133,18 @@ const HomeBannerSection = () => {
           </div>
         )}
         <button
-          className="a-text--button bg-black text-white !py-4 mt-4 self-end"
+          className={`a-text--button bg-black text-white ${loading ? "!cursor-not-allowed opacity-70" : "cursor-pointer"} !py-4 mt-4 self-end`}
           onClick={submitBannerSection}
+          disabled={loading}
         >
-          Submit Home Banner Section
+          {loading ? (
+            <div className="flex items-center gap-1">
+              Subitting Section{" "}
+              <Spinner className="w-[1.7rem] h-[1.7rem] animate-spin" />
+            </div>
+          ) : (
+            "Submit Home Section"
+          )}
         </button>
       </section>
       {bannerBox &&

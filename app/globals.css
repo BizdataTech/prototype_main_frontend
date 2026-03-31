@@ -32,6 +32,26 @@ html {
   @apply text-[1.4rem] py-2 px-2 font-medium;
 }
 
+.a-animation--container {
+  @apply bg-neutral-200 overflow-x-hidden rounded-[1rem] relative;
+}
+.a-animation--mask {
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent;
+}
+
+.a-animation--effect {
+  animation: shimmer--animation 2s infinite;
+}
+
+@keyframes shimmer--animation {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 .shimmer {
   @apply py-5 bg-gradient-to-r from-neutral-200 via-neutral-400 to-neutral-200 overflow-x-hidden;
   background-size: 200% 100%;
