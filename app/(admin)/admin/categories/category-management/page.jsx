@@ -2,6 +2,7 @@
 
 import useCategories from "../useCategories.js";
 import AttributeSection from "./AttributeSection.jsx";
+import VariantSection from "./VariantSection.jsx";
 
 const CategoryManagement = () => {
   const {
@@ -21,6 +22,14 @@ const CategoryManagement = () => {
     submitCategory,
     deleteCategory,
     setAttributeCollection,
+    // New fields
+    slug, setSlug,
+    description, setDescription,
+    status, setStatus,
+    image, setImage,
+    globalVariants,
+    selectedVariants,
+    setSelectedVariants,
   } = useCategories();
 
   return (
@@ -45,6 +54,54 @@ const CategoryManagement = () => {
             onChange={(e) => handleCategoryTitle(e.target.value)}
           />
         </div>
+
+        {/* Extended Fields Section (Slug, Description, Status, Image) */}
+        <div className="section--category__new_fields a-section--box flex flex-col gap-4">
+          {/* Slug field: URL-friendly identifier. Auto-generates if left empty. */}
+          <div className="flex flex-col gap-2">
+            <label className="a-section--title text-sm">Slug (Optional)</label>
+            <input
+              type="text"
+              className="a-input"
+              placeholder="Auto-generated if left empty"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="a-section--title text-sm">Description</label>
+            <textarea
+              className="a-input min-h-[100px]"
+              placeholder="Category description..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            ></textarea>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="a-section--title text-sm">Status</label>
+            <select
+              className="a-input"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="a-section--title text-sm">Image URL</label>
+            <input
+              type="text"
+              className="a-input"
+              placeholder="https://example.com/image.jpg"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            />
+          </div>
+        </div>
         {/* category level selections */}
         <div className="a-section--box">
           <div className="flex items-center justify-between">
@@ -56,7 +113,7 @@ const CategoryManagement = () => {
 
           <div className="flex gap-12">
             {levels.map((level) => (
-              <div className="flex items-center gap-2">
+              <div key={level} className="flex items-center gap-2">
                 <input
                   checked={selectedLevel === level}
                   type="radio"
@@ -150,7 +207,16 @@ const CategoryManagement = () => {
           </div>
         </div>
       </section>
-      <AttributeSection setCollection={setAttributeCollection} />
+      <div className="w-5/12 flex flex-col gap-6">
+        <AttributeSection setCollection={setAttributeCollection} />
+        
+        {/* Variants Selection Section */}
+        <VariantSection 
+          globalVariants={globalVariants} 
+          selectedVariants={selectedVariants} 
+          setSelectedVariants={setSelectedVariants} 
+        />
+      </div>
     </main>
   );
 };

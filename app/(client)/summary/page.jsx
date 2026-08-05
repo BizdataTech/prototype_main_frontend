@@ -83,7 +83,7 @@ const OrderSummary = () => {
                 >
                   <div className="w-5/6">
                     <p className="font-medium text-[1.6rem]">
-                      {item.productId.parentId.product_title} - {item.quantity}x
+                      {item.productId.product_title || item.productId.parentId?.product_title} - {item.quantity}x
                     </p>
                     <p className="text-[1.5rem]">
                       Subtotal: Rs {item.productId.price * item.quantity}

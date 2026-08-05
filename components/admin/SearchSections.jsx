@@ -1,11 +1,13 @@
 import { MagnifyingGlass } from "phosphor-react";
 
-const SearchSection = ({ placeholder }) => {
+const SearchSection = ({ placeholder, value, onChange }) => {
   return (
     <div className="relative w-3/6  bg-neutral-200 rounded-[.5rem] ">
       <input
         type="text"
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="w-full text-[1.4rem] outline-none p-4"
       />
       <MagnifyingGlass className="absolute top-[50%] -translate-y-[50%] right-4 w-[1.5rem] h-[1.5rem]" />

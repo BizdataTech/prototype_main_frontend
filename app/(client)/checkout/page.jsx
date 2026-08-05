@@ -37,7 +37,7 @@ const Checkout = () => {
                 >
                   <div className="left min-w-0 font-medium space-y-4">
                     <p className="truncate text-[1.5rem] text-neutral-600">
-                      {item.productId.parentId.product_title}
+                      {item.productId.product_title || item.productId.parentId?.product_title}
                     </p>
                     <p className="text-[1.8rem]">Rs {item.productId.price}</p>
                   </div>

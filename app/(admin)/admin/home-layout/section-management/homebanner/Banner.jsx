@@ -185,7 +185,7 @@ const Banner = ({ banner, setBanner, submit, close }) => {
               {references.map((ref) => {
                 let value = ref.title.replace(/\s+/g, "_");
                 return (
-                  <div className="flex items-center gap-4 bg-neutral-200 p-2 rounded-[.5rem]">
+                  <div key={ref._id} className="flex items-center gap-4 bg-neutral-200 p-2 rounded-[.5rem]">
                     <input
                       type="radio"
                       name="id"

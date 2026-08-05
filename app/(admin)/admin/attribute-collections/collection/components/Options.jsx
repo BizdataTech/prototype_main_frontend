@@ -101,6 +101,7 @@ const Options = ({ options, setData, setUpdateInfo, updateDocOptions }) => {
           </div>
           {options.map((value) => (
             <div
+              key={value} // Added unique key to each option element to satisfy React list key requirement
               className="grid grid-cols-2 items-center even:bg-neutral-100 cursor-pointer group"
               onClick={() => handleUpdate(value)}
             >

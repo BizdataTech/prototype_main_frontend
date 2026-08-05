@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import ModalDeleteButton from "@/components/admin/ModalDeleteButton";
 import Link from "next/link";
 
-const Product = ({ product, refetch }) => {
+const Product = ({ product, refetch, selected, onSelect }) => {
   let { product_title, category, brand, createdAt } = product;
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
@@ -34,33 +34,44 @@ const Product = ({ product, refetch }) => {
   };
 
   return (
-    <div className="grid grid-cols-5 items-center even:bg-neutral-100">
-      <div className="p-4">{product_title}</div>
-      <div className="p-4">{category?.title}</div>
-      <div className="p-4">{brand?.brand_name}</div>
-      <div className="p-4">{dayjs(createdAt).format("DD-MM-YYYY")}</div>
-      <div className="relative p-4 ml-auto">
+    <div className="grid grid-cols-[40px_1fr_1fr_1fr_1fr_1fr] items-center border-b border-neutral-100 last:border-none hover:bg-neutral-50 transition-colors bg-white text-[1.3rem]">
+      <div className="p-4 flex items-center justify-center">
+        <input 
+          type="checkbox" 
+          className="w-5 h-5 cursor-pointer"
+          checked={!!selected}
+          onChange={(e) => onSelect(e.target.checked)}
+        />
+      </div>
+      <div className="p-4 font-medium text-neutral-800 truncate">{product_title}</div>
+      <div className="p-4 text-neutral-600 truncate">{category?.title || "-"}</div>
+      <div className="p-4 text-neutral-600 truncate">{brand?.brand_name || "-"}</div>
+      <div className="p-4 text-neutral-600">{dayjs(createdAt).format("DD-MM-YYYY")}</div>
+      <div className="relative p-4 flex justify-end">
         <DotsThree
           weight="bold"
-          className="w-[5rem] h-8 cursor-pointer"
+          className="w-[2.4rem] h-[2.4rem] cursor-pointer text-neutral-500 hover:text-black transition-colors"
           onClick={() => setBox(true)}
         />
         {box && (
           <ul
-            className="absolute bg-white flex flex-col items-center shadow-sm right-[50%]"
+            className="absolute bg-white flex flex-col items-center shadow-md right-8 top-10 border border-neutral-200 rounded-[.4rem] overflow-hidden z-10 w-[120px]"
             ref={boxRef}
           >
             <li
-              className={`w-full  text-center hover:bg-neutral-100 ${loading ? "cursor-not-allowed opacity-70" : "cursor-pointer"} py-2 px-8`}
+              className={`w-full text-center hover:bg-neutral-100 transition-colors ${loading ? "cursor-not-allowed opacity-70" : "cursor-pointer"} py-2 px-4 border-b border-neutral-100`}
             >
               <Link
                 href={`/admin/products/product-management?id=${product._id}`}
+                className="block w-full"
               >
-                Update
+                Edit
               </Link>
             </li>
-            <li>
-              <ModalDeleteButton loading={loading} dlt={deleteProduct} />
+            <li className="w-full">
+              <div className="w-full flex justify-center py-2 px-4 hover:bg-neutral-100 transition-colors">
+                 <ModalDeleteButton loading={loading} dlt={deleteProduct} />
+              </div>
             </li>
           </ul>
         )}

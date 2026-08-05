@@ -72,7 +72,7 @@ const ProductList = () => {
     const getCategory = async () => {
       try {
         let response = await fetch(
-          `${BACKEND_URL}/api/categories/${category}?filter=product-list`,
+          `${BACKEND_URL}/api/auto-categories/${category}?filter=product-list`,
           { method: "GET" }
         );
         let data = await response.json();

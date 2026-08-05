@@ -9,8 +9,14 @@ const CartProvider = ({ children }) => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { user } = useContext(UserContext);
 
+  // Fetch cart data whenever the logged-in user state changes
   useEffect(() => {
     const getCart = async () => {
+      // Abort cart fetching for guest users to prevent 401 console error logs
+      if (!user) {
+        setCart(null);
+        return;
+      }
       try {
         let response = await fetch(`${BACKEND_URL}/api/cart`, {
           method: "GET",
@@ -51,21 +57,56 @@ const CartProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = (id) => {};
+  const removeFromCart = async (productId) => {
+    try {
+      let response = await fetch(`${BACKEND_URL}/api/cart/${productId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      let result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+      setCart(result.cart);
+      toast.success("Product removed from cart");
+    } catch (error) {
+      console.error("Remove from cart error:", error.message);
+      toast.error("Failed to remove product from cart");
+    }
+  };
 
-  const updateQuantity = () => {};
+  const updateQuantity = async (productId, quantity) => {
+    if (quantity < 1) return;
+    try {
+      let response = await fetch(`${BACKEND_URL}/api/cart`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ productId, quantity }),
+      });
+      let result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+      setCart(result.cart);
+    } catch (error) {
+      console.error("Update quantity error:", error.message);
+      toast.error("Failed to update cart quantity");
+    }
+  };
 
-  const getCartTotal = () => {};
+  const getCartTotal = () => {
+    return cart?.cartTotal || 0;
+  };
 
   const clearCart = async () => {
     try {
-      let response = await fetch(`${BACKEND_URL}api/cart`, {
+      let response = await fetch(`${BACKEND_URL}/api/cart`, {
         method: "DELETE",
         credentials: "include",
       });
       let data = await response.json();
       if (!response.ok) throw new Error(data.message);
       setCart(null);
+      toast.success("Cart cleared");
       console.log("cart cleared");
       return true;
     } catch (error) {

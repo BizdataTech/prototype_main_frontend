@@ -28,8 +28,9 @@ const Images = ({ utility_object, error }) => {
               <div className="font-medium">Add Image</div>
             </div>
             {images.length > 0 &&
-              images.map((image) => (
+              images.map((image, index) => (
                 <div
+                  key={image.public_id || image.preview || image.url || index}
                   className="border-2 border-dashed text-neutral-400 p-4 cursor-pointer relative"
                   onMouseOver={() => setCurrentImage(image)}
                 >

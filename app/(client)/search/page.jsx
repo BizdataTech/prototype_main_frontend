@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import ProductlistBody from "../category/[category]/ProductlistBody";
 import ProductlistSidebar from "../category/[category]/ProductlistSidebar";
 import { useSearchParams } from "next/navigation";
 
-const SearchResult = () => {
+const SearchResultContent = () => {
   let [products, setProducts] = useState([]);
   let sidebar = [];
   let categoryObject = {};
@@ -49,6 +49,14 @@ const SearchResult = () => {
         </div>
       </div>
     </main>
+  );
+};
+
+const SearchResult = () => {
+  return (
+    <Suspense fallback={<div className="pt-[15rem] text-center text-[1.6rem]">Searching products...</div>}>
+      <SearchResultContent />
+    </Suspense>
   );
 };
 

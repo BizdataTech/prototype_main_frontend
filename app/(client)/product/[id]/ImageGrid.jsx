@@ -3,17 +3,18 @@
 import { useState } from "react";
 
 export const ImageGrid = ({ images }) => {
-  let [heroImage, setHeroImage] = useState(images[0]);
+  const imageUrls = images?.map(img => typeof img === 'string' ? img : img?.url).filter(Boolean) || [];
+  let [heroImage, setHeroImage] = useState(imageUrls[0]);
   return (
     <div className="md:w-3/6 bg-white flex p-4 self-start">
       <div className="flex flex-col gap-4 items-center justify-start">
-        {images.map((image, index) => (
+        {imageUrls.map((url, index) => (
           <img
-            src={image}
+            src={url}
             alt={`product ${index}`}
             key={index}
             className="w-[6rem] h-[6rem] border border-black p-1 cursor-pointer"
-            onMouseEnter={() => setHeroImage(image)}
+            onMouseEnter={() => setHeroImage(url)}
           />
         ))}
       </div>

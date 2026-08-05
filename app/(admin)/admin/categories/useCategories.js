@@ -12,9 +12,20 @@ const useCategories = () => {
   const [parents, setParents] = useState([]);
   const [selectedParent, setSelectedParent] = useState(null);
   const [errors, setErrors] = useState({});
+
   const [navbar, setNavbar] = useState(false);
+  
+  // New state variables for extended category fields
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("Active"); // Defaults to Active
+  const [image, setImage] = useState("");
 
   const [attributeCollection, setAttributeCollection] = useState(null);
+
+  // Variants mapping
+  const [globalVariants, setGlobalVariants] = useState([]);
+  const [selectedVariants, setSelectedVariants] = useState([]);
 
   const router = useRouter();
   const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -33,12 +44,17 @@ const useCategories = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        const { title, level, parent } = data.category;
+        const { title, level, parent, slug, description, status, image, variants } = data.category;
         setActualCategoryTitle(title);
         setCategoryTitle(title);
         setSelectedLevel(level);
-        setSelectedParent(parent._id);
+        setSelectedParent(parent ? parent._id : null);
         setParents(data.parents);
+        setSlug(slug || "");
+        setDescription(description || "");
+        setStatus(status || "Active");
+        setImage(image || "");
+        setSelectedVariants(variants || []);
         console.log("parent:", parent);
       }
     };
@@ -87,6 +103,15 @@ const useCategories = () => {
       }
     }
     fetchLevels();
+
+    async function fetchVariants() {
+      const response = await fetch(`${BACKEND_API_URL}/api/variants`);
+      const data = await response.json();
+      if (response.ok) {
+        setGlobalVariants(data.variants || []);
+      }
+    }
+    fetchVariants();
   }, []);
 
   const handleCategoryTitle = (value) => {
@@ -171,6 +196,11 @@ const useCategories = () => {
         isNavItem: navbar,
         parent: selectedParent,
         attribute_collection: attributeCollection,
+        slug,
+        description,
+        status,
+        image,
+        variants: selectedVariants,
       };
       let response;
       if (action === "create") {
@@ -260,6 +290,13 @@ const useCategories = () => {
     navbar,
     setNavbar,
     errors,
+    slug, setSlug,
+    description, setDescription,
+    status, setStatus,
+    image, setImage,
+    globalVariants,
+    selectedVariants,
+    setSelectedVariants
   };
 };
 

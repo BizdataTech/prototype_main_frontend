@@ -16,7 +16,7 @@ export const useSearch = () => {
     if (!query || query.trim().length < 2) {
       setLoading(false);
       setOpen(false);
-      setSuggessions(false);
+      setSuggessions([]);
       return;
     }
     debounce.current = setTimeout(async () => {

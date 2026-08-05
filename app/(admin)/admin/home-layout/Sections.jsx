@@ -68,7 +68,7 @@ const Sections = () => {
             </div>
             <div>
               {sections.map((obj) => (
-                <div className="flex items-center justify-between odd:bg-neutral-100 p-2">
+                <div key={obj._id} className="flex items-center justify-between odd:bg-neutral-100 p-2">
                   <div className="capitalize">
                     {obj.section_type.replace("_", " ")}
                   </div>

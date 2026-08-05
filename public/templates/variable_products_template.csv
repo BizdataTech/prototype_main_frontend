@@ -1,0 +1,4 @@
+Type,SKU,Parent SKU,Name,Description,Price,Sale Price,Stock,Status,Category,Brand,Images,Attribute 1 Name,Attribute 1 Value,Attribute 2 Name,Attribute 2 Value
+variable,SHIRT1,,Shirt,"Comfortable cotton shirt",,,0,Active,Apparel,Nike,,Color,"Red, Blue",Size,"S, M, L"
+variation,SHIRT1-RED-S,SHIRT1,Shirt - Red / S,,499,399,10,Active,,,https://images.unsplash.com/photo-1521572267360-ee0c2909d518,Color,Red,Size,S
+variation,SHIRT1-BLUE-M,SHIRT1,Shirt - Blue / M,,499,399,15,Active,,,https://images.unsplash.com/photo-1581655353564-df123a1eb820,Color,Blue,Size,M

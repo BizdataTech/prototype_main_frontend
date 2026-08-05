@@ -37,11 +37,17 @@ const Brand = ({ brand, slno, refetch, open }) => {
       <div className="p-4">{slno}</div>
       <div className="p-4">{brand_name}</div>
       <div className="p-4">
-        <img
-          src={image.url}
-          alt={`${brand_name} logo`}
-          className="w-[2.5rem] h-[2.5rem] object-contain"
-        />
+        {image?.url ? (
+          <img
+            src={image.url}
+            alt={`${brand_name} logo`}
+            className="w-[2.5rem] h-[2.5rem] object-contain"
+          />
+        ) : (
+          <div className="w-[2.5rem] h-[2.5rem] rounded bg-neutral-200 flex items-center justify-center text-neutral-400 text-[1rem] font-bold">
+            {brand_name?.[0]?.toUpperCase() || "?"}
+          </div>
+        )}
       </div>
       <div className="p-4">{dayjs(createdAt).format("DD-MM-YYYY")}</div>
       <div className="p-4 ml-auto mr-8 relative">

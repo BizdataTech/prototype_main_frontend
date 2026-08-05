@@ -1,0 +1,3 @@
+Type,SKU,Parent SKU,Name,Description,Price,Sale Price,Stock,Status,Category,Brand,Images
+simple,IPHONE15,,"iPhone 15","Latest iPhone 15 with A16 Bionic chip and 48MP camera",79999,74999,50,Active,Smartphones,Apple,"https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5,https://images.unsplash.com/photo-1565849906660-f86d63428d09"
+simple,SAMS24,,"Samsung Galaxy S24","Flagship Android smartphone with Galaxy AI capabilities",89999,84999,35,Active,Smartphones,Samsung,"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf"
