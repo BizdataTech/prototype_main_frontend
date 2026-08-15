@@ -25,13 +25,13 @@ export const useSearch = () => {
       setSuggessions([]);
       setOpen(true);
       try {
-        let url = `${BACKEND_URL}/api/search/suggestions?query=${encodeURIComponent(
+        let url = `${BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
           newQuery
-        )}&limit=7`;
+        )}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error("Network response not Ok!");
         const data = await response.json();
-        const items = data.result || [];
+        const items = (data.products || []).slice(0, 7);
         setLoading(false);
         console.log("items:", items);
 

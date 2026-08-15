@@ -72,25 +72,28 @@ const HeaderMiddle = () => {
                   </div>
                 )}
                 {!loading && suggessions.length > 0 ? (
-                  suggessions.map((suggestion) => (
-                    <Link
-                      className="flex items-center justify-between p-3 hover:bg-neutral-100 rounded-xl cursor-pointer text-[1.4rem] transition-colors mb-1 last:mb-0"
-                      href={`/product/${suggestion.variant?._id || suggestion._id}`}
-                      onClick={() => setOpen(false)}
-                      key={suggestion.variant?._id || suggestion._id}
-                    >
-                      <div className="text-neutral-700 font-medium truncate max-w-[80%]">
-                        {suggestion.product_title}
-                      </div>
-                      {suggestion.thumbnail && (
-                        <img
-                          src={suggestion.thumbnail}
-                          alt={suggestion.product_title}
-                          className="w-[3.5rem] h-[3.5rem] object-cover rounded-lg border border-neutral-200"
-                        />
-                      )}
-                    </Link>
-                  ))
+                  suggessions.map((suggestion) => {
+                    const imageSrc = suggestion.variant?.images?.[0] || suggestion.thumbnail;
+                    return (
+                      <Link
+                        className="flex items-center justify-between p-3 hover:bg-neutral-100 rounded-xl cursor-pointer text-[1.4rem] transition-colors mb-1 last:mb-0"
+                        href={`/product/${suggestion.variant?._id || suggestion._id}`}
+                        onClick={() => setOpen(false)}
+                        key={suggestion.variant?._id || suggestion._id}
+                      >
+                        <div className="text-neutral-700 font-medium truncate max-w-[80%]">
+                          {suggestion.product_title}
+                        </div>
+                        {imageSrc && (
+                          <img
+                            src={imageSrc}
+                            alt={suggestion.product_title}
+                            className="w-[3.5rem] h-[3.5rem] object-cover rounded-lg border border-neutral-200"
+                          />
+                        )}
+                      </Link>
+                    );
+                  })
                 ) : !loading ? (
                   <div className="text-[1.4rem] text-neutral-500 text-center py-2">No matches found.</div>
                 ) : null}

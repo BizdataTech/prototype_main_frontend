@@ -4,6 +4,12 @@ const signupSchema = z
   .object({
     username: z.string().nonempty("Field required"),
     email: z.string().email("Enter valid email").nonempty("Field required"),
+    phone: z.string().nonempty("Field required"),
+    pincode: z.string().nonempty("Field required"),
+    locality: z.string().optional(),
+    address: z.string().nonempty("Field required"),
+    city: z.string().nonempty("Field required"),
+    state: z.string().nonempty("Field required"),
     password: z
       .string()
       .min(6, "Min 6 chars required")

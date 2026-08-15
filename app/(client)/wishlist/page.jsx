@@ -63,27 +63,31 @@ const WishlistPage = () => {
             const title = product.product_title || product.parentId?.product_title;
             const brand = product.brand?.brand_name || product.brand || product.parentId?.brand;
             const image = (product.images && product.images[0]?.url) || (product.images && product.images[0]) || (product.parentId?.images && product.parentId.images[0]);
+            
+            const isOutOfStock = product.stock <= 0;
+            const isInvalidPrice = !product.price || Number(product.price) <= 0;
+            const canAddToCart = !isOutOfStock && !isInvalidPrice;
 
             return (
               <div
                 key={item?._id || index}
-                className="border border-neutral-200 rounded-3xl p-6 bg-white flex flex-col justify-between hover:shadow-lg transition-all group relative"
+                className="border-1 border-neutral-300 hover:border-neutral-500 rounded-[.5rem] p-6 bg-white flex flex-col justify-between hover:shadow-[0_0_.4rem_rgb(210,210,210)] transition-all group relative cursor-pointer"
               >
                 <div>
                   {/* Product image */}
-                  <div className="relative aspect-square w-full mb-4 bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-100 flex items-center justify-center">
+                  <div className="relative h-[15rem] w-full mb-4 overflow-hidden flex items-center justify-center">
                     {image ? (
                       <img
                         src={image}
                         alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-[15rem] h-full object-contain transition-transform duration-300"
                       />
                     ) : (
                       <div className="text-[1.2rem] text-neutral-400">No Image Available</div>
                     )}
                     <button
-                      onClick={() => removeFromWishlist(product._id)}
-                      className="absolute top-3 right-3 bg-white/80 hover:bg-white text-neutral-400 hover:text-red-650 p-2 rounded-full border border-neutral-200 transition-colors shadow-sm"
+                      onClick={(e) => { e.preventDefault(); removeFromWishlist(product._id); }}
+                      className="absolute top-2 right-2 bg-white/80 hover:bg-white text-neutral-400 hover:text-[#b00015] p-2 rounded-full border border-neutral-200 transition-colors shadow-sm"
                       title="Remove from Wishlist"
                     >
                       <Trash className="w-[1.8rem] h-[1.8rem]" />
@@ -91,13 +95,13 @@ const WishlistPage = () => {
                   </div>
 
                   {/* Product info */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[1.25rem] text-neutral-400 font-bold uppercase tracking-wider">{brand}</span>
-                    <h4 className="font-extrabold text-[1.6rem] text-neutral-850 line-clamp-2 min-h-[4.8rem]">
-                      {title}
+                  <div className="flex flex-col items-center mt-6 text-center">
+                    <h4 className="font-medium text-[1.8rem] text-neutral-700 leading-[2rem] line-clamp-2 min-h-[4rem]">
+                      {title?.split(" ").slice(0, 5).join(" ")}
                     </h4>
-                    <div className="text-[2rem] font-extrabold text-neutral-900 mt-2">
-                      ${product.price}
+                    <span className="text-[1.4rem] text-neutral-500 mt-2">{brand}</span>
+                    <div className="text-[1.7rem] font-medium mt-4 text-black">
+                      Rs {Number(product.price || 0)}
                     </div>
                   </div>
                 </div>
@@ -105,15 +109,20 @@ const WishlistPage = () => {
                 {/* Actions */}
                 <div className="flex flex-col gap-2 mt-6">
                   <button
-                    className="w-full flex items-center justify-center gap-2 bg-[#b00015] hover:bg-red-800 text-white font-bold py-3 rounded-full text-[1.4rem] transition-colors shadow-sm"
-                    onClick={() => handleMoveToCart(product._id)}
+                    disabled={!canAddToCart}
+                    className={`w-full flex items-center justify-center gap-2 font-medium py-3 rounded-[.4rem] text-[1.4rem] transition-colors shadow-sm ${
+                      canAddToCart 
+                        ? 'bg-[#b00015] hover:bg-red-800 text-white' 
+                        : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+                    }`}
+                    onClick={(e) => { e.preventDefault(); handleMoveToCart(product._id); }}
                   >
                     <ShoppingCart className="w-[1.8rem] h-[1.8rem]" />
-                    Move to Cart
+                    {isOutOfStock ? "Out of Stock" : isInvalidPrice ? "Price Unavailable" : "Move to Cart"}
                   </button>
                   <Link
                     href={`/product/${product._id}`}
-                    className="w-full flex items-center justify-center gap-1.5 border border-neutral-200 hover:border-black text-neutral-700 hover:text-black py-3 rounded-full text-[1.3rem] font-bold transition-all text-center"
+                    className="w-full flex items-center justify-center gap-1.5 border border-neutral-300 hover:border-black text-neutral-700 hover:text-black py-3 rounded-[.4rem] text-[1.3rem] font-medium transition-all text-center"
                   >
                     View Details
                     <ArrowRight className="w-4 h-4" />

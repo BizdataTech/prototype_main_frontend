@@ -1,6 +1,6 @@
 const ProductlistSidebar = ({ sidebar, filterProducts }) => {
   return (
-    <div className="w-[20%] bg-white p-6 rounded-[.4rem] space-y-8">
+    <div className="w-[20%] bg-white p-6 rounded-[.4rem] space-y-8 sticky top-[16rem] self-start">
       {sidebar.map((content, index) => {
         if (content.data) {
           return (
@@ -30,16 +30,18 @@ const ProductlistSidebar = ({ sidebar, filterProducts }) => {
           );
         }
       })}
-      <div className="space-y-[1rem]">
-        <div className="shimmer w-[50%]"></div>
-        <div className="space-y-2">
-          {Array(4)
-            .fill(undefined)
-            .map((_, shimmerIdx) => (
-              <div key={shimmerIdx} className="shimmer w-full"></div>
-            ))}
+      {sidebar.length === 0 && (
+        <div className="space-y-[1rem]">
+          <div className="shimmer w-[50%]"></div>
+          <div className="space-y-2">
+            {Array(4)
+              .fill(undefined)
+              .map((_, shimmerIdx) => (
+                <div key={shimmerIdx} className="shimmer w-full"></div>
+              ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

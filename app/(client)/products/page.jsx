@@ -10,6 +10,7 @@ const ProductsContent = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filter, setFilter] = useState({});
   const [sidebar, setSidebar] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -25,7 +26,20 @@ const ProductsContent = () => {
         console.log("error:", error.message);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auto-categories?filter=product-category`;
+        const response = await fetch(url, { method: "GET" });
+        const data = await response.json();
+        if (response.ok) {
+          setDbCategories(data.categories || []);
+        }
+      } catch (error) {
+        console.log("error:", error.message);
+      }
+    };
     fetchProducts();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -53,13 +67,19 @@ const ProductsContent = () => {
 
   useEffect(() => {
     const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))];
+    const categories = [...new Set(dbCategories.map((c) => c.title).filter(Boolean))];
     const obj1 = {
       head: "Brands",
       label: "brand",
       data: brands,
     };
-    setSidebar([obj1]);
-  }, [products]);
+    const obj2 = {
+      head: "Categories",
+      label: "category",
+      data: categories,
+    };
+    setSidebar([obj2, obj1]);
+  }, [products, dbCategories]);
 
   return (
     <main className="bg-pattern">

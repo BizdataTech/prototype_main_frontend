@@ -220,12 +220,16 @@ const useProducts = (id = null) => {
   // ─── Fetch categories ────────────────────────────────────────────────────────
   useEffect(() => {
     const getCategories = async () => {
-      const response = await fetch(
-        `${BACKEND_URL}/api/auto-categories?filter=product-category`,
-        { method: "GET" }
-      );
-      const data = await response.json();
-      setCategories(data.categories);
+      try {
+        const response = await fetch(
+          `${BACKEND_URL}/api/auto-categories?filter=product-category`,
+          { method: "GET" }
+        );
+        const data = await response.json();
+        setCategories(Array.isArray(data.categories) ? data.categories : []);
+      } catch (error) {
+        console.log("error fetching categories:", error.message);
+      }
     };
     getCategories();
   }, []);
@@ -251,6 +255,7 @@ const useProducts = (id = null) => {
   useEffect(() => {
     const getCategoryAttributes = async () => {
       try {
+        if (!selectedCategory?._id) return;
         let res = await axios.get(
           `${BACKEND_URL}/api/categories/${selectedCategory._id}/attribute-collections`,
           { withCredentials: true }
@@ -391,7 +396,7 @@ const useProducts = (id = null) => {
       setUpdateData((prev) => {
         let new_update = { ...prev };
         delete new_update.attributes;
-        if (category._id !== product.category._id)
+        if (category._id !== product.category?._id)
           new_update.category = category._id;
         else delete new_update.category;
         return new_update;
@@ -485,7 +490,7 @@ const useProducts = (id = null) => {
     else
       setUpdateData((prev) => {
         let new_update = { ...prev };
-        new_update.images = new_update.images.filter(
+        new_update.images = (new_update.images || []).filter(
           (imgFile) => imgFile !== image.file
         );
         if (!new_update.images.length) delete new_update.images;
