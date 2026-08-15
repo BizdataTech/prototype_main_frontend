@@ -70,6 +70,39 @@ const SignUpForm = () => {
           <p className="error--input">{errors.email?.message}</p>
         )}
       </div>
+
+      {/* Address Details */}
+      <h3 className="text-[1.6rem] font-medium text-neutral-700 mt-2 border-b pb-2">Address Details</h3>
+      <div className="flex gap-4">
+        <div className="w-full">
+          <input type="text" placeholder="Phone Number" className="input--form" {...register("phone")} />
+          {errors.phone && <p className="error--input">{errors.phone?.message}</p>}
+        </div>
+        <div className="w-full">
+          <input type="text" placeholder="Pincode" className="input--form" {...register("pincode")} />
+          {errors.pincode && <p className="error--input">{errors.pincode?.message}</p>}
+        </div>
+      </div>
+      <div className="w-full">
+        <textarea placeholder="Address (Area and Street)" className="input--form min-h-[8rem] resize-none" {...register("address")} />
+        {errors.address && <p className="error--input">{errors.address?.message}</p>}
+      </div>
+      <div className="w-full">
+        <input type="text" placeholder="Locality (Optional)" className="input--form" {...register("locality")} />
+        {errors.locality && <p className="error--input">{errors.locality?.message}</p>}
+      </div>
+      <div className="flex gap-4 mb-2">
+        <div className="w-full">
+          <input type="text" placeholder="City/District/Town" className="input--form" {...register("city")} />
+          {errors.city && <p className="error--input">{errors.city?.message}</p>}
+        </div>
+        <div className="w-full">
+          <input type="text" placeholder="State" className="input--form" {...register("state")} />
+          {errors.state && <p className="error--input">{errors.state?.message}</p>}
+        </div>
+      </div>
+
+      <h3 className="text-[1.6rem] font-medium text-neutral-700 mt-2 border-b pb-2">Security</h3>
       <div className="passwords flex gap-4">
         <div className="password w-full">
           <input

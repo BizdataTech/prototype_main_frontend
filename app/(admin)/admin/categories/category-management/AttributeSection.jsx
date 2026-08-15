@@ -23,7 +23,7 @@ const AttributeSection = ({ setCollection }) => {
     }
   };
   return (
-    <section className="w-5/12 a-section--box flex flex-col gap-4 self-start">
+    <section className="w-full a-section--box flex flex-col gap-4 self-start">
       <div>
         <div className="a-section--title">Attribute Selection</div>
         <div className="a-text--body">
@@ -47,12 +47,15 @@ const AttributeSection = ({ setCollection }) => {
           id=""
           className="a-input cursor-pointer"
           onChange={(e) => setCollection(e.target.value)}
+          defaultValue=""
         >
-          <option value="" className="cursor-pointer" disabled selected>
+          <option value="" className="cursor-pointer" disabled>
             Select One Collection
           </option>
           {collections.map((coll) => (
-            <option value={coll._id}>{coll.collection_name}</option>
+            <option key={coll._id} value={coll._id}>
+              {coll.collection_name}
+            </option>
           ))}
         </select>
       </div>

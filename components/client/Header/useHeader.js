@@ -9,7 +9,7 @@ export const useHeader = () => {
     const getCategories = async () => {
       try {
         let response = await fetch(
-          `${BACKEND_API_URL}/api/categories?filter=all-category`,
+          `${BACKEND_API_URL}/api/auto-categories?filter=all`,
           {
             method: "GET",
           }
@@ -17,7 +17,7 @@ export const useHeader = () => {
         let data = await response.json();
         if (!response.ok) throw new Error(data.message);
         else {
-          setCategories(data.categories);
+          setCategories(data.categories || []);
         }
       } catch (error) {
         console.log(error.message);
@@ -27,13 +27,23 @@ export const useHeader = () => {
   }, []);
 
   useEffect(() => {
-    const root = categories.filter((cata) => {
-      return cata.navbar;
+    if (!categories || categories.length === 0) return;
+    // Filter level 1 or parent-less categories as root categories
+    const roots = categories.filter((c) => !c.parent || c.level === 1);
+    const tree = roots.map((root) => {
+      const children = categories.filter(
+        (c) => c.parent && (c.parent._id === root._id || c.parent === root._id)
+      );
+      const childrenWithSubs = children.map((child) => {
+        const subSub = categories.filter(
+          (c) => c.parent && (c.parent._id === child._id || c.parent === child._id)
+        );
+        return { ...child, subcategories: subSub };
+      });
+      return { ...root, subcategories: childrenWithSubs };
     });
-    setRootCategories(root);
+    setRootCategories(tree);
   }, [categories]);
 
-  //   generate childrens
-
-  return { rootCategories };
+  return { rootCategories, categories };
 };

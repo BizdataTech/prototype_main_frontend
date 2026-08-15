@@ -44,7 +44,7 @@ const Footer = () => {
             </h3>
             <ul>
               <li className="text-lg leading-relaxed text-[1.5rem]">
-                Prototype Ashtamudi Towers TechnoPark Kollam 691501{" "}
+                Fortuneae FBM Building Material, Ashtamudi Towers TechnoPark Kollam 691501{" "}
               </li>
             </ul>
           </div>

@@ -14,8 +14,8 @@ const ProductlistBody = ({ query, products, categoryObject }) => {
 
       {products.length ? (
         <div className="grid grid-cols-4 gap-4 my-8">
-          {products.map((product) => (
-            <ProductCard product={product} />
+          {products.map((product, index) => (
+            <ProductCard key={product.variant?._id || product._id || index} product={product} />
           ))}
         </div>
       ) : (

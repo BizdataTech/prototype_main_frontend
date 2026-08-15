@@ -1,9 +1,32 @@
+"use client";
+
+import { useContext } from "react";
+import { WishlistContext } from "@/context/wishlistContext";
+import { CartContext } from "@/context/cartContext";
+import { useRouter } from "next/navigation";
+
 export const Details = ({ config }) => {
   let { product, addProducttoCart } = config;
   let { sections } = product.parent;
 
+  const { addToWishlist, removeFromWishlist, isInWishlist } =
+    useContext(WishlistContext);
+  const inWishlist = isInWishlist(product?._id);
+  
+  const { items } = useContext(CartContext);
+  const router = useRouter();
+  const inCart = items.some(item => item.productId?._id === product?._id || item.productId === product?._id);
+
+  const handleWishlistToggle = () => {
+    if (inWishlist) {
+      removeFromWishlist(product?._id);
+    } else {
+      addToWishlist(product?._id);
+    }
+  };
+
   return (
-    <div className="md:w-3/6 space-y-6">
+    <div className="w-full md:w-3/6 space-y-6">
       <section className="bg-white p-6 flex flex-col gap-4">
         <div className="space-y-2">
           <h1 className="text-[2.2rem] font-medium leading-[3rem]">
@@ -18,23 +41,39 @@ export const Details = ({ config }) => {
 
         <div className="space-y-[.5rem] mt-8 text-[1.6rem]">
           <div className="font-medium">Product Description</div>
-          <p className="line-clamp-4">{product?.parent?.description}</p>
+          <div 
+            className="whitespace-pre-wrap text-neutral-600 leading-relaxed" 
+            dangerouslySetInnerHTML={{ __html: product?.parent?.description }} 
+          />
         </div>
       </section>
-      <div className="grid grid-cols-2 gap-6 bg-white p-4">
-        <button className="button border border-neutral-900 text-neutral-900 bg-white cursor-pointer">
-          Add to Whishlist
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 bg-white p-4">
+        <button
+          className={`button border cursor-pointer transition-colors ${
+            inWishlist
+              ? "bg-red-50 border-red-400 text-red-600"
+              : "border-neutral-900 text-neutral-900 bg-white"
+          }`}
+          onClick={handleWishlistToggle}
+        >
+          {inWishlist ? "Wishlisted ♥" : "Add to Wishlist"}
         </button>
         <button
           className={`button bg-black text-white text-center ${
-            product?.stock <= 0
+            (!inCart && product?.stock <= 0)
               ? "cursor-not-allowed opacity-40"
               : "cursor-pointer"
           }  `}
-          onClick={() => addProducttoCart(product?._id)}
-          disabled={product?.stock <= 0}
+          onClick={() => {
+            if (inCart) {
+              router.push("/cart");
+            } else {
+              addProducttoCart(product?._id);
+            }
+          }}
+          disabled={!inCart && product?.stock <= 0}
         >
-          Add to Cart
+          {inCart ? "View Cart" : "Add to Cart"}
         </button>
       </div>
       {sections && (

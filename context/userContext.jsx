@@ -91,11 +91,131 @@ const UserProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (name) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setUser(data.user);
+      toast.success("Profile updated successfully!");
+      return true;
+    } catch (error) {
+      toast.error(error.message || "Failed to update profile");
+      return false;
+    }
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/change-password`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      toast.success("Password updated successfully!");
+      return true;
+    } catch (error) {
+      toast.error(error.message || "Failed to update password");
+      return false;
+    }
+  };
+
+  const deactivateAccount = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/deactivate`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setUser(null);
+      toast.success("Account deactivated successfully");
+      return true;
+    } catch (error) {
+      toast.error(error.message || "Failed to deactivate account");
+      return false;
+    }
+  };
+
+  const [addresses, setAddresses] = useState([]);
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (!user) {
+        setAddresses([]);
+        return;
+      }
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/addresses`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setAddresses(data.addresses || []);
+        }
+      } catch (error) {
+        console.error("Fetch addresses error:", error.message);
+      }
+    };
+    fetchAddresses();
+  }, [user]);
+
+  const addAddress = async (address) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/addresses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(address),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setAddresses(data.addresses || []);
+      toast.success("Address added successfully!");
+      return true;
+    } catch (error) {
+      toast.error(error.message || "Failed to add address");
+      return false;
+    }
+  };
+
+  const deleteAddress = async (addressId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/addresses/${addressId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setAddresses(data.addresses || []);
+      toast.success("Address deleted successfully!");
+      return true;
+    } catch (error) {
+      toast.error(error.message || "Failed to delete address");
+      return false;
+    }
+  };
+
   const value = {
     user,
     loginUser,
     registerUser,
     logoutUser,
+    updateProfile,
+    changePassword,
+    deactivateAccount,
+    addresses,
+    addAddress,
+    deleteAddress,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

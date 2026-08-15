@@ -2,11 +2,14 @@
 
 import { CartProvider } from "./cartContext";
 import { UserProvider } from "./userContext";
+import { WishlistProvider } from "./wishlistContext";
 
 const AppProvider = ({ children }) => {
   return (
     <UserProvider>
-      <CartProvider>{children}</CartProvider>
+      <WishlistProvider>
+        <CartProvider>{children}</CartProvider>
+      </WishlistProvider>
     </UserProvider>
   );
 };

@@ -34,7 +34,7 @@ html {
 }
 
 .a-section--box {
-  @apply border border-[#e3e3e3] bg-white pt-6 pb-7 px-6 rounded-[1rem] space-y-2;
+  @apply border border-[#e3e3e3] bg-white pt-6 pb-7 px-6 rounded-[1rem] flex flex-col gap-2;
 }
 
 .a-text--label {

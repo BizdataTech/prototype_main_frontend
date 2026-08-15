@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Prototype",
+  title: "Fortuneae FBM Building Material",
   description: "Ecommerce Application",
 };
 

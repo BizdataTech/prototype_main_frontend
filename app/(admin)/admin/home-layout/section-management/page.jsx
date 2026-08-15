@@ -16,6 +16,7 @@ const SectionManagement = () => {
               name="section_type"
               id="home_banner"
               checked={sectionType === "home_banner"}
+              onChange={() => setSectionType("home_banner")}
             />
             <label htmlFor="home_banner">Home Banner</label>
           </div>
@@ -25,6 +26,7 @@ const SectionManagement = () => {
               name="section_type"
               id="mid_page_banner"
               checked={sectionType === "mid_page_banner"}
+              onChange={() => setSectionType("mid_page_banner")}
             />
             <label htmlFor="mid_page_banner">Mid Page Banner</label>
           </div>
@@ -34,6 +36,7 @@ const SectionManagement = () => {
               name="section_type"
               id="product_listing"
               checked={sectionType === "product_listing"}
+              onChange={() => setSectionType("product_listing")}
             />
             <label htmlFor="product_listing">Product Listing</label>
           </div>

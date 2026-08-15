@@ -1,105 +1,123 @@
 "use client";
 
-import React, { useContext } from "react";
-import { useRouter } from "next/navigation";
-import { CartContext } from "@/context/cartContext";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { CheckCircle } from "phosphor-react";
 
 const OrderSummary = () => {
-  const router = useRouter();
-  const orderSuccessful = true;
-  const address = {
-    firstName: "John",
-    lastName: "Philip",
-    address: "St Mardianl Local Villa Street, 4509 Upstreet Road, Washinglon",
-    city: "Palmaria",
-    state: "Selesca",
-    phone: "919087887898",
-  };
+  const [orderCart, setOrderCart] = useState(null);
+  const [orderAddress, setOrderAddress] = useState(null);
 
-  //   just for now - cart data is taken from cart doc and not from order doc
-  const { cart } = useContext(CartContext);
+  useEffect(() => {
+    // Read the snapshot saved right before the cart was cleared
+    const savedCart = localStorage.getItem("lastOrderCart");
+    const savedAddress = localStorage.getItem("lastOrderAddress");
+    if (savedCart) setOrderCart(JSON.parse(savedCart));
+    if (savedAddress) setOrderAddress(JSON.parse(savedAddress));
+  }, []);
+
+  if (!orderCart) {
+    return (
+      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center pt-[15rem]">
+        <h2 className="text-[2rem] font-medium text-neutral-800">No recent orders found</h2>
+        <Link href="/" className="mt-4 bg-[#2874f0] hover:bg-[#1f5cbf] text-white px-8 py-4 text-[1.5rem] rounded-[.2rem]">
+          Shop Now
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-[95%] mx-auto pt-[12rem] mb-4 space-y-6 text-neutral-800">
-      {orderSuccessful ? (
-        <div className="flex flex-col lg:flex-row justify-between items-start gap-4 bg-green-200 p-8 rounded-[.5rem]">
-          <h2 className="capitalize text-[2.2rem] lg:text-[3rem] font-semibold">
-            order successfully placed
-          </h2>
+    <div className="w-full min-h-screen bg-neutral-100 pt-[14rem] pb-16">
+      <div className="w-[95%] max-w-5xl mx-auto flex flex-col gap-6 text-neutral-800">
+        
+        {/* Success Banner */}
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-6 bg-white p-8 rounded-[.4rem] shadow-sm border-l-[6px] border-green-500">
+          <div className="flex items-center gap-4">
+            <CheckCircle className="w-[4rem] h-[4rem] text-green-500" weight="fill" />
+            <h2 className="text-[2.2rem] lg:text-[2.6rem] font-medium text-black">
+              Order placed successfully!
+            </h2>
+          </div>
           <Link
             href="/"
-            className="capitalize text-[1.5rem] font-semibold underline cursor-pointer"
+            className="bg-[#2874f0] hover:bg-[#1f5cbf] text-white text-[1.5rem] font-medium px-8 py-3 rounded-[.2rem] uppercase shadow-sm transition-colors"
           >
-            take me to home page, let's shop again
+            Continue Shopping
           </Link>
         </div>
-      ) : (
-        <h2>order failed</h2>
-      )}
 
-      <div className="space-y-6">
-        {/* Shipping Address */}
-        <div className="bg-white p-6 border rounded-[.5rem] border-neutral-300 space-y-4">
-          <h3 className="head text-[1.7rem] font-medium">Address</h3>
-          <div className="details text-[1.7rem] leading-[2.4rem]">
-            <p className="font-medium">
-              {address.firstName} {address.lastName}
-            </p>
-            <p>{address.address}</p>
-            <p>
-              {address.city}, {address.state}
-            </p>
-            <p className="text-neutral-500">phone: {address.phone}</p>
-          </div>
-        </div>
-
-        {/* Payment Method & Total */}
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-          <div className="bg-white border border-neutral-300 rounded-[.5rem] p-6 text-[1.7rem]">
-            <h2 className="font-semibold">Payment Method</h2>
-            <p className="">Bank Transfer</p>
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {/* Shipping Address */}
+          <div className="bg-white p-8 rounded-[.4rem] shadow-sm flex flex-col gap-4">
+            <h3 className="text-[1.8rem] font-medium uppercase text-neutral-500 border-b border-neutral-100 pb-4">Delivery Address</h3>
+            {orderAddress ? (
+              <div className="text-[1.5rem] leading-relaxed text-black mt-2">
+                <p className="font-medium text-[1.6rem] mb-1">
+                  {orderAddress.name} <span className="text-neutral-500 font-normal ml-2">{orderAddress.phone}</span>
+                </p>
+                <p>{orderAddress.address}</p>
+                <p>{orderAddress.locality && `${orderAddress.locality}, `}{orderAddress.city}, {orderAddress.state} - <span className="font-medium">{orderAddress.pincode}</span></p>
+              </div>
+            ) : (
+              <p className="text-[1.5rem] text-neutral-500">No address details available.</p>
+            )}
           </div>
 
-          <div className="bg-[#b00015] text-white p-6 rounded-[.5rem] w-full lg:w-2/12">
-            <p className="text-[1.5rem] flex flex-col text-end">
-              Payment Total:
-              <span className="font-semibold text-[2rem]">
-                Rs {cart?.cartTotal}
-              </span>
-            </p>
+          {/* Payment & Amount */}
+          <div className="bg-white p-8 rounded-[.4rem] shadow-sm flex flex-col gap-4">
+            <h3 className="text-[1.8rem] font-medium uppercase text-neutral-500 border-b border-neutral-100 pb-4">Payment Summary</h3>
+            <div className="text-[1.5rem] text-black mt-2 flex flex-col gap-3">
+              <div className="flex justify-between">
+                <span className="text-neutral-600">Payment Method</span>
+                <span className="font-medium">Cash on Delivery</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">Total Amount</span>
+                <span className="font-medium text-[1.8rem]">Rs {orderCart.cartTotal}</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Items Ordered */}
-        <div className="bg-white p-6 border border-neutral-300 rounded-[.5rem] space-y-4">
-          <h2 className="text-[1.7rem] font-semibold">Items Ordered</h2>
-
-          <div className="space-y-4">
-            {cart &&
-              cart?.items.map((item) => (
-                <div
-                  key={item._id}
-                  className="py-5 px-2 border-b border-neutral-300 last:border-0 flex justify-between items-center gap-4"
-                >
-                  <div className="w-5/6">
-                    <p className="font-medium text-[1.6rem]">
-                      {item.productId.parentId.product_title} - {item.quantity}x
-                    </p>
-                    <p className="text-[1.5rem]">
-                      Subtotal: Rs {item.productId.price * item.quantity}
-                    </p>
-                  </div>
-                  <div>
-                    <div className="image">
-                      <img
-                        src={item.productId.images[0]}
-                        alt="product image"
-                        className="w-[7rem] h-[7rem] object-cover"
-                      />
+        <div className="bg-white p-8 rounded-[.4rem] shadow-sm flex flex-col gap-4">
+          <h3 className="text-[1.8rem] font-medium uppercase text-neutral-500 border-b border-neutral-100 pb-4">Items Ordered</h3>
+          
+          <div className="flex flex-col gap-6 mt-4">
+            {orderCart.items
+              .filter((item) => item.productId)
+              .map((item) => {
+                const prod = item.productId;
+                const title = prod.product_title || prod.parentId?.product_title;
+                const image = (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || (prod.parentId?.images && prod.parentId.images[0]);
+                
+                return (
+                  <div
+                    key={item._id}
+                    className="flex justify-between items-center gap-6 pb-6 border-b border-neutral-100 last:border-0 last:pb-0"
+                  >
+                    <div className="flex items-center gap-6 w-full">
+                      <div className="w-[8rem] h-[8rem] bg-neutral-50 p-2 rounded-[.4rem] shrink-0">
+                        {image && <img src={image} alt={title} className="w-full h-full object-contain" />}
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <p className="font-medium text-[1.6rem] text-black line-clamp-1">
+                          {title}
+                        </p>
+                        <p className="text-[1.4rem] text-neutral-500 mt-1">
+                          Qty: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-[1.8rem] font-medium text-black whitespace-nowrap">
+                        Rs {Number(prod.price || 0) * item.quantity}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+            })}
           </div>
         </div>
       </div>

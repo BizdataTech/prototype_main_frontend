@@ -77,6 +77,7 @@ const HomeBannerSection = () => {
               name="banner_type"
               id="single"
               checked={bannerType === "single"}
+              onChange={() => setBannerType("single")}
             />
             <label htmlFor="single">Single</label>
           </div>
@@ -86,6 +87,7 @@ const HomeBannerSection = () => {
               name="banner_type"
               id="carousel"
               checked={bannerType === "carousel"}
+              onChange={() => setBannerType("carousel")}
             />
             <label htmlFor="carousel">Carousel</label>
           </div>
@@ -117,7 +119,7 @@ const HomeBannerSection = () => {
         {banners.length >= 1 && (
           <div className="flex flex-col gap-4">
             {banners.map((banner, i) => (
-              <div className="h-[20rem] relative rounded-[1rem] overflow-hidden group">
+              <div key={i} className="h-[20rem] relative rounded-[1rem] overflow-hidden group">
                 <img
                   src={banner.preview}
                   alt="banner image"

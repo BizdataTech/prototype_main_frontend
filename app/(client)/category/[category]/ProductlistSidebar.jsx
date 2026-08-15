@@ -1,16 +1,16 @@
 const ProductlistSidebar = ({ sidebar, filterProducts }) => {
   return (
-    <div className="w-[20%] bg-white p-6 rounded-[.4rem] space-y-8">
-      {sidebar.map((content) => {
+    <div className="w-[20%] bg-white p-6 rounded-[.4rem] space-y-8 sticky top-[16rem] self-start">
+      {sidebar.map((content, index) => {
         if (content.data) {
           return (
-            <div className="flex flex-col gap-[.5rem]">
+            <div key={content.label || index} className="flex flex-col gap-[.5rem]">
               <h3 className="text-[1.5rem] capitalize font-medium text-gray-900">
                 {content.head}
               </h3>
               <ul className="flex flex-col">
-                {content.data.map((d) => (
-                  <label className="flex gap-4 items-center cursor-pointer">
+                {content.data.map((d, dIdx) => (
+                  <label key={dIdx} className="flex gap-4 items-center cursor-pointer">
                     <input
                       name={content.label}
                       type="checkbox"
@@ -30,16 +30,18 @@ const ProductlistSidebar = ({ sidebar, filterProducts }) => {
           );
         }
       })}
-      <div className="space-y-[1rem]">
-        <div className="shimmer w-[50%]"></div>
-        <div className="space-y-2">
-          {Array(4)
-            .fill(undefined)
-            .map((_) => (
-              <div className="shimmer w-full"></div>
-            ))}
+      {sidebar.length === 0 && (
+        <div className="space-y-[1rem]">
+          <div className="shimmer w-[50%]"></div>
+          <div className="space-y-2">
+            {Array(4)
+              .fill(undefined)
+              .map((_, shimmerIdx) => (
+                <div key={shimmerIdx} className="shimmer w-full"></div>
+              ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

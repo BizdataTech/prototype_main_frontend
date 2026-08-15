@@ -45,8 +45,8 @@ const Categories = () => {
 
       {/* Table */}
       <div className="a-section--box !p-0">
-        <div className="grid grid-cols-4">
-          {["Title", "Category Level", "Parent Category", "Options"].map(
+        <div className="grid grid-cols-5">
+          {["Title", "Category Level", "Parent Category", "Status", "Options"].map(
             (item, i) => (
               <div
                 key={i}
@@ -66,12 +66,18 @@ const Categories = () => {
           categories.map((c, index) => (
             <div
               key={c._id}
-              className="grid grid-cols-4 gap-8 py-4 px-4 border-b-0 border-neutral-200 last:border-b-0 text-[1.3rem] text-neutral-800 items-center even:bg-neutral-100"
+              className="grid grid-cols-5 gap-8 py-4 px-4 border-b-0 border-neutral-200 last:border-b-0 text-[1.3rem] text-neutral-800 items-center even:bg-neutral-100"
             >
               <div className="truncate font-medium">{c.title}</div>
               <div className="text-center">{c.level}</div>
               <div className="text-center font-medium">
                 {c?.parent?.title ? c?.parent?.title : "-"}
+              </div>
+              {/* Display category status as a colored pill (Green = Active, Red = Inactive) */}
+              <div className="text-center">
+                <span className={`px-2 py-1 rounded-full text-xs ${c.status === 'Inactive' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                  {c.status || "Active"}
+                </span>
               </div>
 
               {/* 3-dot button with dropdown */}
