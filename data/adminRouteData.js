@@ -107,4 +107,22 @@ export default [
     slug: "section-management",
     breadcrumbs: "Section Management",
   },
+  {
+    path: "/admin/orders",
+    sidebar_title: "Orders",
+    page_title: "Admin Orders",
+    icon_class: "fa-solid fa-cart-shopping",
+    sidebar: true,
+    slug: "orders",
+    breadcrumbs: "Admin Orders",
+  },
+  {
+    path: "/admin/orders/order-management",
+    sidebar_title: "",
+    page_title: "Order Management",
+    icon_class: "fa-solid fa-gear",
+    sidebar: false,
+    slug: "order-management",
+    breadcrumbs: "Order Management",
+  }
 ];

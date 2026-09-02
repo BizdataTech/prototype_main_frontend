@@ -5,7 +5,7 @@ import { WishlistContext } from "@/context/wishlistContext";
 import { CartContext } from "@/context/cartContext";
 import { UserContext } from "@/context/userContext";
 import Link from "next/link";
-import { Heart, ShoppingCart, Trash, ArrowRight } from "phosphor-react";
+import { Heart, ShoppingBag, Trash, ArrowRight } from "phosphor-react";
 
 const WishlistPage = () => {
   const { user } = useContext(UserContext);
@@ -14,13 +14,15 @@ const WishlistPage = () => {
 
   if (user === null) {
     return (
-      <section className="w-[95%] max-w-4xl mx-auto pt-[18rem] pb-24 text-center">
-        <div className="bg-white p-12 rounded-3xl border border-neutral-200 shadow-xl flex flex-col items-center gap-6">
-          <Heart className="w-[6rem] h-[6rem] text-neutral-300" />
-          <h2 className="text-3xl font-extrabold text-neutral-800">Please Sign In</h2>
-          <p className="text-[1.6rem] text-neutral-600">Please sign in to view your wishlist.</p>
-          <Link href="/register/sign-in" className="mt-4 bg-[#b00015] hover:bg-red-800 text-white text-[1.5rem] font-bold px-8 py-3 rounded-full transition-all shadow-md">
-            Go to Login
+      <section className="w-full min-h-[60vh] bg-white pt-[18rem] pb-24 text-center">
+        <div className="flex flex-col items-center gap-8 w-[95%] max-w-[60rem] mx-auto">
+          <Heart className="w-[8rem] h-[8rem] text-black stroke-[1]" />
+          <h2 className="text-[2.4rem] font-light text-black tracking-widest uppercase">YOUR WISHLIST</h2>
+          <p className="text-[1.4rem] text-neutral-500 uppercase tracking-widest text-center">
+            Please sign in to view your saved items.
+          </p>
+          <Link href="/register/sign-in" className="mt-4 bg-black text-white text-[1.4rem] tracking-widest uppercase px-16 py-5 transition-all hover:bg-neutral-800">
+            Sign In
           </Link>
         </div>
       </section>
@@ -33,106 +35,99 @@ const WishlistPage = () => {
   };
 
   return (
-    <section className="w-[95%] max-w-7xl mx-auto pt-[18rem] pb-16">
-      <div className="flex justify-between items-center border-b border-neutral-100 pb-4 mb-6">
-        <h1 className="text-3xl font-extrabold text-neutral-800">My Wishlist</h1>
-        {items.length > 0 && (
-          <span className="bg-[#b00015]/10 text-[#b00015] px-3 py-1 rounded-full text-sm font-bold">
-            {items.length} {items.length === 1 ? "Item" : "Items"}
-          </span>
-        )}
-      </div>
+    <section className="w-full min-h-screen bg-white pt-[14rem] pb-24">
+      <div className="w-[95%] max-w-[1400px] mx-auto">
+        <h1 className="text-[3rem] font-light text-black uppercase tracking-widest mb-16 border-b border-black pb-8">
+          My Wishlist
+          {items.length > 0 && (
+            <span className="text-[1.6rem] text-neutral-500 ml-4 lowercase tracking-normal">({items.length} items)</span>
+          )}
+        </h1>
 
-      {!wishlist || items.length === 0 ? (
-        <div className="border border-neutral-200 p-12 rounded-2xl bg-neutral-50 text-center flex flex-col items-center gap-4">
-          <Heart className="w-[5rem] h-[5rem] text-neutral-400" />
-          <h3 className="text-xl font-bold text-neutral-700">Your Wishlist is Empty</h3>
-          <p className="text-[1.4rem] text-neutral-500 max-w-sm">
-            Save items to your wishlist to keep track of products you like and purchase them later.
-          </p>
-          <Link href="/" className="mt-2 bg-black hover:bg-neutral-800 text-white font-bold text-[1.4rem] px-8 py-3 rounded-full transition-colors">
-            Browse Products
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item, index) => {
-            const product = item?.productId;
-            if (!product) return null;
-            
-            const title = product.product_title || product.parentId?.product_title;
-            const brand = product.brand?.brand_name || product.brand || product.parentId?.brand;
-            const image = (product.images && product.images[0]?.url) || (product.images && product.images[0]) || (product.parentId?.images && product.parentId.images[0]);
-            
-            const isOutOfStock = product.stock <= 0;
-            const isInvalidPrice = !product.price || Number(product.price) <= 0;
-            const canAddToCart = !isOutOfStock && !isInvalidPrice;
+        {!wishlist || items.length === 0 ? (
+          <div className="py-24 flex flex-col items-center gap-8 text-center">
+            <Heart className="w-[8rem] h-[8rem] text-black stroke-[1]" />
+            <h3 className="text-[2.4rem] font-light text-black tracking-widest uppercase">Your Wishlist is Empty</h3>
+            <p className="text-[1.4rem] text-neutral-500 uppercase tracking-widest leading-relaxed max-w-[40rem]">
+              Save items to your wishlist to keep track of products you like and purchase them later.
+            </p>
+            <Link href="/" className="mt-4 bg-black text-white text-[1.4rem] tracking-widest uppercase px-16 py-5 transition-all hover:bg-neutral-800 flex items-center gap-4">
+              Explore Collection <ArrowRight size={20} />
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
+            {items.map((item, index) => {
+              const product = item?.productId;
+              if (!product) return null;
+              
+              const title = product.product_title || product.parentId?.product_title;
+              const brand = product.brand?.brand_name || product.brand || product.parentId?.brand;
+              const image = (product.images && product.images[0]?.url) || (product.images && product.images[0]) || (product.parentId?.images && product.parentId.images[0]);
+              
+              const isOutOfStock = product.stock <= 0;
+              const isInvalidPrice = !product.price || Number(product.price) <= 0;
+              const canAddToCart = !isOutOfStock && !isInvalidPrice;
 
-            return (
-              <div
-                key={item?._id || index}
-                className="border-1 border-neutral-300 hover:border-neutral-500 rounded-[.5rem] p-6 bg-white flex flex-col justify-between hover:shadow-[0_0_.4rem_rgb(210,210,210)] transition-all group relative cursor-pointer"
-              >
-                <div>
+              return (
+                <div
+                  key={item?._id || index}
+                  className="group flex flex-col relative"
+                >
                   {/* Product image */}
-                  <div className="relative h-[15rem] w-full mb-4 overflow-hidden flex items-center justify-center">
+                  <div className="relative h-[40rem] w-full bg-neutral-50 mb-6 flex items-center justify-center p-6">
                     {image ? (
-                      <img
-                        src={image}
-                        alt={title}
-                        className="w-[15rem] h-full object-contain transition-transform duration-300"
-                      />
+                      <Link href={`/product/${product._id}`} className="w-full h-full flex items-center justify-center">
+                        <img
+                          src={image}
+                          alt={title}
+                          className="max-w-full max-h-full object-contain mix-blend-multiply"
+                        />
+                      </Link>
                     ) : (
-                      <div className="text-[1.2rem] text-neutral-400">No Image Available</div>
+                      <div className="text-[1.2rem] text-neutral-400 uppercase tracking-widest">No Image</div>
                     )}
                     <button
                       onClick={(e) => { e.preventDefault(); removeFromWishlist(product._id); }}
-                      className="absolute top-2 right-2 bg-white/80 hover:bg-white text-neutral-400 hover:text-[#b00015] p-2 rounded-full border border-neutral-200 transition-colors shadow-sm"
+                      className="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors"
                       title="Remove from Wishlist"
                     >
-                      <Trash className="w-[1.8rem] h-[1.8rem]" />
+                      <Trash size={24} weight="light" />
                     </button>
                   </div>
 
                   {/* Product info */}
-                  <div className="flex flex-col items-center mt-6 text-center">
-                    <h4 className="font-medium text-[1.8rem] text-neutral-700 leading-[2rem] line-clamp-2 min-h-[4rem]">
-                      {title?.split(" ").slice(0, 5).join(" ")}
-                    </h4>
-                    <span className="text-[1.4rem] text-neutral-500 mt-2">{brand}</span>
-                    <div className="text-[1.7rem] font-medium mt-4 text-black">
-                      Rs {Number(product.price || 0)}
+                  <div className="flex flex-col flex-1">
+                    <Link href={`/product/${product._id}`} className="text-[1.8rem] font-light text-black hover:underline leading-relaxed line-clamp-1">
+                      {title}
+                    </Link>
+                    <span className="text-[1.3rem] text-neutral-500 uppercase tracking-widest mt-2 block">{brand}</span>
+                    <div className="text-[2rem] font-light text-black mt-4">
+                      ₹{Number(product.price || 0)}
                     </div>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex flex-col gap-2 mt-6">
-                  <button
-                    disabled={!canAddToCart}
-                    className={`w-full flex items-center justify-center gap-2 font-medium py-3 rounded-[.4rem] text-[1.4rem] transition-colors shadow-sm ${
-                      canAddToCart 
-                        ? 'bg-[#b00015] hover:bg-red-800 text-white' 
-                        : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
-                    }`}
-                    onClick={(e) => { e.preventDefault(); handleMoveToCart(product._id); }}
-                  >
-                    <ShoppingCart className="w-[1.8rem] h-[1.8rem]" />
-                    {isOutOfStock ? "Out of Stock" : isInvalidPrice ? "Price Unavailable" : "Move to Cart"}
-                  </button>
-                  <Link
-                    href={`/product/${product._id}`}
-                    className="w-full flex items-center justify-center gap-1.5 border border-neutral-300 hover:border-black text-neutral-700 hover:text-black py-3 rounded-[.4rem] text-[1.3rem] font-medium transition-all text-center"
-                  >
-                    View Details
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {/* Actions */}
+                  <div className="flex gap-4 mt-8 pt-6 border-t border-neutral-200">
+                    <button
+                      disabled={!canAddToCart}
+                      className={`flex-1 flex items-center justify-center gap-3 text-[1.3rem] uppercase tracking-widest py-4 transition-colors ${
+                        canAddToCart 
+                          ? 'bg-black text-white hover:bg-neutral-800' 
+                          : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                      }`}
+                      onClick={(e) => { e.preventDefault(); handleMoveToCart(product._id); }}
+                    >
+                      <ShoppingBag size={18} weight={canAddToCart ? "regular" : "light"} />
+                      {isOutOfStock ? "Out of Stock" : isInvalidPrice ? "Price Unavailable" : "Move to Cart"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </section>
   );
 };

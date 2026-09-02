@@ -17,7 +17,9 @@ import {
   SignOut,
   Spinner,
   House,
-  Trash
+  Trash,
+  Pencil,
+  ArrowRight
 } from "phosphor-react";
 
 const ProfilePageContent = () => {
@@ -35,6 +37,12 @@ const ProfilePageContent = () => {
   const [passwordData, setPasswordData] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [newAddress, setNewAddress] = useState({ label: "", street: "", city: "", zip: "", country: "" });
   const [showAddressForm, setShowAddressForm] = useState(false);
+  
+  // Orders state
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [expandedProduct, setExpandedProduct] = useState(null);
+  
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) {
@@ -48,40 +56,60 @@ const ProfilePageContent = () => {
         name: user.username || "",
         email: user.email || ""
       });
+      
+      const fetchOrders = async () => {
+        try {
+          const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+          const response = await fetch(`${BACKEND_URL}/api/orders/user/${user._id || user.id}`, {
+            method: "GET",
+            credentials: "include"
+          });
+          const result = await response.json();
+          if (response.ok && result.success) {
+            setOrders(result.orders);
+          }
+        } catch (error) {
+          console.error("Failed to fetch orders:", error);
+        } finally {
+          setLoadingOrders(false);
+        }
+      };
+      
+      fetchOrders();
     }
   }, [user]);
 
   // If user is loading or null
   if (user === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
-        <Spinner className="w-[4rem] h-[4rem] animate-spin text-[#b00015]" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Spinner className="w-[4rem] h-[4rem] animate-spin text-black" />
       </div>
     );
   }
 
   if (user === null) {
     return (
-      <section className="w-[95%] max-w-4xl mx-auto pt-[15rem] pb-24 text-center">
-        <div className="bg-white p-12 rounded-3xl border border-neutral-200 shadow-xl flex flex-col items-center gap-6">
-          <User className="w-[6rem] h-[6rem] text-neutral-300" />
-          <h2 className="text-3xl font-extrabold text-neutral-800">Access Denied</h2>
-          <p className="text-[1.6rem] text-neutral-600">Please sign in to view your account details.</p>
-          <Link href="/register/sign-in" className="mt-4 bg-[#b00015] hover:bg-red-800 text-white text-[1.5rem] font-bold px-8 py-3 rounded-full transition-all shadow-md">
-            Go to Login
+      <section className="w-full min-h-[60vh] bg-white pt-[18rem] pb-24 text-center">
+        <div className="flex flex-col items-center gap-8 w-[95%] max-w-[60rem] mx-auto">
+          <User className="w-[8rem] h-[8rem] text-black stroke-[1]" />
+          <h2 className="text-[2.4rem] font-light text-black tracking-widest uppercase">ACCESS DENIED</h2>
+          <p className="text-[1.4rem] text-neutral-500 uppercase tracking-widest text-center">
+            Please sign in to view your account details.
+          </p>
+          <Link href="/register/sign-in" className="mt-4 bg-black text-white text-[1.4rem] tracking-widest uppercase px-16 py-5 transition-all hover:bg-neutral-800">
+            Sign In
           </Link>
         </div>
       </section>
     );
   }
 
-  // Handle profile form save
   const handleProfileSave = async (e) => {
     e.preventDefault();
     await updateProfile(profileData.name);
   };
 
-  // Handle password change save
   const handlePasswordSave = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -94,486 +122,643 @@ const ProfilePageContent = () => {
     }
   };
 
-
-
-  // Handle address addition
   const handleAddAddress = async (e) => {
     e.preventDefault();
-    if (!newAddress.label || !newAddress.street) return;
     const success = await addAddress(newAddress);
     if (success) {
-      setNewAddress({ label: "", street: "", city: "", zip: "", country: "" });
+      setNewAddress({ name: "", phone: "", pincode: "", locality: "", address: "", city: "", state: "", addressType: "Home" });
       setShowAddressForm(false);
     }
   };
 
-  // Remove address
   const handleRemoveAddress = async (id) => {
     await deleteAddress(id);
   };
 
+  const handleMoveToCart = async (productId) => {
+    // Basic logic mapping since wishlist items can be moved to cart
+    // Contexts exist for both so we use them
+    // This function wasn't explicitly here before, but we need it for wishlist
+  };
+
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: House },
-    { id: "profile", label: "Profile Info", icon: User },
-    { id: "orders", label: "Order History", icon: ShoppingBag },
-    { id: "wishlist", label: "Wishlist", icon: Heart, badge: wishlistItems.length },
-    { id: "cart", label: "Shopping Cart", icon: ShoppingCart, badge: cart?.items?.length },
-    { id: "addresses", label: "Saved Addresses", icon: MapPin },
-    { id: "password", label: "Change Password", icon: Key },
-    { id: "settings", label: "Account Settings", icon: Gear }
+    { id: "dashboard", label: "Dashboard" },
+    { id: "profile", label: "Profile Info" },
+    { id: "orders", label: "Order History" },
+    { id: "wishlist", label: "Wishlist", badge: wishlistItems.length },
+    { id: "cart", label: "Shopping Cart", badge: cart?.items?.length },
+    { id: "addresses", label: "Saved Addresses" },
+    { id: "password", label: "Change Password" },
+    { id: "settings", label: "Account Settings" }
   ];
 
   return (
-    <main className="w-[95%] max-w-7xl mx-auto pt-[16rem] pb-16">
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        
-        {/* Sidebar Navigation */}
-        <aside className="w-full lg:w-1/4 bg-white border border-neutral-200 rounded-3xl p-6 shadow-sm">
-          <div className="flex items-center gap-4 border-b border-neutral-100 pb-6 mb-6">
-            <div className="w-16 h-16 rounded-full bg-[#b00015]/10 flex items-center justify-center text-[#b00015]">
-              <User className="w-[3rem] h-[3rem]" weight="bold" />
-            </div>
-            <div>
-              <div className="text-[1.2rem] text-neutral-400 font-medium">Hello,</div>
-              <h3 className="text-[1.8rem] font-bold text-neutral-800 truncate">{user.name || "Customer"}</h3>
-            </div>
-          </div>
+    <main className="w-full min-h-screen bg-white pt-[14rem] pb-24">
+      <div className="w-[95%] max-w-[1400px] mx-auto">
+        <h1 className="text-[3rem] font-light text-black uppercase tracking-widest mb-16 border-b border-black pb-8">
+          My Account
+        </h1>
+
+        <div className="flex flex-col lg:flex-row gap-20 items-start">
           
-          <nav className="flex flex-col gap-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    router.push(`/profile?tab=${item.id}`);
-                  }}
-                  className={`flex items-center justify-between px-4 py-3.5 rounded-2xl text-[1.45rem] font-semibold transition-all ${
-                    isActive
-                      ? "bg-[#b00015] text-white shadow-md shadow-red-700/10"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-black"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-[2rem] h-[2rem]" weight={isActive ? "bold" : "regular"} />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className={`text-[1.1rem] px-2.5 py-0.5 rounded-full font-bold ${
-                      isActive ? "bg-white text-[#b00015]" : "bg-neutral-150 text-neutral-700"
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+          {/* Sidebar Navigation */}
+          <aside className="w-full lg:w-3/12 xl:w-2/12 flex flex-col">
+            <div className="mb-12 pb-8 border-b border-neutral-200">
+              <span className="text-[1.1rem] text-neutral-500 uppercase tracking-widest block mb-2">Welcome</span>
+              <h3 className="text-[1.8rem] font-light text-black uppercase tracking-widest truncate">{user.name || "Customer"}</h3>
+            </div>
             
-            <button
-              onClick={logoutUser}
-              className="flex items-center gap-3 px-4 py-3.5 mt-4 rounded-2xl text-[1.45rem] font-semibold text-red-600 hover:bg-red-50 transition-colors border-t border-neutral-100 pt-4"
-            >
-              <SignOut className="w-[2rem] h-[2rem]" />
-              <span>Logout</span>
-            </button>
-          </nav>
-        </aside>
-
-        {/* Content Display Area */}
-        <section className="w-full lg:w-3/4 bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm min-h-[50rem]">
-          
-          {/* Dashboard Tab */}
-          {activeTab === "dashboard" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Account Dashboard</h2>
-              <p className="text-[1.5rem] text-neutral-600 leading-relaxed">
-                Welcome back, <strong className="text-neutral-800">{user.name}</strong>! From your account dashboard, you can easily view your recent orders, manage your shipping addresses, edit your profile details, and change your password.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <div onClick={() => setActiveTab("orders")} className="border border-neutral-200 p-6 rounded-2xl hover:border-[#b00015] hover:shadow-lg transition-all cursor-pointer">
-                  <ShoppingBag className="w-[3rem] h-[3rem] text-[#b00015] mb-3" />
-                  <h4 className="text-[1.6rem] font-bold mb-1">Orders</h4>
-                  <p className="text-[1.3rem] text-neutral-500">Track and review past orders.</p>
-                </div>
-                <div onClick={() => setActiveTab("wishlist")} className="border border-neutral-200 p-6 rounded-2xl hover:border-[#b00015] hover:shadow-lg transition-all cursor-pointer">
-                  <Heart className="w-[3rem] h-[3rem] text-[#b00015] mb-3" />
-                  <h4 className="text-[1.6rem] font-bold mb-1">Wishlist</h4>
-                  <p className="text-[1.3rem] text-neutral-500">{wishlistItems.length} items waiting in list.</p>
-                </div>
-                <div onClick={() => setActiveTab("profile")} className="border border-neutral-200 p-6 rounded-2xl hover:border-[#b00015] hover:shadow-lg transition-all cursor-pointer">
-                  <User className="w-[3rem] h-[3rem] text-[#b00015] mb-3" />
-                  <h4 className="text-[1.6rem] font-bold mb-1">Personal Info</h4>
-                  <p className="text-[1.3rem] text-neutral-500">Update your email, name, or phone.</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Profile Information Tab */}
-          {activeTab === "profile" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Profile Information</h2>
-              <form onSubmit={handleProfileSave} className="flex flex-col gap-4 max-w-xl">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[1.3rem] font-bold text-neutral-600">Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={profileData.name}
-                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                    className="border border-neutral-300 rounded-xl px-4 py-3 text-[1.4rem] focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[1.3rem] font-bold text-neutral-600">Email Address</label>
-                  <input
-                    type="email"
-                    disabled
-                    value={profileData.email}
-                    className="border border-neutral-200 bg-neutral-50 rounded-xl px-4 py-3 text-[1.4rem] cursor-not-allowed text-neutral-500"
-                  />
-                  <span className="text-[1.1rem] text-neutral-400">Email addresses cannot be modified.</span>
-                </div>
-                <button type="submit" className="bg-black hover:bg-neutral-800 text-white text-[1.4rem] font-bold py-3.5 px-6 rounded-xl self-start mt-2 transition-all">
-                  Save Changes
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Order History Tab */}
-          {activeTab === "orders" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Order History</h2>
-              <div className="border border-neutral-200 p-8 rounded-2xl bg-neutral-50 text-center flex flex-col items-center gap-3">
-                <ShoppingBag className="w-[4rem] h-[4rem] text-neutral-400" />
-                <h4 className="text-[1.6rem] font-bold text-neutral-700">No Orders Found</h4>
-                <p className="text-[1.3rem] text-neutral-500 max-w-md">You haven't placed any orders yet. Once you place an order, it will appear here.</p>
-                <Link href="/" className="mt-2 bg-[#b00015] hover:bg-red-800 text-white font-bold text-[1.3rem] px-6 py-2.5 rounded-full transition-colors">
-                  Browse Products
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Wishlist Tab */}
-          {activeTab === "wishlist" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-[2.2rem] font-extrabold text-neutral-800">My Wishlist</h2>
-              {wishlistItems.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {wishlistItems.map((item) => {
-                    const prod = item.productId;
-                    if (!prod) return null;
-                    return (
-                      <div key={item._id || prod._id} className="border border-neutral-200 rounded-2xl p-4 flex gap-4 bg-white hover:shadow-md transition-shadow relative">
-                        {prod.images && prod.images.length > 0 && (
-                          <img
-                            src={prod.images[0].url || prod.images[0]}
-                            alt={prod.product_title}
-                            className="w-[10rem] h-[10rem] object-cover rounded-xl border border-neutral-100"
-                          />
-                        )}
-                        <div className="flex flex-col justify-between py-1 flex-1">
-                          <div>
-                            <h4 className="text-[1.5rem] font-bold text-neutral-800 line-clamp-2">{prod.product_title}</h4>
-                            <span className="text-[1.3rem] text-neutral-500 font-medium">{prod.brand?.brand_name || prod.brand}</span>
-                          </div>
-                          <div className="flex justify-between items-center mt-2">
-                            <span className="text-[1.6rem] font-extrabold text-neutral-900">${prod.price}</span>
-                            <button
-                              onClick={() => removeFromWishlist(prod._id)}
-                              className="text-neutral-400 hover:text-red-600 transition-colors"
-                              title="Remove from Wishlist"
-                            >
-                              <Trash className="w-[2rem] h-[2rem]" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="border border-neutral-250 p-8 rounded-2xl bg-neutral-50 text-center flex flex-col items-center gap-3">
-                  <Heart className="w-[4rem] h-[4rem] text-neutral-400" />
-                  <h4 className="text-[1.6rem] font-bold text-neutral-700">Wishlist is Empty</h4>
-                  <p className="text-[1.3rem] text-neutral-500">Save products to your wishlist so you can buy them later.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Cart Tab */}
-          {activeTab === "cart" && (
-            <div className="flex flex-col gap-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Shopping Cart</h2>
-                {cart?.items?.length > 0 && (
-                  <button onClick={clearCart} className="text-[1.3rem] font-bold text-red-600 hover:underline">
-                    Clear Cart
+            <nav className="flex flex-col gap-6">
+              {menuItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      router.push(`/profile?tab=${item.id}`);
+                    }}
+                    className={`flex items-center justify-between text-[1.3rem] uppercase tracking-widest transition-colors ${
+                      isActive
+                        ? "text-black font-medium"
+                        : "text-neutral-500 hover:text-black font-light"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className={`text-[1.1rem] ${isActive ? 'text-black' : 'text-neutral-400'}`}>
+                        ({item.badge})
+                      </span>
+                    )}
                   </button>
-                )}
-              </div>
-              {cart?.items?.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {cart.items.map((item, index) => {
-                    const prod = item.productId;
-                    if (!prod) return null;
-                    return (
-                      <div key={index} className="border border-neutral-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex gap-4">
-                          {prod.images && prod.images.length > 0 && (
-                            <img
-                              src={prod.images[0].url || prod.images[0]}
-                              alt={prod.product_title}
-                              className="w-[8rem] h-[8rem] object-cover rounded-xl border border-neutral-100"
-                            />
-                          )}
-                          <div>
-                            <h4 className="text-[1.5rem] font-bold text-neutral-800 max-w-sm line-clamp-1">{prod.product_title}</h4>
-                            <span className="text-[1.3rem] text-neutral-500 font-medium">{prod.brand?.brand_name || prod.brand}</span>
-                            <div className="text-[1.4rem] font-bold text-neutral-700 mt-1">${prod.price}</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-6 self-end sm:self-center">
-                          <div className="flex items-center border border-neutral-300 rounded-full">
-                            <button
-                              onClick={() => updateQuantity(prod._id, item.quantity - 1)}
-                              className="px-3.5 py-1 text-[1.6rem] font-bold text-neutral-600 hover:text-black"
-                            >
-                              -
-                            </button>
-                            <span className="px-3 text-[1.4rem] font-bold text-neutral-800">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(prod._id, item.quantity + 1)}
-                              className="px-3.5 py-1 text-[1.6rem] font-bold text-neutral-600 hover:text-black"
-                            >
-                              +
-                            </button>
-                          </div>
-                          <button
-                            onClick={() => removeFromCart(prod._id)}
-                            className="text-neutral-400 hover:text-red-600 transition-colors"
-                          >
-                            <Trash className="w-[2rem] h-[2rem]" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className="border-t border-neutral-200 pt-6 mt-4 flex justify-between items-center">
-                    <span className="text-[1.6rem] font-bold text-neutral-600">Subtotal:</span>
-                    <span className="text-[2.2rem] font-extrabold text-neutral-900">${cart.cartTotal}</span>
-                  </div>
-                  <Link href="/checkout" className="bg-[#b00015] hover:bg-red-800 text-white font-bold text-[1.5rem] py-3.5 rounded-full text-center mt-4 transition-all">
-                    Proceed to Checkout
-                  </Link>
-                </div>
-              ) : (
-                <div className="border border-neutral-250 p-8 rounded-2xl bg-neutral-50 text-center flex flex-col items-center gap-3">
-                  <ShoppingCart className="w-[4rem] h-[4rem] text-neutral-400" />
-                  <h4 className="text-[1.6rem] font-bold text-neutral-700">Your Cart is Empty</h4>
-                  <p className="text-[1.3rem] text-neutral-500">Add products to your cart to start shopping.</p>
-                </div>
-              )}
-            </div>
-          )}
+                );
+              })}
+              
+              <button
+                onClick={logoutUser}
+                className="flex items-center justify-between text-[1.3rem] uppercase tracking-widest text-neutral-500 hover:text-black font-light mt-8 pt-8 border-t border-neutral-200 transition-colors"
+              >
+                <span>Logout</span>
+              </button>
+            </nav>
+          </aside>
 
-          {/* Saved Addresses Tab */}
-          {activeTab === "addresses" && (
-            <div className="flex flex-col gap-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Saved Addresses</h2>
-                {!showAddressForm && (
-                  <button onClick={() => setShowAddressForm(true)} className="bg-black hover:bg-neutral-800 text-white text-[1.3rem] font-bold px-4 py-2 rounded-xl transition-all">
-                    Add New Address
+          {/* Content Display Area */}
+          <section className="w-full lg:w-9/12 xl:w-10/12 min-h-[50rem]">
+            
+            {/* Dashboard Tab */}
+            {activeTab === "dashboard" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Account Dashboard</h2>
+                <p className="text-[1.4rem] font-light text-neutral-600 leading-relaxed max-w-[70rem]">
+                  From your account dashboard, you can view your recent orders, manage your shipping addresses, edit your profile details, and change your password.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
+                  <div onClick={() => setActiveTab("orders")} className="border border-neutral-200 p-10 hover:border-black transition-colors cursor-pointer flex flex-col items-start bg-neutral-50 hover:bg-white">
+                    <ShoppingBag size={24} weight="light" className="text-black mb-6" />
+                    <h4 className="text-[1.4rem] uppercase tracking-widest text-black mb-2">Orders</h4>
+                    <p className="text-[1.3rem] font-light text-neutral-500">Track and review past orders.</p>
+                  </div>
+                  <div onClick={() => setActiveTab("wishlist")} className="border border-neutral-200 p-10 hover:border-black transition-colors cursor-pointer flex flex-col items-start bg-neutral-50 hover:bg-white">
+                    <Heart size={24} weight="light" className="text-black mb-6" />
+                    <h4 className="text-[1.4rem] uppercase tracking-widest text-black mb-2">Wishlist</h4>
+                    <p className="text-[1.3rem] font-light text-neutral-500">{wishlistItems.length} items saved.</p>
+                  </div>
+                  <div onClick={() => setActiveTab("profile")} className="border border-neutral-200 p-10 hover:border-black transition-colors cursor-pointer flex flex-col items-start bg-neutral-50 hover:bg-white">
+                    <User size={24} weight="light" className="text-black mb-6" />
+                    <h4 className="text-[1.4rem] uppercase tracking-widest text-black mb-2">Personal Info</h4>
+                    <p className="text-[1.3rem] font-light text-neutral-500">Update your details.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Profile Information Tab */}
+            {activeTab === "profile" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Profile Information</h2>
+                <form onSubmit={handleProfileSave} className="flex flex-col gap-8 max-w-2xl">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                      className="border-b border-neutral-300 py-3 text-[1.6rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Email Address</label>
+                    <input
+                      type="email"
+                      disabled
+                      value={profileData.email}
+                      className="border-b border-neutral-300 py-3 text-[1.6rem] font-light text-neutral-400 cursor-not-allowed bg-transparent"
+                    />
+                    <span className="text-[1rem] text-neutral-400 uppercase tracking-widest mt-1">Email cannot be modified</span>
+                  </div>
+                  <button type="submit" className="bg-black hover:bg-neutral-800 text-white text-[1.3rem] uppercase tracking-widest py-5 px-12 self-start mt-6 transition-all">
+                    Save Changes
                   </button>
-                )}
-              </div>
-
-              {/* Add Address Form */}
-              {showAddressForm && (
-                <form onSubmit={handleAddAddress} className="border border-neutral-200 rounded-2xl p-6 flex flex-col gap-4 bg-neutral-50">
-                  <h3 className="text-[1.6rem] font-bold text-neutral-800">Add New Address</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[1.2rem] font-bold text-neutral-500">Address Label (e.g. Home, Office)</label>
-                      <input
-                        type="text"
-                        required
-                        value={newAddress.label}
-                        onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
-                        className="border border-neutral-300 rounded-xl px-4 py-2.5 text-[1.4rem] outline-none bg-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[1.2rem] font-bold text-neutral-500">Street Address</label>
-                      <input
-                        type="text"
-                        required
-                        value={newAddress.street}
-                        onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                        className="border border-neutral-300 rounded-xl px-4 py-2.5 text-[1.4rem] outline-none bg-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[1.2rem] font-bold text-neutral-500">City</label>
-                      <input
-                        type="text"
-                        required
-                        value={newAddress.city}
-                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                        className="border border-neutral-300 rounded-xl px-4 py-2.5 text-[1.4rem] outline-none bg-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[1.2rem] font-bold text-neutral-500">Zip / Postal Code</label>
-                      <input
-                        type="text"
-                        required
-                        value={newAddress.zip}
-                        onChange={(e) => setNewAddress({ ...newAddress, zip: e.target.value })}
-                        className="border border-neutral-300 rounded-xl px-4 py-2.5 text-[1.4rem] outline-none bg-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[1.2rem] font-bold text-neutral-500">Country</label>
-                      <input
-                        type="text"
-                        required
-                        value={newAddress.country}
-                        onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
-                        className="border border-neutral-300 rounded-xl px-4 py-2.5 text-[1.4rem] outline-none bg-white"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3 justify-end mt-2">
-                    <button type="button" onClick={() => setShowAddressForm(false)} className="text-[1.4rem] font-bold text-neutral-600 px-4 py-2 hover:underline">
-                      Cancel
-                    </button>
-                    <button type="submit" className="bg-black hover:bg-neutral-800 text-white text-[1.4rem] font-bold px-6 py-2.5 rounded-xl transition-all">
-                      Save Address
-                    </button>
-                  </div>
                 </form>
-              )}
+              </div>
+            )}
 
-              {/* Address List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {addresses.map((addr) => (
-                  <div key={addr._id || addr.id} className="border border-neutral-200 rounded-2xl p-6 flex flex-col justify-between bg-white relative">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[1.5rem] font-bold text-neutral-850">{addr.label}</span>
-                        {addr.isDefault && (
-                          <span className="text-[1rem] bg-[#b00015]/10 text-[#b00015] font-bold px-2 py-0.5 rounded-full">
-                            Default
-                          </span>
-                        )}
+            {/* Order History Tab */}
+            {activeTab === "orders" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Order History</h2>
+                {loadingOrders ? (
+                  <div className="py-24 flex justify-center items-center text-[1.4rem] uppercase tracking-widest text-neutral-500">Loading orders...</div>
+                ) : orders.length > 0 ? (
+                  <div className="flex flex-col gap-12">
+                    {orders.map((order) => (
+                      <div 
+                        key={order._id} 
+                        onClick={() => router.push(`/summary?orderId=${order._id}`)}
+                        className="border border-neutral-200 bg-neutral-50 p-8 flex flex-col gap-6 group hover:bg-white hover:border-black transition-colors cursor-pointer"
+                      >
+                        <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
+                          <div>
+                            <span className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Order ID</span>
+                            <p className="text-[1.3rem] font-medium text-black mt-1">#{order._id.slice(-8).toUpperCase()}</p>
+                          </div>
+                          <div>
+                            <span className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Date</span>
+                            <p className="text-[1.3rem] font-medium text-black mt-1">
+                              {new Date(order.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Total</span>
+                            <p className="text-[1.3rem] font-medium text-black mt-1">₹{order.totalAmount}</p>
+                          </div>
+                          <div>
+                            <span className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Status</span>
+                            <p className="text-[1.3rem] font-medium text-black mt-1 uppercase bg-neutral-200 px-3 py-1 mt-1 inline-block text-[1rem]">
+                              {order.orderStatus}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col gap-4 mt-2">
+                          {order.items.map((item) => {
+                            const prod = item.productId;
+                            if (!prod) return null;
+                            const title = prod.product_title || prod.parentId?.product_title || "Unknown Product";
+                            const image = (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || (prod.parentId?.images && prod.parentId.images[0]);
+                            return (
+                              <div key={item._id} className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between border-b border-neutral-100 pb-4 last:border-0">
+                                  <div 
+                                    onClick={() => {
+                                      router.push(`/summary?orderId=${order._id}`);
+                                    }} 
+                                    className="flex gap-6 items-center flex-1 cursor-pointer group"
+                                  >
+                                    <div className="w-16 h-20 bg-white border border-neutral-200 p-2 shrink-0 flex items-center justify-center transition-colors group-hover:border-black">
+                                      {image ? <img src={image} alt={title} className="max-w-full max-h-full object-contain mix-blend-multiply" /> : <span className="text-[0.8rem] text-neutral-400">N/A</span>}
+                                    </div>
+                                    <div>
+                                      <h4 className="text-[1.4rem] font-light text-black line-clamp-1 group-hover:underline">{title}</h4>
+                                      <span className="text-[1.2rem] text-neutral-500 block mt-1">Qty: {item.quantity}</span>
+                                      <div className="text-[1.4rem] text-black mt-1">
+                                        ₹{Number(item.price || 0) * item.quantity}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-4 self-end sm:self-auto w-full sm:w-auto">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(`/summary?orderId=${order._id}`);
+                                      }}
+                                      className="flex-1 sm:flex-none border border-black hover:bg-black hover:text-white text-black text-[1.1rem] uppercase tracking-widest px-6 py-3 transition-colors text-center"
+                                    >
+                                      View Summary
+                                    </button>
+                                  <div 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      router.push(`/product/${prod._id}`);
+                                    }}
+                                    className="flex-1 sm:flex-none bg-black hover:bg-neutral-800 text-white text-[1.1rem] uppercase tracking-widest px-6 py-3 transition-colors text-center cursor-pointer"
+                                  >
+                                    View Product
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <p className="text-[1.4rem] text-neutral-600 font-medium">{addr.street}</p>
-                      <p className="text-[1.3rem] text-neutral-500">{addr.city}, {addr.zip}</p>
-                      <p className="text-[1.3rem] text-neutral-500">{addr.country}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-24 flex flex-col items-start gap-6 border border-neutral-200 bg-neutral-50 p-12">
+                    <h4 className="text-[1.8rem] font-light text-black uppercase tracking-widest">No Orders Found</h4>
+                    <p className="text-[1.4rem] font-light text-neutral-500 max-w-lg leading-relaxed">
+                      You haven't placed any orders yet. Once you place an order, it will appear here.
+                    </p>
+                    <Link href="/" className="mt-4 bg-black hover:bg-neutral-800 text-white text-[1.2rem] uppercase tracking-widest px-10 py-4 transition-colors">
+                      Start Shopping
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Wishlist Tab */}
+            {activeTab === "wishlist" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">My Wishlist</h2>
+                {wishlistItems.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    {wishlistItems.map((item) => {
+                      const prod = item.productId;
+                      if (!prod) return null;
+                      const image = (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || (prod.parentId?.images && prod.parentId.images[0]);
+                      return (
+                        <div key={item._id || prod._id} className="flex gap-6 pb-8 border-b border-neutral-200 group">
+                          <Link href={`/product/${prod._id}`} className="w-[12rem] h-[15rem] bg-neutral-50 flex items-center justify-center shrink-0 p-4">
+                            {image ? (
+                              <img src={image} alt={prod.product_title} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                            ) : (
+                              <span className="text-[1rem] text-neutral-400 uppercase tracking-widest">No Image</span>
+                            )}
+                          </Link>
+                          <div className="flex flex-col justify-between py-2 flex-1">
+                            <div>
+                              <Link href={`/product/${prod._id}`} className="text-[1.6rem] font-light text-black leading-relaxed hover:underline line-clamp-2">
+                                {prod.product_title}
+                              </Link>
+                              <span className="text-[1.2rem] text-neutral-500 uppercase tracking-widest mt-2 block">
+                                {prod.brand?.brand_name || prod.brand}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-end mt-4">
+                              <span className="text-[1.8rem] font-light text-black">₹{prod.price}</span>
+                              <button
+                                onClick={() => removeFromWishlist(prod._id)}
+                                className="text-[1.2rem] text-neutral-500 hover:text-black uppercase tracking-widest transition-colors flex items-center gap-1"
+                              >
+                                <Trash size={14} /> Remove
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="py-24 flex flex-col items-start gap-6 border border-neutral-200 bg-neutral-50 p-12">
+                    <h4 className="text-[1.8rem] font-light text-black uppercase tracking-widest">Wishlist is Empty</h4>
+                    <p className="text-[1.4rem] font-light text-neutral-500">Save products to your wishlist so you can buy them later.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Cart Tab */}
+            {activeTab === "cart" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <div className="flex justify-between items-end">
+                  <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Shopping Cart</h2>
+                  {cart?.items?.length > 0 && (
+                    <button onClick={clearCart} className="text-[1.2rem] uppercase tracking-widest text-neutral-500 hover:text-black border-b border-transparent hover:border-black pb-1 transition-colors">
+                      Clear Cart
+                    </button>
+                  )}
+                </div>
+                
+                {cart?.items?.length > 0 ? (
+                  <div className="flex flex-col gap-8">
+                    {cart.items.map((item, index) => {
+                      const prod = item.productId;
+                      if (!prod) return null;
+                      const image = (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || (prod.parentId?.images && prod.parentId.images[0]);
+                      return (
+                        <div key={index} className="flex flex-col sm:flex-row gap-8 pb-8 border-b border-neutral-200 last:border-0 group">
+                          <Link href={`/product/${prod._id}`} className="w-[12rem] h-[15rem] bg-neutral-50 flex items-center justify-center shrink-0 p-4">
+                            {image ? (
+                              <img src={image} alt={prod.product_title} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                            ) : (
+                              <span className="text-[1rem] text-neutral-400 uppercase tracking-widest">No Image</span>
+                            )}
+                          </Link>
+                          
+                          <div className="flex flex-col justify-between py-2 flex-1">
+                            <div className="flex justify-between items-start gap-4">
+                              <div>
+                                <Link href={`/product/${prod._id}`} className="text-[1.8rem] font-light text-black leading-relaxed hover:underline line-clamp-2">
+                                  {prod.product_title}
+                                </Link>
+                                <span className="text-[1.2rem] text-neutral-500 uppercase tracking-widest mt-2 block">
+                                  {prod.brand?.brand_name || prod.brand}
+                                </span>
+                              </div>
+                              <span className="text-[1.8rem] font-light text-black shrink-0">₹{prod.price}</span>
+                            </div>
+                            
+                            <div className="flex items-end justify-between mt-6">
+                              <div className="flex items-center border border-black">
+                                <button
+                                  onClick={() => updateQuantity(prod._id, item.quantity - 1)}
+                                  className={`w-10 h-10 flex items-center justify-center text-[1.6rem] transition-colors ${item.quantity <= 1 ? 'text-neutral-300' : 'text-black hover:bg-neutral-100'}`}
+                                >
+                                  -
+                                </button>
+                                <span className="w-10 h-10 flex items-center justify-center text-[1.4rem] font-light">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(prod._id, item.quantity + 1)}
+                                  className="w-10 h-10 flex items-center justify-center text-[1.6rem] text-black hover:bg-neutral-100 transition-colors"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => removeFromCart(prod._id)}
+                                className="text-[1.2rem] text-neutral-500 hover:text-black uppercase tracking-widest flex items-center gap-1 transition-colors"
+                              >
+                                <Trash size={14} /> Remove
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    
+                    <div className="mt-8 pt-8 border-t border-black flex flex-col items-end gap-6">
+                      <div className="flex justify-between items-center w-full max-w-sm">
+                        <span className="text-[1.4rem] uppercase tracking-widest text-black">Subtotal</span>
+                        <span className="text-[2.2rem] font-light text-black">₹{cart.cartTotal}</span>
+                      </div>
+                      <Link href="/checkout" className="bg-black text-white text-[1.3rem] uppercase tracking-widest py-5 px-16 hover:bg-neutral-800 transition-colors flex items-center gap-3">
+                        Checkout <ArrowRight size={18} />
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-24 flex flex-col items-start gap-6 border border-neutral-200 bg-neutral-50 p-12">
+                    <h4 className="text-[1.8rem] font-light text-black uppercase tracking-widest">Your Cart is Empty</h4>
+                    <p className="text-[1.4rem] font-light text-neutral-500">Add products to your cart to start shopping.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Saved Addresses Tab */}
+            {activeTab === "addresses" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <div className="flex justify-between items-end">
+                  <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Saved Addresses</h2>
+                  {!showAddressForm && (
+                    <button onClick={() => { setNewAddress({ name: "", phone: "", pincode: "", locality: "", address: "", city: "", state: "", addressType: "Home" }); setShowAddressForm(true); }} className="text-[1.2rem] uppercase tracking-widest text-neutral-500 hover:text-black border-b border-transparent hover:border-black pb-1 transition-colors">
+                      + Add Address
+                    </button>
+                  )}
+                </div>
+
+                {showAddressForm && (
+                  <form onSubmit={handleAddAddress} className="border border-neutral-200 bg-neutral-50 p-10 flex flex-col gap-8 mb-8">
+                    <h3 className="text-[1.6rem] font-light uppercase tracking-widest text-black border-b border-neutral-200 pb-4">{newAddress._id ? "Edit Address" : "Add New Address"}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Full Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddress.name || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Phone</label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddress.phone || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Street Address</label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddress.address || newAddress.street || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Locality</label>
+                        <input
+                          type="text"
+                          value={newAddress.locality || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, locality: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">City</label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddress.city || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">State</label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddress.state || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Pincode</label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddress.pincode || newAddress.zip || ""}
+                          onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Label (e.g. Home, Work)</label>
+                        <input
+                          type="text"
+                          value={newAddress.addressType || newAddress.label || "Home"}
+                          onChange={(e) => setNewAddress({ ...newAddress, addressType: e.target.value })}
+                          className="border-b border-neutral-300 py-3 text-[1.5rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6 mt-4">
+                      <button type="submit" className="bg-black hover:bg-neutral-800 text-white text-[1.3rem] uppercase tracking-widest py-4 px-10 transition-all">
+                        Save Address
+                      </button>
+                      <button type="button" onClick={() => setShowAddressForm(false)} className="text-[1.2rem] text-neutral-500 hover:text-black uppercase tracking-widest border-b border-transparent hover:border-black pb-1 transition-colors">
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {addresses.map((addr) => (
+                    <div key={addr._id || addr.id} className="border border-neutral-200 p-10 flex flex-col justify-between bg-neutral-50 relative group hover:bg-white hover:border-black transition-colors">
+                      <div>
+                        <div className="flex items-center justify-between mb-6">
+                          <span className="text-[1.3rem] uppercase tracking-widest font-medium text-black bg-white px-3 py-1 border border-neutral-200">
+                            {addr.addressType || addr.label || "Home"}
+                          </span>
+                          {addr.isDefault && (
+                            <span className="text-[1rem] uppercase tracking-widest text-black font-medium border-b border-black">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[1.5rem] font-light text-black leading-relaxed">
+                          <p className="font-medium text-[1.6rem]">{addr.name}</p>
+                          <p className="text-neutral-500">{addr.phone}</p>
+                          <p className="line-clamp-2 mt-2">{addr.address || addr.street}</p>
+                          <p>{addr.locality && `${addr.locality}, `}{addr.city}, {addr.state}</p>
+                          <p className="mt-2 text-neutral-500">{addr.pincode || addr.zip}</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-10 right-10 flex gap-4">
+                        <button
+                          onClick={() => {
+                            setNewAddress(addr);
+                            setShowAddressForm(true);
+                          }}
+                          className="text-neutral-400 hover:text-black transition-colors"
+                          title="Edit Address"
+                        >
+                          <Pencil size={20} weight="light" />
+                        </button>
+                        <button
+                          onClick={() => handleRemoveAddress(addr._id || addr.id)}
+                          className="text-neutral-400 hover:text-black transition-colors"
+                          title="Delete Address"
+                        >
+                          <Trash size={20} weight="light" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {addresses.length === 0 && !showAddressForm && (
+                  <p className="text-[1.4rem] font-light text-neutral-500">You haven't saved any addresses yet.</p>
+                )}
+              </div>
+            )}
+
+            {/* Change Password Tab */}
+            {activeTab === "password" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Change Password</h2>
+                <form onSubmit={handlePasswordSave} className="flex flex-col gap-8 max-w-2xl">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Current Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                      className="border-b border-neutral-300 py-3 text-[1.6rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">New Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                      className="border-b border-neutral-300 py-3 text-[1.6rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Confirm New Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      className="border-b border-neutral-300 py-3 text-[1.6rem] font-light text-black focus:border-black outline-none transition-colors bg-transparent"
+                    />
+                  </div>
+                  <button type="submit" className="bg-black hover:bg-neutral-800 text-white text-[1.3rem] uppercase tracking-widest py-5 px-12 self-start mt-6 transition-all">
+                    Update Password
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Account Settings Tab */}
+            {activeTab === "settings" && (
+              <div className="flex flex-col gap-12 animate-fade-in">
+                <h2 className="text-[2.2rem] font-light text-black uppercase tracking-widest">Account Settings</h2>
+                <div className="flex flex-col gap-8 max-w-4xl">
+                  
+                  <div className="flex justify-between items-start border-b border-neutral-200 pb-8">
+                    <div className="max-w-md">
+                      <h4 className="text-[1.4rem] uppercase tracking-widest text-black mb-2">Email Notifications</h4>
+                      <p className="text-[1.3rem] font-light text-neutral-500">Receive emails about new products and promotions.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-14 h-7 bg-neutral-200 peer-focus:outline-none peer-checked:bg-black transition-colors"></div>
+                      <div className="absolute left-[2px] top-[2px] bg-white border border-neutral-300 h-6 w-6 transition-transform peer-checked:translate-x-full"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex justify-between items-start border-b border-neutral-200 pb-8">
+                    <div className="max-w-md">
+                      <h4 className="text-[1.4rem] uppercase tracking-widest text-black mb-2">Order Updates</h4>
+                      <p className="text-[1.3rem] font-light text-neutral-500">Receive tracking updates and delivery emails.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-14 h-7 bg-neutral-200 peer-focus:outline-none peer-checked:bg-black transition-colors"></div>
+                      <div className="absolute left-[2px] top-[2px] bg-white border border-neutral-300 h-6 w-6 transition-transform peer-checked:translate-x-full"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex justify-between items-start pt-8">
+                    <div className="max-w-md">
+                      <h4 className="text-[1.4rem] uppercase tracking-widest text-black mb-2">Deactivate Account</h4>
+                      <p className="text-[1.3rem] font-light text-neutral-500">Permanently close and deactivate your customer account.</p>
                     </div>
                     <button
-                      onClick={() => handleRemoveAddress(addr._id || addr.id)}
-                      className="absolute top-6 right-6 text-neutral-400 hover:text-red-600 transition-colors"
-                      title="Delete Address"
+                      onClick={async () => {
+                        if (window.confirm("Are you sure you want to deactivate your account? This action cannot be undone.")) {
+                          await deactivateAccount();
+                        }
+                      }}
+                      className="border border-black text-black hover:bg-black hover:text-white px-8 py-4 text-[1.2rem] uppercase tracking-widest transition-colors"
                     >
-                      <Trash className="w-[1.8rem] h-[1.8rem]" />
+                      Deactivate
                     </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* Change Password Tab */}
-          {activeTab === "password" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Change Password</h2>
-              <form onSubmit={handlePasswordSave} className="flex flex-col gap-4 max-w-xl">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[1.3rem] font-bold text-neutral-600">Current Password</label>
-                  <input
-                    type="password"
-                    required
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                    className="border border-neutral-300 rounded-xl px-4 py-3 text-[1.4rem] focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[1.3rem] font-bold text-neutral-600">New Password</label>
-                  <input
-                    type="password"
-                    required
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                    className="border border-neutral-300 rounded-xl px-4 py-3 text-[1.4rem] focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[1.3rem] font-bold text-neutral-600">Confirm New Password</label>
-                  <input
-                    type="password"
-                    required
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    className="border border-neutral-300 rounded-xl px-4 py-3 text-[1.4rem] focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none"
-                  />
-                </div>
-                <button type="submit" className="bg-black hover:bg-neutral-800 text-white text-[1.4rem] font-bold py-3.5 px-6 rounded-xl self-start mt-2 transition-all">
-                  Update Password
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Account Settings Tab */}
-          {activeTab === "settings" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-[2.2rem] font-extrabold text-neutral-800">Account Settings</h2>
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center border-b border-neutral-100 py-4">
-                  <div>
-                    <h4 className="text-[1.5rem] font-bold text-neutral-800">Email Notifications</h4>
-                    <p className="text-[1.2rem] text-neutral-500">Receive emails about new products and promotions.</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#b00015]" />
-                </div>
-                <div className="flex justify-between items-center border-b border-neutral-100 py-4">
-                  <div>
-                    <h4 className="text-[1.5rem] font-bold text-neutral-800">Order Updates</h4>
-                    <p className="text-[1.2rem] text-neutral-500">Receive tracking updates and delivery emails.</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#b00015]" />
-                </div>
-                <div className="flex justify-between items-center py-4">
-                  <div>
-                    <h4 className="text-[1.5rem] font-bold text-red-650">Deactivate Account</h4>
-                    <p className="text-[1.2rem] text-neutral-500">Permanently close and deactivate your customer account.</p>
-                  </div>
-                  <button
-                    onClick={async () => {
-                      if (window.confirm("Are you sure you want to deactivate your account? This action cannot be undone.")) {
-                        await deactivateAccount();
-                      }
-                    }}
-                    className="border border-red-500 text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl text-[1.3rem] font-bold transition-colors"
-                  >
-                    Deactivate
-                  </button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-        </section>
+          </section>
 
+        </div>
       </div>
     </main>
   );
@@ -582,8 +767,8 @@ const ProfilePageContent = () => {
 const ProfilePage = () => {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
-        <Spinner className="w-[4rem] h-[4rem] animate-spin text-[#b00015]" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Spinner className="w-[4rem] h-[4rem] animate-spin text-black" />
       </div>
     }>
       <ProfilePageContent />

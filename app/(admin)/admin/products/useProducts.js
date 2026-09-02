@@ -596,7 +596,7 @@ const useProducts = (id = null) => {
       } else {
         Object.entries(data).forEach(([key, value]) => {
           if (key === "category" || key === "brand") {
-            formData.append(key, value._id);
+            formData.append(key, value?._id || value);
           } else if (key === "variants") {
             const processedVars = value.map((v, index) => {
               const copy = { ...v };

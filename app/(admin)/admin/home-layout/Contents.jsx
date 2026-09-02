@@ -30,7 +30,6 @@ const Contents = () => {
         withCredentials: true,
       });
       setBlocks(res.data?.blocks);
-      console.log("blocks:", res.data?.blocks);
     } catch (err) {
       console.log(err.message);
       toast.error("Something Went Wrong");

@@ -3,7 +3,7 @@
 import { useContext } from "react";
 import { CartContext } from "@/context/cartContext";
 import { WishlistContext } from "@/context/wishlistContext";
-import { X, Trash, ShoppingBag, Plus, Minus } from "phosphor-react";
+import { X, Trash, Heart, ArrowRight } from "phosphor-react";
 import Link from "next/link";
 
 const CartDrawer = ({ isOpen, onClose }) => {
@@ -21,95 +21,107 @@ const CartDrawer = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-[200] overflow-hidden">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      <div className="absolute inset-y-0 right-0 flex max-w-full pl-10">
-        <div className="w-screen max-w-md transform bg-white shadow-2xl transition-all duration-300 flex flex-col h-full border-l border-neutral-200">
+      <div className="absolute inset-y-0 right-0 flex max-w-full">
+        <div className="w-screen max-w-[45rem] transform bg-white shadow-2xl transition-all duration-300 flex flex-col h-full">
           
           {/* Header */}
-          <div className="px-6 py-5 border-b border-neutral-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="w-6 h-6 text-[#b00015]" />
-              <h2 className="text-xl font-bold text-neutral-800">Your Cart</h2>
+          <div className="px-10 py-8 border-b border-neutral-200 flex items-center justify-between bg-white">
+            <h2 className="text-[1.8rem] font-light text-black uppercase tracking-widest flex items-center gap-4">
+              Your Cart
               {cart?.items?.length > 0 && (
-                <span className="bg-[#b00015]/10 text-[#b00015] px-2.5 py-0.5 rounded-full text-xs font-bold">
-                  {cart.items.length}
+                <span className="text-[1.4rem] text-neutral-500 lowercase tracking-normal font-normal">
+                  ({cart.items.length})
                 </span>
               )}
-            </div>
+            </h2>
             <button
               onClick={onClose}
-              className="text-neutral-400 hover:text-black transition-colors p-1"
+              className="text-neutral-400 hover:text-black transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X size={24} weight="light" />
             </button>
           </div>
 
           {/* Cart items list */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-10 py-6 bg-white">
             {cart?.items?.length > 0 ? (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-10">
                 {cart.items.map((item, idx) => {
                   const prod = item.productId;
                   if (!prod) return null;
+                  const image = (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || (prod.parentId?.images && prod.parentId.images[0]);
+                  
                   return (
                     <div
                       key={idx}
-                      className="flex gap-4 p-3 border border-neutral-100 rounded-2xl hover:border-neutral-200 transition-colors"
+                      className="flex gap-8 pb-8 border-b border-neutral-100 last:border-0"
                     >
-                      {prod.images && prod.images.length > 0 && (
-                        <img
-                          src={prod.images[0].url || prod.images[0]}
-                          alt={prod.product_title}
-                          className="w-20 h-20 object-cover rounded-xl border border-neutral-100 flex-shrink-0"
-                        />
-                      )}
+                      <Link href={`/product/${prod._id}`} onClick={onClose} className="w-[10rem] h-[12rem] bg-neutral-50 flex items-center justify-center shrink-0 p-2">
+                        {image ? (
+                          <img
+                            src={image}
+                            alt={prod.product_title}
+                            className="max-w-full max-h-full object-contain mix-blend-multiply"
+                          />
+                        ) : (
+                          <span className="text-[1rem] text-neutral-400 uppercase tracking-widest">No Image</span>
+                        )}
+                      </Link>
+                      
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
-                          <h4 className="text-sm font-bold text-neutral-800 line-clamp-1">
-                            {prod.product_title}
-                          </h4>
-                          <span className="text-xs text-neutral-500 font-medium">
+                          <div className="flex justify-between items-start gap-4">
+                            <Link href={`/product/${prod._id}`} onClick={onClose} className="text-[1.6rem] font-light text-black leading-tight hover:underline">
+                              {prod.product_title}
+                            </Link>
+                            <span className="text-[1.6rem] font-light text-black shrink-0">
+                              ₹{Number(prod.price || 0)}
+                            </span>
+                          </div>
+                          <span className="text-[1.2rem] text-neutral-500 uppercase tracking-widest mt-2 block">
                             {prod.brand?.brand_name || prod.brand}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-end justify-between mt-6">
                           {/* Quantity control */}
-                          <div className="flex items-center border border-neutral-200 rounded-full bg-neutral-50">
+                          <div className="flex items-center border border-black">
                             <button
                               onClick={() => updateQuantity(prod._id, item.quantity - 1)}
-                              className="px-2.5 py-1 text-sm text-neutral-600 hover:text-black font-bold flex items-center justify-center"
+                              disabled={item.quantity <= 1}
+                              className={`w-8 h-8 flex items-center justify-center text-[1.4rem] transition-colors ${item.quantity <= 1 ? 'text-neutral-300' : 'text-black hover:bg-neutral-100'}`}
                             >
-                              <Minus className="w-3 h-3" />
+                              -
                             </button>
-                            <span className="px-2 text-xs font-bold text-neutral-800">
+                            <span className="w-8 h-8 flex items-center justify-center text-[1.4rem] font-light">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(prod._id, item.quantity + 1)}
-                              className="px-2.5 py-1 text-sm text-neutral-600 hover:text-black font-bold flex items-center justify-center"
+                              className="w-8 h-8 flex items-center justify-center text-[1.4rem] text-black hover:bg-neutral-100 transition-colors"
                             >
-                              <Plus className="w-3 h-3" />
+                              +
                             </button>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-4">
                             <button
                               onClick={() => handleMoveToWishlist(prod._id)}
-                              className="text-xs text-[#b00015] hover:underline font-bold"
+                              className="text-[1.2rem] text-neutral-500 hover:text-black uppercase tracking-widest transition-colors flex items-center gap-1"
                               title="Move to Wishlist"
                             >
-                              Save
+                              <Heart size={14} /> Save
                             </button>
                             <button
                               onClick={() => removeFromCart(prod._id)}
-                              className="text-neutral-400 hover:text-red-600 transition-colors p-1"
+                              className="text-[1.2rem] text-neutral-500 hover:text-black uppercase tracking-widest transition-colors flex items-center gap-1"
                               title="Remove item"
                             >
-                              <Trash className="w-4 h-4" />
+                              <Trash size={14} /> Remove
                             </button>
                           </div>
                         </div>
@@ -119,15 +131,14 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center gap-3">
-                <ShoppingBag className="w-16 h-16 text-neutral-300" />
-                <h3 className="text-lg font-bold text-neutral-700">Your cart is empty</h3>
-                <p className="text-sm text-neutral-500 max-w-xs">
-                  Browse products and add them to your cart to start shopping.
+              <div className="flex flex-col items-center justify-center h-full text-center gap-6">
+                <h3 className="text-[1.8rem] font-light text-black tracking-widest uppercase">Your cart is empty</h3>
+                <p className="text-[1.3rem] text-neutral-500 uppercase tracking-widest leading-relaxed max-w-[25rem]">
+                  Browse our collection and add items to your cart.
                 </p>
                 <button
                   onClick={onClose}
-                  className="mt-2 bg-black hover:bg-neutral-800 text-white font-bold text-sm px-6 py-2.5 rounded-full transition-colors"
+                  className="mt-4 bg-black text-white px-10 py-4 text-[1.2rem] uppercase tracking-widest hover:bg-neutral-800 transition-colors"
                 >
                   Continue Shopping
                 </button>
@@ -137,37 +148,42 @@ const CartDrawer = ({ isOpen, onClose }) => {
 
           {/* Footer actions */}
           {cart?.items?.length > 0 && (
-            <div className="border-t border-neutral-100 px-6 py-6 bg-neutral-50 flex flex-col gap-4">
-              <div className="flex justify-between items-center text-neutral-800">
-                <span className="text-sm font-semibold text-neutral-500">Subtotal:</span>
-                <span className="text-xl font-extrabold text-neutral-900">
-                  ${cart.cartTotal}
+            <div className="border-t border-neutral-200 px-10 py-8 bg-neutral-50 flex flex-col gap-6">
+              <div className="flex justify-between items-center text-black">
+                <span className="text-[1.4rem] uppercase tracking-widest font-medium">Subtotal</span>
+                <span className="text-[2rem] font-light">
+                  ₹{cart.cartTotal}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={clearCart}
-                  className="border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 py-3 rounded-full font-bold text-sm transition-colors text-center"
-                >
-                  Clear Cart
-                </button>
+              <div className="flex flex-col gap-4">
                 <Link
                   href="/checkout"
                   onClick={onClose}
-                  className="bg-[#b00015] text-white hover:bg-red-800 py-3 rounded-full font-bold text-sm transition-colors text-center shadow-md shadow-red-700/10"
+                  className="w-full bg-black text-white text-center text-[1.3rem] uppercase tracking-widest py-5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-3"
                 >
-                  Checkout
+                  Checkout <ArrowRight size={18} />
                 </Link>
+                <div className="grid grid-cols-2 gap-4">
+                  <Link
+                    href="/cart"
+                    onClick={onClose}
+                    className="w-full bg-white border border-black text-black text-center text-[1.2rem] uppercase tracking-widest py-4 hover:bg-neutral-100 transition-colors"
+                  >
+                    View Cart
+                  </Link>
+                  <button
+                    onClick={clearCart}
+                    className="w-full bg-white border border-neutral-300 text-neutral-500 text-center text-[1.2rem] uppercase tracking-widest py-4 hover:border-black hover:text-black transition-colors"
+                  >
+                    Clear Cart
+                  </button>
+                </div>
               </div>
-
-              <Link
-                href="/cart"
-                onClick={onClose}
-                className="text-center text-xs text-neutral-500 hover:text-black font-semibold mt-1"
-              >
-                View Full Cart
-              </Link>
+              
+              <div className="text-center text-[1rem] text-neutral-500 uppercase tracking-widest mt-2">
+                Shipping & taxes calculated at checkout
+              </div>
             </div>
           )}
 

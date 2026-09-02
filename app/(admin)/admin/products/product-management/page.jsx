@@ -208,7 +208,7 @@ const VariationCard = ({ variation, index, onChange, onRemove }) => {
 };
 
 // ─── Bulk Spreadsheet Table ───────────────────────────────────────────────────
-const BulkSpreadsheet = ({ variations, setVariations }) => {
+const BulkSpreadsheet = ({ variations, setVariations, cancelImages }) => {
   const csvRef = useRef();
 
   const handleCSVUpload = (e) => {
@@ -355,9 +355,12 @@ const BulkSpreadsheet = ({ variations, setVariations }) => {
                     <td className="px-3 py-1.5">
                       <button
                         type="button"
-                        onClick={() =>
-                          setVariations((prev) => prev.filter((_, idx) => idx !== i))
-                        }
+                        onClick={() => {
+                          if (v.image && v.image.public_id && cancelImages) {
+                            cancelImages(v.image);
+                          }
+                          setVariations((prev) => prev.filter((_, idx) => idx !== i));
+                        }}
                         className="text-red-400 hover:text-red-600 transition"
                       >
                         <Trash size={16} weight="bold" />
@@ -417,6 +420,12 @@ const ProductManagement = () => {
   const isVariable = generalData?.product_type === "Variable";
 
   const handleVariationChange = (index, field, value) => {
+    if (field === "image") {
+      const oldImage = variations[index].image;
+      if (oldImage && oldImage.public_id && value !== oldImage) {
+        cancelImages(oldImage);
+      }
+    }
     setVariations((prev) => {
       const copy = [...prev];
       copy[index] = { ...copy[index], [field]: value };
@@ -427,7 +436,14 @@ const ProductManagement = () => {
   const handleBulkAction = (action) => {
     if (!action) return;
     if (action === "delete_all") {
-      if (confirm("Delete all variations?")) setVariations([]);
+      if (confirm("Delete all variations?")) {
+        variations.forEach((v) => {
+          if (v.image && v.image.public_id) {
+            cancelImages(v.image);
+          }
+        });
+        setVariations([]);
+      }
       return;
     }
     let val = "";
@@ -738,9 +754,11 @@ const ProductManagement = () => {
                       variation={v}
                       index={i}
                       onChange={handleVariationChange}
-                      onRemove={(idx) =>
-                        setVariations((prev) => prev.filter((_, j) => j !== idx))
-                      }
+                      onRemove={(idx) => {
+                        const v = variations[idx];
+                        if (v.image && v.image.public_id) cancelImages(v.image);
+                        setVariations((prev) => prev.filter((_, j) => j !== idx));
+                      }}
                     />
                   ))
                 )}
@@ -762,6 +780,7 @@ const ProductManagement = () => {
               <BulkSpreadsheet
                 variations={variations}
                 setVariations={setVariations}
+                cancelImages={cancelImages}
               />
             )}
           </section>

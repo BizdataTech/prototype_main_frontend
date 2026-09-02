@@ -4,166 +4,234 @@ import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Spinner } from "phosphor-react";
+import { Spinner, Trash } from "phosphor-react";
 
-const HomeBannerSection = () => {
-  let [bannerType, setBannerType] = useState("single");
-  let [multiple, setMultiple] = useState(true);
-
-  const bannerSchema = {
-    file: "",
-    preview: "",
-    redirection: true,
-    type: "content-block",
-    id: "",
-  };
-
-  let [banners, setBanners] = useState([]);
-  let [currentBanner, setCurrentBanner] = useState(bannerSchema);
-  let [bannerBox, setBannerBox] = useState(false);
+const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) => {
+  const [bannerType, setBannerType] = useState("single");
+  const [banners, setBanners] = useState([]);
+  const [currentBanner, setCurrentBanner] = useState(null);
+  const [bannerBox, setBannerBox] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingExisting, setLoadingExisting] = useState(!!editId);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
-  useEffect(() => {
-    setMultiple(bannerType === "carousel" ? true : false);
-  }, [bannerType]);
-
-  const submitBanner = () => {
-    setBanners((prev) => [...prev, currentBanner]);
-    setCurrentBanner(bannerSchema);
+  const bannerSchema = {
+    file: null,
+    preview: "",
+    existingImageUrl: "",
+    redirection: false,
+    type: "content-block",
+    id: "",
+    heading: "",
+    subtitle: "",
+    button_text: "",
   };
 
-  const [loading, setLoading] = useState(false);
+  // Load existing section data when editing
+  useEffect(() => {
+    if (!editId) return;
+    const loadExisting = async () => {
+      try {
+        setLoadingExisting(true);
+        const res = await axios.get(`${BACKEND_URL}/api/home-sections/${editId}`, { withCredentials: true });
+        const section = res.data?.section;
+        if (section) {
+          setBannerType(section.banner_type || "single");
+          // Map existing banners to our local schema
+          const mapped = (section.banners || []).map(b => ({
+            file: null,
+            preview: b.image?.url || "",
+            existingImageUrl: b.image?.url || "",
+            existingPublicId: b.image?.public_id || "",
+            redirection: b.redirection || false,
+            type: b.reference?.type || "content-block",
+            id: b.reference?.id?.toString() || "",
+            heading: b.heading || "",
+            subtitle: b.subtitle || "",
+            button_text: b.button_text || "",
+          }));
+          setBanners(mapped);
+        }
+      } catch (err) {
+        toast.error("Failed to load section data");
+      } finally {
+        setLoadingExisting(false);
+      }
+    };
+    loadExisting();
+  }, [editId, BACKEND_URL]);
+
+
+  const openBannerForm = () => {
+    setCurrentBanner({ ...bannerSchema });
+    setBannerBox(true);
+  };
+
+  const submitBanner = (bannerData) => {
+    if (!bannerData) return; // Guard against undefined
+    setBanners((prev) => [...prev, bannerData]);
+    setBannerBox(false);
+    setCurrentBanner(null);
+  };
+
+  const removeBanner = (index) => {
+    setBanners((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const submitBannerSection = async () => {
+    if (banners.length === 0) {
+      toast.error("Please add at least one banner first.");
+      return;
+    }
     try {
       let formData = new FormData();
-      formData.append("section_type", "hero_banner");
+      formData.append("section_type", sectionTypeParam);
       formData.append("banner_type", bannerType);
 
       banners.forEach((item, index) => {
-        formData.append(`banners[${index}][image]`, item.file);
-        formData.append(`banners[${index}][redirection]`, item.redirection);
-        if (item.redirection) {
-          formData.append(`banners[${index}][type]`, item.type);
-          formData.append(`banners[${index}][id]`, item.id);
+        // If new file selected, use it; otherwise pass existing URL so backend knows
+        if (item.file) {
+          formData.append(`banners[${index}][image]`, item.file);
+        } else if (item.existingImageUrl) {
+          formData.append(`banners[${index}][existing_image_url]`, item.existingImageUrl);
+          if (item.existingPublicId) formData.append(`banners[${index}][existing_public_id]`, item.existingPublicId);
         }
+        formData.append(`banners[${index}][redirection]`, item.redirection ? "true" : "false");
+        if (item.heading) formData.append(`banners[${index}][heading]`, item.heading);
+        if (item.subtitle) formData.append(`banners[${index}][subtitle]`, item.subtitle);
+        if (item.button_text) formData.append(`banners[${index}][button_text]`, item.button_text);
+        if (item.redirection && item.type) formData.append(`banners[${index}][type]`, item.type);
+        if (item.redirection && item.id) formData.append(`banners[${index}][id]`, item.id);
       });
 
       setLoading(true);
-      let res = await axios.post(`${BACKEND_URL}/api/home-sections`, formData, {
-        withCredentials: true,
-      });
-      setLoading(false);
 
-      toast.success(res.data?.message);
+      let res;
+      if (editId) {
+        // Update: we'll re-create the whole banners array via PUT
+        res = await axios.put(
+          `${BACKEND_URL}/api/home-sections/${editId}/banners`,
+          formData,
+          { withCredentials: true }
+        );
+      } else {
+        res = await axios.post(`${BACKEND_URL}/api/home-sections`, formData, { withCredentials: true });
+      }
+
+      setLoading(false);
+      toast.success(res.data?.message || "Section saved!");
       router.replace("/admin/home-layout");
     } catch (error) {
       setLoading(false);
-      console.log(error.message);
-      toast.error("Something Went Wrong!");
+      console.log("Error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Something Went Wrong!");
     }
   };
 
+  if (loadingExisting) {
+    return (
+      <div className="animate-pulse flex flex-col gap-4">
+        <div className="h-[20rem] bg-neutral-200 rounded-xl"></div>
+        <div className="h-12 bg-neutral-200 rounded-lg w-48 self-end"></div>
+      </div>
+    );
+  }
+
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <div>Banner Type</div>
-        <div className="flex items-center gap-12">
-          <div className="flex items-center gap-4">
-            <input
-              type="radio"
-              name="banner_type"
-              id="single"
-              checked={bannerType === "single"}
-              onChange={() => setBannerType("single")}
-            />
-            <label htmlFor="single">Single</label>
-          </div>
-          <div className="flex items-center gap-4">
-            <input
-              type="radio"
-              name="banner_type"
-              id="carousel"
-              checked={bannerType === "carousel"}
-              onChange={() => setBannerType("carousel")}
-            />
-            <label htmlFor="carousel">Carousel</label>
-          </div>
+    <section className="flex flex-col gap-6">
+      {/* Banner Type Radio */}
+      <div className="flex flex-col gap-2">
+        <div className="font-medium text-neutral-700">Banner Display Type</div>
+        <div className="flex items-center gap-8">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="banner_type" checked={bannerType === "single"} onChange={() => setBannerType("single")} />
+            Single
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="banner_type" checked={bannerType === "carousel"} onChange={() => setBannerType("carousel")} />
+            Carousel (Multiple)
+          </label>
         </div>
       </div>
-      <section className="flex flex-col gap-4">
+
+      {/* Banner List */}
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <div>Banner Previews</div>
-          {bannerType === "carousel" && banners.length >= 1 && (
-            <button
-              className="a-text--button bg-black text-white"
-              onClick={() => setBannerBox(true)}
-            >
-              Add new banner
+          <div className="font-medium">
+            Banners {banners.length > 0 && <span className="text-neutral-500 text-[1.2rem]">({banners.length} added)</span>}
+          </div>
+          {(bannerType === "carousel" || banners.length === 0) && (
+            <button className="a-text--button bg-black text-white" onClick={openBannerForm}>
+              + Add Banner
             </button>
           )}
         </div>
-        {banners.length === 0 && (
-          <div className="flex justify-center items-center bg-neutral-200 rounded-[1rem] p-16">
-            Couldn't find any banner.{" "}
-            <span
-              className="text-purple-700 underline cursor-pointer"
-              onClick={() => setBannerBox(true)}
-            >
-              Add new banner
-            </span>
+
+        {banners.length === 0 ? (
+          <div
+            className="flex flex-col justify-center items-center bg-neutral-100 rounded-xl p-16 gap-3 border-2 border-dashed border-neutral-300 cursor-pointer hover:bg-neutral-200 transition-colors"
+            onClick={openBannerForm}
+          >
+            <span className="text-[3rem]">🖼️</span>
+            <div className="text-neutral-600">No banners yet — click to add one</div>
           </div>
-        )}
-        {banners.length >= 1 && (
+        ) : (
           <div className="flex flex-col gap-4">
-            {banners.map((banner, i) => (
-              <div key={i} className="h-[20rem] relative rounded-[1rem] overflow-hidden group">
-                <img
-                  src={banner.preview}
-                  alt="banner image"
-                  className="w-full h-full object-contain rounded-[1rem] group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-black/30 z-100 rounded-2xl flex items-center justify-center group cursor-pointer">
-                  <div className="hidden group-hover:block text-white font-medium">
-                    Click to update this banner
-                  </div>
+            {banners.filter(Boolean).map((banner, i) => (
+              <div key={i} className="relative rounded-xl overflow-hidden border border-neutral-200 group">
+                {banner.preview ? (
+                  <img src={banner.preview} alt="banner preview" className="w-full h-[22rem] object-cover" />
+                ) : (
+                  <div className="w-full h-[22rem] bg-neutral-200 flex items-center justify-center text-neutral-500">No image</div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4 gap-1">
+                  {banner.subtitle && <div className="text-blue-300 text-[1.1rem] font-semibold uppercase tracking-wider">{banner.subtitle}</div>}
+                  {banner.heading && <div className="text-white text-[1.8rem] font-bold">{banner.heading}</div>}
+                  {banner.button_text && <span className="bg-white text-black text-[1.1rem] font-semibold px-4 py-1 rounded-lg w-fit mt-1">{banner.button_text}</span>}
+                  {banner.redirection && banner.id && <div className="text-green-300 text-[1.1rem]">↪ Redirects to: {banner.type === "content-block" ? "Content Block" : "Category"}</div>}
                 </div>
+                <button
+                  onClick={() => removeBanner(i)}
+                  className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                  title="Remove banner"
+                >
+                  <Trash size={16} weight="bold" />
+                </button>
               </div>
             ))}
           </div>
         )}
-        <button
-          className={`a-text--button bg-black text-white ${loading ? "!cursor-not-allowed opacity-70" : "cursor-pointer"} !py-4 mt-4 self-end`}
-          onClick={submitBannerSection}
-          disabled={loading}
-        >
-          {loading ? (
-            <div className="flex items-center gap-1">
-              Subitting Section{" "}
-              <Spinner className="w-[1.7rem] h-[1.7rem] animate-spin" />
-            </div>
-          ) : (
-            "Submit Home Section"
-          )}
-        </button>
-      </section>
-      {bannerBox &&
-        createPortal(
-          <div className="fixed inset-0 bg-black/30 z-100 flex items-center justify-center">
-            <Banner
-              banner={currentBanner}
-              setBanner={setCurrentBanner}
-              submit={submitBanner}
-              close={() => {
-                setBannerBox(false);
-                setCurrentBanner(bannerSchema);
-              }}
-            />
-          </div>,
-          document.body,
+      </div>
+
+      {/* Submit */}
+      <button
+        className={`a-text--button bg-black text-white !py-4 mt-4 self-end ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+        onClick={submitBannerSection}
+        disabled={loading}
+      >
+        {loading ? (
+          <div className="flex items-center gap-2">
+            Saving <Spinner className="w-[1.7rem] h-[1.7rem] animate-spin" />
+          </div>
+        ) : editId ? "Update Section" : (
+          sectionTypeParam === "hero_banner" ? "Submit Hero Banner" : "Submit Promotional Banner"
         )}
+      </button>
+
+      {/* Banner Modal */}
+      {bannerBox && currentBanner && createPortal(
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <Banner
+            banner={currentBanner}
+            setBanner={setCurrentBanner}
+            submit={submitBanner}
+            close={() => { setBannerBox(false); setCurrentBanner(null); }}
+          />
+        </div>,
+        document.body,
+      )}
     </section>
   );
 };

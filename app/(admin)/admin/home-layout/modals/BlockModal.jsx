@@ -13,10 +13,18 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 
+const BLOCK_TYPES = [
+  { value: "trending", label: "🔥 Trending Products" },
+  { value: "new_arrivals", label: "🆕 New Arrivals" },
+  { value: "featured", label: "⭐ Featured Products" },
+  { value: "custom", label: "✏️ Custom" },
+];
+
 const BlockModal = ({ close, block, refetch }) => {
   let { products, category, setCategory } = useModal();
   let [title, setTitle] = useState("");
-  let slug = title.trim().toLowerCase().replace(/\s+/g, "-");
+  let [blockType, setBlockType] = useState("custom");
+  let slug = title.trim().toLowerCase().replace(/s+/g, "-");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [errors, setErrors] = useState({});
 
@@ -42,10 +50,25 @@ const BlockModal = ({ close, block, refetch }) => {
 
   useEffect(() => {
     if (!blockData) return;
-    let { title, products } = blockData;
+    let { title, products, block_type } = blockData;
     setTitle(title);
     setSelectedProducts(products);
+    if (block_type) setBlockType(block_type);
   }, [blockData]);
+
+  const handleBlockTypeChange = (value) => {
+    setBlockType(value);
+    if (value !== "custom") {
+      const preset = BLOCK_TYPES.find((bt) => bt.value === value);
+      if (preset) {
+        const cleanTitle = preset.label.replace(/^[^w]+/, "").trim();
+        setTitle(cleanTitle);
+      }
+    }
+    if (block) {
+      setUpdateData((prev) => ({ ...prev, block_type: value }));
+    }
+  };
 
   useEffect(() => {
     if (blockData) {
@@ -126,7 +149,7 @@ const BlockModal = ({ close, block, refetch }) => {
         if (updateData.title) updateData.slug = slug;
         res = await axios.patch(
           `${BACKEND_URL}/api/content-blocks/${blockData._id}`,
-          updateData,
+          { ...updateData, block_type: blockType, category: category?._id || blockData?.category },
           { withCredentials: true },
         );
       } else {
@@ -135,6 +158,8 @@ const BlockModal = ({ close, block, refetch }) => {
           {
             title,
             slug,
+            block_type: blockType,
+            category: category?._id,
             products: selectedProducts.map((pro) => pro._id),
           },
           { withCredentials: true },
@@ -163,6 +188,22 @@ const BlockModal = ({ close, block, refetch }) => {
       </div>
       <div className="flex flex-col gap-6 flex-1">
         <div className="w-[50%] flex flex-col gap-6 mx-auto">
+          {/* Block Type Dropdown */}
+          <div className="flex flex-col gap-1">
+            <InputLabel label={"Block Type"} />
+            <select
+              className="a-input cursor-pointer"
+              value={blockType}
+              onChange={(e) => handleBlockTypeChange(e.target.value)}
+            >
+              {BLOCK_TYPES.map((bt) => (
+                <option key={bt.value} value={bt.value}>
+                  {bt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-8">
             <div className="flex flex-col gap-1">
               <InputLabel label={"Block Title"} error={errors.title} />
@@ -184,6 +225,8 @@ const BlockModal = ({ close, block, refetch }) => {
               />
             </div>
           </div>
+
+          {/* Category Dropdown */}
           <div>
             <Category
               selectedCategory={category}
@@ -203,10 +246,10 @@ const BlockModal = ({ close, block, refetch }) => {
           {products.length >= 1 && (
             <div className="bg-violet-50 border border-neutral-300 flex flex-col gap-4 p-4">
               <div className="a-text--label !flex items-center justify-between">
-                <div>Total products under selected category : 0</div>
+                <div>Total products under selected category : {products.length}</div>
                 <div className="flex items-center gap-6">
                   <CaretLeft className="w-[1.5rem] h-[1.5rem] cursor-pointer" />
-                  0
+                  {products.length}
                   <CaretRight className="w-[1.5rem] h-[1.5rem] cursor-pointer" />
                 </div>
               </div>
@@ -289,9 +332,11 @@ const BlockModal = ({ close, block, refetch }) => {
       >
         {loading ? (
           <div className="flex items-center gap-1">
-            Creating Content Block{" "}
+            {block ? "Updating" : "Creating"} Content Block{" "}
             <Spinner className="w-[1.8rem] h-[1.8rem] animate-spin" />
           </div>
+        ) : block ? (
+          "Update Content Block"
         ) : (
           "Create Content Block"
         )}

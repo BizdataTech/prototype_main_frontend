@@ -19,7 +19,7 @@ export const Details = ({ config }) => {
 
   const handleWishlistToggle = () => {
     if (inWishlist) {
-      removeFromWishlist(product?._id);
+      router.push("/wishlist");
     } else {
       addToWishlist(product?._id);
     }
@@ -56,7 +56,7 @@ export const Details = ({ config }) => {
           }`}
           onClick={handleWishlistToggle}
         >
-          {inWishlist ? "Wishlisted ♥" : "Add to Wishlist"}
+          {inWishlist ? "View Wishlist ♥" : "Add to Wishlist"}
         </button>
         <button
           className={`button bg-black text-white text-center ${
