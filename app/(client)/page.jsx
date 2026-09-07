@@ -2,29 +2,33 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import ProductCard from "./category/[category]/ProductCard";
 import axios from "axios";
 import useSWR from "swr";
+import { ArrowRight } from "phosphor-react";
+
+import ServiceStrip from "@/components/client/Home/ServiceStrip";
+import DynamicCategoryGrid from "@/components/client/Home/DynamicCategoryGrid";
+import ProductShelf from "@/components/client/Home/ProductShelf";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ClientPage = () => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  // ── Fetch all home sections (auto-refreshes every 5 s) ──────────────────
+  // ── 1. Fetch all home sections (auto-refreshes every 5s from DB) ────────
   const { data, error, isLoading } = useSWR(
     `${BACKEND_URL}/api/home-sections`,
     fetcher,
     { refreshInterval: 5000 }
   );
 
-  // ── Derive sorted + active sections from SWR data ───────────────────────
+  // ── 2. Derive sorted & active sections ───────────────────────────────────
   const rawSections = (data?.sections || [])
     .filter((s) => s.active !== false)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-  // ── Fetch products for product_listing sections ──────────────────────────
-  const [enrichedSections, setEnrichedSections] = useState(null); // null = not yet enriched
+  // ── 3. Enrich product listings with live database products ───────────────
+  const [enrichedSections, setEnrichedSections] = useState(null);
 
   useEffect(() => {
     if (!rawSections.length) {
@@ -35,7 +39,6 @@ const ClientPage = () => {
     let cancelled = false;
 
     const enrich = async () => {
-      // Deep-clone so we never mutate SWR's cached object
       const cloned = rawSections.map((s) => ({ ...s }));
 
       await Promise.all(
@@ -49,14 +52,13 @@ const ClientPage = () => {
                 typeof section.reference.id === "object"
                   ? section.reference.id._id ?? section.reference.id
                   : section.reference.id;
+
               if (section.reference.type === "category") {
-                // Fetch products directly by category ID
                 const prodRes = await axios.get(
                   `${BACKEND_URL}/api/products?filter=product-list&category=${refId}`
                 );
                 section.products = prodRes.data?.products || [];
               } else {
-                // Fetch products from a content block
                 const prodRes = await axios.get(
                   `${BACKEND_URL}/api/content-blocks/${refId}?filter=client`
                 );
@@ -73,197 +75,269 @@ const ClientPage = () => {
     };
 
     enrich();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]); // re-run only when SWR data changes
+    return () => {
+      cancelled = true;
+    };
+  }, [data]);
 
-  // Use enrichedSections once ready, otherwise fall back to rawSections
-  // so banners display immediately without waiting for product enrichment
   const displaySections = enrichedSections ?? rawSections;
 
-  // ── Loading state ────────────────────────────────────────────────────────
-  if (isLoading) {
+  // ── Loading Skeleton ─────────────────────────────────────────────────────
+  if (isLoading && !displaySections.length) {
     return (
-      <main className="lg:pt-[11rem] w-[90%] mx-auto py-12 space-y-12">
-        <div className="a-animation--container h-[35rem] rounded-3xl overflow-hidden my-4">
-          <div className="a-animation--mask a-animation--effect"></div>
+      <main className="lg:pt-[11rem] w-[90%] mx-auto py-12 space-y-10 min-h-screen">
+        <div className="h-20 bg-neutral-200 rounded-2xl animate-pulse" />
+        <div className="h-[420px] bg-neutral-200 rounded-3xl animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-44 bg-neutral-200 rounded-2xl animate-pulse" />
+          ))}
         </div>
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="shimmer h-[25rem] rounded-2xl"></div>
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="h-[320px] bg-neutral-200 rounded-2xl animate-pulse" />
         ))}
       </main>
     );
   }
 
-  // ── Error state ──────────────────────────────────────────────────────────
-  if (error) {
+  // ── Error State ──────────────────────────────────────────────────────────
+  if (error && !displaySections.length) {
     return (
-      <main className="lg:pt-[11rem] bg-pattern min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <span className="text-[6rem]">⚠️</span>
-          <h1 className="text-[2.4rem] font-bold text-neutral-700">
-            Failed to load homepage
+      <main className="lg:pt-[11rem] min-h-screen flex items-center justify-center p-6">
+        <div className="text-center space-y-4 max-w-md bg-white p-10 rounded-3xl border border-neutral-200 shadow-lg">
+          <span className="text-[5rem]">⚠️</span>
+          <h1 className="text-[2.4rem] font-bold text-neutral-800">
+            Unable to connect to server
           </h1>
           <p className="text-[1.4rem] text-neutral-500">
-            Please check your connection and try refreshing.
+            Please make sure the backend server is running and try refreshing.
           </p>
         </div>
       </main>
     );
   }
 
-  // ── Empty state ──────────────────────────────────────────────────────────
-  if (displaySections.length === 0) {
-    return (
-      <main className="lg:pt-[11rem] bg-pattern min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <span className="text-[6rem]">🏗️</span>
-          <h1 className="text-[2.4rem] font-bold text-neutral-700">
-            Homepage is being configured
-          </h1>
-          <p className="text-[1.4rem] text-neutral-500">
-            Check back soon — we&apos;re setting things up!
-          </p>
-        </div>
-      </main>
+  // ── Separate Sections for the exact requested visual hierarchy ───────────
+  const heroSections = displaySections.filter(
+    (s) => s.section_type === "hero_banner"
+  );
+  const midBanners = displaySections.filter(
+    (s) => s.section_type === "mid_page_banner"
+  );
+  const productSections = displaySections.filter(
+    (s) => s.section_type === "product_listing"
+  );
+
+  // Identify specific product sections based on title or fallback order
+  const newArrivals =
+    productSections.find((s) => /new arrivals/i.test(s.title)) ||
+    productSections[0];
+
+  const trendingProducts =
+    productSections.find((s) => /trending/i.test(s.title)) ||
+    productSections.find((s) => s !== newArrivals);
+
+  const featuredProducts =
+    productSections.find((s) => /featured/i.test(s.title)) ||
+    productSections.find((s) => s !== newArrivals && s !== trendingProducts);
+
+  const bestSellersOrTools =
+    productSections.find((s) => /tools|best seller|popular/i.test(s.title)) ||
+    productSections.find(
+      (s) =>
+        s !== newArrivals &&
+        s !== trendingProducts &&
+        s !== featuredProducts
     );
-  }
 
-  // ── Render sections ──────────────────────────────────────────────────────
-  return (
-    <main className="lg:pt-[11rem] bg-pattern min-h-screen pb-16">
-      {displaySections.map((section) => {
+  const promoBanner1 = midBanners[0];
+  const promoBanner2 = midBanners[1] || midBanners[0];
 
-        /* ── HERO BANNER / PROMOTIONAL BANNER ─────────────────────────── */
-        if (
-          section.section_type === "hero_banner" ||
-          section.section_type === "mid_page_banner"
-        ) {
-          const isHero = section.section_type === "hero_banner";
+  // Any other product sections configured by admin
+  const remainingSections = productSections.filter(
+    (s) =>
+      s !== newArrivals &&
+      s !== trendingProducts &&
+      s !== featuredProducts &&
+      s !== bestSellersOrTools
+  );
 
-          return (
-            <section
-              key={section._id}
-              className="w-[95%] md:w-[90%] mx-auto my-8"
-            >
-              {(section.banners || []).map((banner, bIdx) => (
-                <div
-                  key={bIdx}
-                  className={`relative overflow-hidden rounded-3xl shadow-xl mb-4 flex flex-col justify-end ${
-                    isHero ? "min-h-[460px]" : "min-h-[260px]"
-                  }`}
-                  style={{
-                    backgroundImage: banner.image?.url
-                      ? `url(${banner.image.url})`
-                      : "none",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundColor: banner.image?.url
-                      ? "transparent"
-                      : "#1e293b",
-                  }}
-                >
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+  // Helper to render banner cards
+  const renderBannerItem = (banner, isHero = false) => {
+    if (!banner?.image?.url) return null;
 
-                  {/* Text content — only if at least one field exists */}
-                  {(banner.subtitle || banner.heading || banner.button_text) && (
-                    <div className="relative z-10 p-8 md:p-14 space-y-3 max-w-3xl">
-                      {banner.subtitle && (
-                        <span className="inline-block bg-blue-500/30 text-blue-200 backdrop-blur-sm px-4 py-1 rounded-full text-[1.2rem] font-semibold tracking-widest uppercase">
-                          {banner.subtitle}
-                        </span>
-                      )}
-                      {banner.heading && (
-                        <h2
-                          className={`font-bold leading-tight tracking-tight text-white drop-shadow-md ${
-                            isHero
-                              ? "text-[3rem] md:text-[4.5rem]"
-                              : "text-[2.2rem] md:text-[3rem]"
-                          }`}
-                        >
-                          {banner.heading}
-                        </h2>
-                      )}
-                      {banner.button_text && (
-                        <div className="pt-2">
-                          <Link
-                            href={
-                              banner.redirection && banner.reference?.slug
-                                ? banner.reference.type === "category"
-                                  ? `/category/${banner.reference.slug}`
-                                  : `/products?block=${banner.reference.slug}`
-                                : "/products"
-                            }
-                            className="inline-block bg-white text-black hover:bg-neutral-100 font-semibold text-[1.4rem] px-7 py-3 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200 transition-all"
-                          >
-                            {banner.button_text}
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </section>
-          );
-        }
+    const bannerContent = (
+      <div
+        className={`relative overflow-hidden rounded-3xl shadow-md transition-all duration-300 hover:shadow-xl group flex flex-col justify-end ${
+          isHero
+            ? "min-h-[380px] sm:min-h-[460px] md:min-h-[520px]"
+            : "min-h-[220px] sm:min-h-[280px] md:min-h-[340px]"
+        }`}
+        style={{
+          backgroundImage: `url(${banner.image.url})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundColor: "#1e293b",
+        }}
+      >
+        {/* Subtle gradient overlay if text exists */}
+        {(banner.heading || banner.subtitle || banner.button_text) && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+        )}
 
-        /* ── PRODUCT LISTING ───────────────────────────────────────────── */
-        if (section.section_type === "product_listing") {
-          return (
-            <section
-              key={section._id}
-              className="w-[95%] md:w-[90%] mx-auto my-12"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-[2.2rem] font-bold text-neutral-800 tracking-tight">
-                  {section.title || "Products"}
-                </h2>
-                <Link
-                  href={
-                    section.reference?.slug
-                      ? `/products?block=${section.reference.slug}`
-                      : "/products"
-                  }
-                  className="text-[1.4rem] font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  View All →
-                </Link>
+        {(banner.heading || banner.subtitle || banner.button_text) && (
+          <div className="relative z-10 p-6 sm:p-10 md:p-14 space-y-4 max-w-2xl">
+            {banner.subtitle && (
+              <span className="inline-block bg-[#b00015] text-white px-4 py-1.5 rounded-full text-[1.2rem] font-bold tracking-widest uppercase shadow-md">
+                {banner.subtitle}
+              </span>
+            )}
+            {banner.heading && (
+              <h2
+                className={`font-extrabold leading-tight text-white drop-shadow-md tracking-tight ${
+                  isHero
+                    ? "text-[2.8rem] sm:text-[4rem] md:text-[4.8rem]"
+                    : "text-[2.2rem] sm:text-[3rem]"
+                }`}
+              >
+                {banner.heading}
+              </h2>
+            )}
+            {banner.button_text && (
+              <div className="pt-2">
+                <span className="inline-flex items-center gap-2 bg-[#b00015] hover:bg-[#8f0011] text-white font-bold text-[1.4rem] px-7 py-3 rounded-xl shadow-lg transition-transform hover:-translate-y-0.5">
+                  {banner.button_text} <ArrowRight size={16} weight="bold" />
+                </span>
               </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
 
-              {section.products && section.products.length > 0 ? (
-                <div
-                  className={`grid gap-6 ${
-                    section.layout === "grid"
-                      ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5"
-                      : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                  }`}
-                >
-                  {section.products
-                    .slice(0, section.limit || 8)
-                    .map((product) => (
-                      <ProductCard key={product._id} product={product} />
-                    ))}
-                </div>
-              ) : (
-                <div className="bg-white rounded-2xl p-12 text-center border border-neutral-100">
-                  <span className="text-[4rem]">🛍️</span>
-                  <h3 className="text-[1.8rem] font-semibold text-neutral-700 mt-3">
-                    No products in this section
-                  </h3>
-                  <p className="text-[1.4rem] text-neutral-500">
-                    Add products to the linked content block to display them
-                    here.
-                  </p>
-                </div>
-              )}
-            </section>
-          );
-        }
+    if (banner.redirection && banner.reference?.slug) {
+      const href =
+        banner.reference.type === "category"
+          ? `/category/${banner.reference.slug}`
+          : `/products?block=${banner.reference.slug}`;
+      return (
+        <Link key={banner.image.public_id || banner.image.url} href={href} className="block">
+          {bannerContent}
+        </Link>
+      );
+    }
 
-        return null;
-      })}
+    return (
+      <div key={banner.image.public_id || banner.image.url}>
+        {bannerContent}
+      </div>
+    );
+  };
+
+  // Helper for dynamic section View All links to backend categories
+  const getViewAllLink = (section) => {
+    if (!section?.reference) return "/products";
+    if (section.reference.id) {
+      return `/category/${section.reference.id}`;
+    }
+    if (section.reference.slug) {
+      return `/category/${section.reference.slug.replace(/_/g, "-")}`;
+    }
+    return "/products";
+  };
+
+  return (
+    <main className="lg:pt-[11rem] bg-[#f8f9fa] min-h-screen pb-20">
+      
+      {/* ── 1. TOP PROMOTIONAL / SERVICE STRIP ──────────────────────────── */}
+      <ServiceStrip />
+
+      {/* ── 2. HERO SECTION (Dynamic from Backend) ────────────────────── */}
+      {heroSections.map((section) => (
+        <section key={section._id} className="w-[95%] md:w-[90%] mx-auto my-6">
+          {(section.banners || []).map((banner) => renderBannerItem(banner, true))}
+        </section>
+      ))}
+
+      {/* ── 3. NEW ARRIVALS (Live Products from DB) ────────────────────── */}
+      {newArrivals && (
+        <ProductShelf
+          title={newArrivals.title || "New Arrivals"}
+          subtitle="Latest building materials & architectural panels in stock"
+          badge="JUST ARRIVED"
+          products={newArrivals.products || []}
+          layout={newArrivals.layout || "horizontal"}
+          limit={newArrivals.limit || 10}
+          viewAllLink={getViewAllLink(newArrivals)}
+        />
+      )}
+
+      {/* ── 4. PROMOTIONAL / BANNER SECTION (Mid-Page Banner 1) ────────── */}
+      {promoBanner1 && (
+        <section className="w-[95%] md:w-[90%] mx-auto my-12">
+          {(promoBanner1.banners || []).map((banner) => renderBannerItem(banner, false))}
+        </section>
+      )}
+
+      {/* ── 5. FEATURED PRODUCTS & CATEGORIES ─────────────────────────── */}
+      <DynamicCategoryGrid />
+
+      {featuredProducts && (
+        <ProductShelf
+          title={featuredProducts.title || "Featured Products"}
+          subtitle="Top rated acrylic sheets and premium hardware supplies"
+          badge="HANDPICKED"
+          products={featuredProducts.products || []}
+          layout={featuredProducts.layout || "horizontal"}
+          limit={featuredProducts.limit || 10}
+          viewAllLink={getViewAllLink(featuredProducts)}
+        />
+      )}
+
+      {/* ── 6. TRENDING SECTION (Live ACP Sheets / Trending Materials) ─── */}
+      {trendingProducts && (
+        <ProductShelf
+          title={trendingProducts.title || "Trending Products"}
+          subtitle="Most viewed building and construction materials this month"
+          badge="HIGH DEMAND"
+          products={trendingProducts.products || []}
+          layout={trendingProducts.layout || "horizontal"}
+          limit={trendingProducts.limit || 10}
+          viewAllLink={getViewAllLink(trendingProducts)}
+        />
+      )}
+
+      {/* ── 7. BEST SELLERS / POPULAR PRODUCTS (Tools & Hardware) ───────── */}
+      {bestSellersOrTools && (
+        <ProductShelf
+          title={bestSellersOrTools.title || "Best Sellers & Pro Tools"}
+          subtitle="Contractor grade power tools and essential equipment"
+          badge="BESTSELLER"
+          products={bestSellersOrTools.products || []}
+          layout={bestSellersOrTools.layout || "horizontal"}
+          limit={bestSellersOrTools.limit || 10}
+          viewAllLink={getViewAllLink(bestSellersOrTools)}
+        />
+      )}
+
+      {/* ── 8. PROMOTIONAL OFFER BANNER (Mid-Page Banner 2) ────────────── */}
+      {promoBanner2 && promoBanner2 !== promoBanner1 && (
+        <section className="w-[95%] md:w-[90%] mx-auto my-12">
+          {(promoBanner2.banners || []).map((banner) => renderBannerItem(banner, false))}
+        </section>
+      )}
+
+      {/* ── 9. ADDITIONAL PRODUCT SECTIONS CONFIGURED IN ADMIN ──────────── */}
+      {remainingSections.map((section) => (
+        <ProductShelf
+          key={section._id}
+          title={section.title || "Special Collection"}
+          products={section.products || []}
+          layout={section.layout || "horizontal"}
+          limit={section.limit || 10}
+          viewAllLink={getViewAllLink(section)}
+        />
+      ))}
     </main>
   );
 };

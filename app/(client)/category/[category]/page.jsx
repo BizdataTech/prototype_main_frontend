@@ -12,12 +12,13 @@ const ProductList = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filter, setFilter] = useState({});
   const [sidebar, setSidebar] = useState([]);
+  const [loading, setLoading] = useState(true);
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
-    // better to filter in backend
     const getProducts = async () => {
       try {
+        setLoading(true);
         const response = await fetch(
           `${BACKEND_URL}/api/products?filter=product-list&category=${category}`,
           {
@@ -25,23 +26,23 @@ const ProductList = () => {
           }
         );
         let data = await response.json();
-        if (!response.ok) throw new Error(error.message);
+        if (!response.ok) throw new Error(data.message || "Failed to fetch products");
         else {
-          console.log("product list from backend:", data.products);
-          setProducts(data.products);
-          setFilteredProducts(data.products);
+          setProducts(data.products || []);
+          setFilteredProducts(data.products || []);
         }
       } catch (error) {
         console.log("error:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
-    getProducts();
-  }, [category]);
+    if (category) getProducts();
+  }, [category, BACKEND_URL]);
 
   useEffect(() => {
     const filtered = products.filter((product) => {
       return Object.entries(filter).every(([key, values]) => {
-        // values is an array (e.g., ["Nike", "Adidas"])
         return values.includes(product[key]);
       });
     });
@@ -56,10 +57,9 @@ const ProductList = () => {
       const prevValues = prev[name] || [];
 
       let updatedValues = checked
-        ? [...prevValues, value] // add if checked
-        : prevValues.filter((v) => v !== value); // remove if unchecked
+        ? [...prevValues, value]
+        : prevValues.filter((v) => v !== value);
 
-      // if array empty, remove the key
       const newFilter = { ...prev };
       if (updatedValues.length > 0) newFilter[name] = updatedValues;
       else delete newFilter[name];
@@ -84,11 +84,11 @@ const ProductList = () => {
         console.error(error.message);
       }
     };
-    getCategory();
-  }, [category]);
+    if (category) getCategory();
+  }, [category, BACKEND_URL]);
 
   useEffect(() => {
-    let brands = [...new Set(products.map((product) => product.brand))];
+    let brands = [...new Set(products.map((product) => product.brand).filter(Boolean))];
     let obj1 = {
       head: "Brands",
       label: "brand",
@@ -98,17 +98,28 @@ const ProductList = () => {
   }, [products]);
 
   return (
-    <main className="bg-pattern">
-      <div className="product-list w-[90%] mx-auto pt-[15rem] pb-4">
-        <div className="flex gap-6 my-2">
+    <main className="lg:pt-[11rem] bg-[#f8f9fa] min-h-screen pb-20">
+      <div className="product-list w-[95%] md:w-[90%] mx-auto py-8">
+        <div className="flex flex-col md:flex-row gap-6 my-2">
           <ProductlistSidebar
             sidebar={sidebar}
             filterProducts={filterProducts}
           />
-          <ProductlistBody
-            products={filteredProducts}
-            categoryObject={categoryObject}
-          />
+          {loading ? (
+            <div className="flex-1 space-y-6">
+              <div className="h-28 bg-white rounded-2xl animate-pulse border border-neutral-200" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="h-80 bg-white rounded-2xl animate-pulse border border-neutral-200" />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <ProductlistBody
+              products={filteredProducts}
+              categoryObject={categoryObject}
+            />
+          )}
         </div>
       </div>
     </main>

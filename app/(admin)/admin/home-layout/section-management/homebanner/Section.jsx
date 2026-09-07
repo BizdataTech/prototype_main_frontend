@@ -4,13 +4,14 @@ import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Spinner, Trash } from "phosphor-react";
+import { PencilSimple, Spinner, Trash } from "phosphor-react";
 
 const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) => {
   const [bannerType, setBannerType] = useState("single");
   const [banners, setBanners] = useState([]);
   const [currentBanner, setCurrentBanner] = useState(null);
   const [bannerBox, setBannerBox] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(!!editId);
 
@@ -21,6 +22,7 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
     file: null,
     preview: "",
     existingImageUrl: "",
+    existingPublicId: "",
     redirection: false,
     type: "content-block",
     id: "",
@@ -63,20 +65,78 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
     loadExisting();
   }, [editId, BACKEND_URL]);
 
-
   const openBannerForm = () => {
+    setEditingIndex(null);
     setCurrentBanner({ ...bannerSchema });
     setBannerBox(true);
   };
 
-  const submitBanner = (bannerData) => {
-    if (!bannerData) return; // Guard against undefined
-    setBanners((prev) => [...prev, bannerData]);
-    setBannerBox(false);
-    setCurrentBanner(null);
+  const editBanner = (index) => {
+    setEditingIndex(index);
+    setCurrentBanner({ ...banners[index] });
+    setBannerBox(true);
   };
 
-  const removeBanner = (index) => {
+  const submitBanner = (bannerData) => {
+    if (!bannerData) return;
+    if (editingIndex !== null) {
+      setBanners((prev) => {
+        let updated = [...prev];
+        updated[editingIndex] = bannerData;
+        return updated;
+      });
+    } else {
+      setBanners((prev) => {
+        const next = [...prev, bannerData];
+        if (next.length > 1) setBannerType("carousel");
+        return next;
+      });
+    }
+    setBannerBox(false);
+    setCurrentBanner(null);
+    setEditingIndex(null);
+  };
+
+  const removeBanner = async (index) => {
+    const target = banners[index];
+    if (!target) return;
+
+    const isLocalOnly = !!target.file || (!target.existingImageUrl && !target.existingPublicId);
+
+    if (editId && !isLocalOnly) {
+      if (!confirm("Are you sure you want to delete this banner image? It will be permanently deleted from Cloud Storage.")) return;
+      try {
+        let dbIndex = 0;
+        for (let i = 0; i < index; i++) {
+          if (!banners[i].file && (banners[i].existingImageUrl || banners[i].existingPublicId)) {
+            dbIndex++;
+          }
+        }
+        const res = await axios.delete(`${BACKEND_URL}/api/home-sections/${editId}/banners/${dbIndex}`, { withCredentials: true });
+        toast.success("Banner image deleted from cloud & database");
+        if (res.data?.banners) {
+          const mappedFromDb = res.data.banners.map(b => ({
+            file: null,
+            preview: b.image?.url || "",
+            existingImageUrl: b.image?.url || "",
+            existingPublicId: b.image?.public_id || "",
+            redirection: b.redirection || false,
+            type: b.reference?.type || "content-block",
+            id: b.reference?.id?.toString() || "",
+            heading: b.heading || "",
+            subtitle: b.subtitle || "",
+            button_text: b.button_text || "",
+          }));
+          const unsavedLocalBanners = banners.filter((b, i) => i !== index && (b.file || (!b.existingImageUrl && !b.existingPublicId)));
+          setBanners([...mappedFromDb, ...unsavedLocalBanners]);
+          return;
+        }
+      } catch (err) {
+        console.log("Delete banner error:", err);
+        toast.error("Failed to delete banner from cloud");
+        return;
+      }
+    }
     setBanners((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -91,7 +151,6 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
       formData.append("banner_type", bannerType);
 
       banners.forEach((item, index) => {
-        // If new file selected, use it; otherwise pass existing URL so backend knows
         if (item.file) {
           formData.append(`banners[${index}][image]`, item.file);
         } else if (item.existingImageUrl) {
@@ -99,9 +158,9 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
           if (item.existingPublicId) formData.append(`banners[${index}][existing_public_id]`, item.existingPublicId);
         }
         formData.append(`banners[${index}][redirection]`, item.redirection ? "true" : "false");
-        if (item.heading) formData.append(`banners[${index}][heading]`, item.heading);
-        if (item.subtitle) formData.append(`banners[${index}][subtitle]`, item.subtitle);
-        if (item.button_text) formData.append(`banners[${index}][button_text]`, item.button_text);
+        formData.append(`banners[${index}][heading]`, item.heading || "");
+        formData.append(`banners[${index}][subtitle]`, item.subtitle || "");
+        formData.append(`banners[${index}][button_text]`, item.button_text || "");
         if (item.redirection && item.type) formData.append(`banners[${index}][type]`, item.type);
         if (item.redirection && item.id) formData.append(`banners[${index}][id]`, item.id);
       });
@@ -110,7 +169,6 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
 
       let res;
       if (editId) {
-        // Update: we'll re-create the whole banners array via PUT
         res = await axios.put(
           `${BACKEND_URL}/api/home-sections/${editId}/banners`,
           formData,
@@ -162,11 +220,9 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
           <div className="font-medium">
             Banners {banners.length > 0 && <span className="text-neutral-500 text-[1.2rem]">({banners.length} added)</span>}
           </div>
-          {(bannerType === "carousel" || banners.length === 0) && (
-            <button className="a-text--button bg-black text-white" onClick={openBannerForm}>
-              + Add Banner
-            </button>
-          )}
+          <button className="a-text--button bg-black text-white cursor-pointer" onClick={openBannerForm}>
+            + Add Banner
+          </button>
         </div>
 
         {banners.length === 0 ? (
@@ -192,13 +248,22 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
                   {banner.button_text && <span className="bg-white text-black text-[1.1rem] font-semibold px-4 py-1 rounded-lg w-fit mt-1">{banner.button_text}</span>}
                   {banner.redirection && banner.id && <div className="text-green-300 text-[1.1rem]">↪ Redirects to: {banner.type === "content-block" ? "Content Block" : "Category"}</div>}
                 </div>
-                <button
-                  onClick={() => removeBanner(i)}
-                  className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                  title="Remove banner"
-                >
-                  <Trash size={16} weight="bold" />
-                </button>
+                <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => editBanner(i)}
+                    className="bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    title="Edit banner"
+                  >
+                    <PencilSimple size={16} weight="bold" />
+                  </button>
+                  <button
+                    onClick={() => removeBanner(i)}
+                    className="bg-red-600 text-white p-2 rounded-full shadow-lg hover:bg-red-700 transition-colors cursor-pointer"
+                    title="Remove banner"
+                  >
+                    <Trash size={16} weight="bold" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -207,7 +272,7 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
 
       {/* Submit */}
       <button
-        className={`a-text--button bg-black text-white !py-4 mt-4 self-end ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+        className={`a-text--button bg-black text-white !py-4 mt-4 self-end ${loading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
         onClick={submitBannerSection}
         disabled={loading}
       >
@@ -227,7 +292,7 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
             banner={currentBanner}
             setBanner={setCurrentBanner}
             submit={submitBanner}
-            close={() => { setBannerBox(false); setCurrentBanner(null); }}
+            close={() => { setBannerBox(false); setCurrentBanner(null); setEditingIndex(null); }}
           />
         </div>,
         document.body,

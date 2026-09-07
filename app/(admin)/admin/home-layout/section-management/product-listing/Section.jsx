@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "phosphor-react";
 import { InputLabel } from "@/components/admin/InputLabel";
 
-const ProductListingSection = () => {
+const ProductListingSection = ({ editId = null }) => {
   const [references, setReferences] = useState([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -20,6 +20,30 @@ const ProductListingSection = () => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
+    if (!editId) return;
+    const fetchExisting = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/home-sections/${editId}`, { withCredentials: true });
+        const sec = res.data?.section;
+        if (sec) {
+          const refType = sec.reference?.type || "content-block";
+          const refId = typeof sec.reference?.id === "object" ? sec.reference?.id?._id : sec.reference?.id || "";
+          const refSlug = sec.reference?.slug || "";
+          setFormData({
+            title: sec.title || "",
+            limit: sec.limit || 8,
+            layout: sec.layout || "horizontal",
+            reference: { type: refType, slug: refSlug, id: refId },
+          });
+        }
+      } catch (err) {
+        toast.error("Failed to load section data");
+      }
+    };
+    fetchExisting();
+  }, [editId, BACKEND_URL]);
+
+  useEffect(() => {
     const getReferences = async () => {
       try {
         let res = await axios.get(
@@ -32,7 +56,7 @@ const ProductListingSection = () => {
       }
     };
     getReferences();
-  }, [formData.reference.type]);
+  }, [formData.reference.type, BACKEND_URL]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,14 +81,32 @@ const ProductListingSection = () => {
     }
     try {
       setLoading(true);
-      await axios.post(`${BACKEND_URL}/api/home-sections`, {
-        section_type: "product_listing",
-        title: formData.title,
-        limit: formData.limit,
-        layout: formData.layout,
-        reference: JSON.stringify(formData.reference)
-      }, { withCredentials: true });
-      toast.success("Product Listing Section Created");
+      if (editId) {
+        await axios.put(
+          `${BACKEND_URL}/api/home-sections/${editId}`,
+          {
+            title: formData.title,
+            limit: formData.limit,
+            layout: formData.layout,
+            reference: JSON.stringify(formData.reference),
+          },
+          { withCredentials: true }
+        );
+        toast.success("Product Listing Section Updated");
+      } else {
+        await axios.post(
+          `${BACKEND_URL}/api/home-sections`,
+          {
+            section_type: "product_listing",
+            title: formData.title,
+            limit: formData.limit,
+            layout: formData.layout,
+            reference: JSON.stringify(formData.reference),
+          },
+          { withCredentials: true }
+        );
+        toast.success("Product Listing Section Created");
+      }
       router.replace("/admin/home-layout");
     } catch (err) {
       console.log(err.message);
@@ -123,7 +165,7 @@ const ProductListingSection = () => {
         )}
       </div>
       <button className="a-text--button bg-black text-white !py-4 mt-4 self-end" onClick={submitSection} disabled={loading}>
-        {loading ? <Spinner className="animate-spin w-6 h-6" /> : "Submit Section"}
+        {loading ? <Spinner className="animate-spin w-6 h-6" /> : editId ? "Update Section" : "Submit Section"}
       </button>
     </section>
   );

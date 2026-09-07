@@ -38,8 +38,9 @@ const Banner = ({ banner, setBanner, submit, close }) => {
 
   const handleFileInput = (e) => {
     let file = e.target.files[0];
+    if (!file) return;
     let url = URL.createObjectURL(file);
-    setBanner((prev) => ({ ...prev, file, preview: url }));
+    setBanner((prev) => ({ ...prev, file, preview: url, existingImageUrl: "" }));
     setErrors((prev) => { let { preview, ...rest } = prev; return rest; });
   };
 

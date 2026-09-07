@@ -35,8 +35,8 @@ const BrandForm = ({ refetch, close, id }) => {
 
   useEffect(() => {
     if (!brand) return;
-    setPreviewURL(brand.image.url);
-    setBrandName(brand.brand_name);
+    setPreviewURL(brand?.image?.url || null);
+    setBrandName(brand?.brand_name || "");
   }, [brand]);
 
   const openSystemFiles = () => {

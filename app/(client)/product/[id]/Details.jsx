@@ -32,8 +32,7 @@ export const Details = ({ config }) => {
           <h1 className="text-[2.2rem] font-medium leading-[3rem]">
             {product?.parent?.product_title}
           </h1>
-          <h2 className="text-[1.6rem]">{product?.parent?.brand}</h2>
-        </div>
+          </div>
 
         <div className="flex gap-6">
           <p className="text-[3rem] font-medium">₹{product.price}</p>

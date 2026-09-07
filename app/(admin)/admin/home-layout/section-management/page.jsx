@@ -12,6 +12,8 @@ const SectionManagementContent = () => {
   const editId = searchParams.get("edit");
   const editType = searchParams.get("type");
 
+  const isEditMode = !!editId;
+
   // If editing, derive default section type from the edit param
   const defaultType = editType === "hero_banner"
     ? "home_banner"
@@ -23,8 +25,6 @@ const SectionManagementContent = () => {
 
   const [sectionType, setSectionType] = useState(defaultType);
 
-  const isEditMode = !!editId;
-
   return (
     <main className="a-section--box flex flex-col gap-6 text-[1.4rem]">
       <div className="flex items-center justify-between">
@@ -34,7 +34,7 @@ const SectionManagementContent = () => {
         {isEditMode && (
           <button
             onClick={() => router.push("/admin/home-layout")}
-            className="a-text--button border border-neutral-300 text-neutral-600 hover:bg-neutral-100"
+            className="a-text--button border border-neutral-300 text-neutral-600 hover:bg-neutral-100 cursor-pointer"
           >
             ← Back
           </button>
@@ -68,21 +68,36 @@ const SectionManagementContent = () => {
 
       {/* Render appropriate form */}
       <div className="border-t border-neutral-200 pt-6">
-        {(sectionType === "home_banner" || editType === "hero_banner") && (
-          <HomeBannerSection sectionTypeParam="hero_banner" editId={isEditMode && editType === "hero_banner" ? editId : null} />
-        )}
-        {(sectionType === "mid_page_banner" || editType === "mid_page_banner") && (
-          <HomeBannerSection sectionTypeParam="mid_page_banner" editId={isEditMode && editType === "mid_page_banner" ? editId : null} />
-        )}
-        {(sectionType === "product_listing" || editType === "product_listing") && (
-          <ProductListingSection editId={isEditMode && editType === "product_listing" ? editId : null} />
+        {isEditMode ? (
+          <>
+            {editType === "hero_banner" && (
+              <HomeBannerSection sectionTypeParam="hero_banner" editId={editId} />
+            )}
+            {editType === "mid_page_banner" && (
+              <HomeBannerSection sectionTypeParam="mid_page_banner" editId={editId} />
+            )}
+            {editType === "product_listing" && (
+              <ProductListingSection editId={editId} />
+            )}
+          </>
+        ) : (
+          <>
+            {sectionType === "home_banner" && (
+              <HomeBannerSection sectionTypeParam="hero_banner" editId={null} />
+            )}
+            {sectionType === "mid_page_banner" && (
+              <HomeBannerSection sectionTypeParam="mid_page_banner" editId={null} />
+            )}
+            {sectionType === "product_listing" && (
+              <ProductListingSection editId={null} />
+            )}
+          </>
         )}
       </div>
     </main>
   );
 };
 
-// Wrap in Suspense because useSearchParams needs it in Next.js 14+
 export default function SectionManagement() {
   return (
     <Suspense fallback={<div className="a-section--box animate-pulse h-[40rem]" />}>
