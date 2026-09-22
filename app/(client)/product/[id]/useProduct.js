@@ -2,6 +2,8 @@ import { useState, useEffect, useContext } from "react";
 import { UserContext } from "@/context/userContext";
 import { useRouter, useParams } from "next/navigation";
 import { CartContext } from "@/context/cartContext";
+import { toast } from "sonner";
+
 export const useProduct = () => {
   let [product, setProduct] = useState(null);
   let router = useRouter();
@@ -27,11 +29,16 @@ export const useProduct = () => {
         console.log("error:", error.message);
       }
     };
-    getProductData();
-  }, []);
+    if (id) {
+      getProductData();
+    }
+  }, [id]);
 
   const addProducttoCart = async (productId) => {
-    if (!user) router.push("/register/sign-in");
+    if (!user) {
+      router.push("/register/sign-in");
+      return;
+    }
     try {
       const response = await fetch(
         `${BACKEND_URL}/api/products/${productId}?filter=stock`,
@@ -42,14 +49,16 @@ export const useProduct = () => {
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
-      let fetchProduct = result.products[0];
-      if (fetchProduct.stock <= 0)
+      let fetchProduct = result.products?.[0];
+      if (fetchProduct && fetchProduct.stock <= 0) {
         return toast.error("Sorry, This product is now out of stock.");
-      //   add product to cart
-      const result2 = await addToCart(productId);
+      }
+      
+      await addToCart(productId);
       return;
     } catch (error) {
       console.log("stock fetch error:", error.message);
+      await addToCart(productId);
     }
   };
 

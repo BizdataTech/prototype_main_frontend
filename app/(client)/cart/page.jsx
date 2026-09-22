@@ -83,9 +83,9 @@ const Cart = () => {
                               <div className="text-[1.4rem] text-neutral-500 uppercase tracking-widest mt-3">{brand}</div>
                             </div>
                             <div className="text-right shrink-0">
-                              <span className="text-[2rem] font-light text-black">₹{Number(prod.price || 0)}</span>
+                              <span className="text-[2rem] font-light text-black">AED {Number(prod.price || 0)}</span>
                               {prod.sale_price && (
-                                <div className="text-[1.4rem] text-neutral-400 line-through mt-1">₹{Number(prod.sale_price)}</div>
+                                <div className="text-[1.4rem] text-neutral-400 line-through mt-1">AED {Number(prod.sale_price)}</div>
                               )}
                             </div>
                           </div>
@@ -178,21 +178,21 @@ const Cart = () => {
                 <div className="flex flex-col gap-6 text-[1.6rem] font-light text-black mb-8">
                   <div className="flex justify-between items-center">
                     <span>Subtotal</span>
-                    <span>₹{cart.cartTotal}</span>
+                    <span>AED {cart.cartTotal}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Shipping</span>
-                    <span>{shipping === 0 ? "Complimentary" : `₹${shipping}`}</span>
+                    <span>{shipping === 0 ? "Complimentary" : `AED ${shipping}`}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Tax (Estimated)</span>
-                    <span>₹{tax}</span>
+                    <span>AED {tax}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center text-[2.4rem] font-light text-black pt-8 border-t border-neutral-200 mb-10">
                   <span className="uppercase tracking-widest text-[1.6rem] font-medium">Estimated Total</span>
-                  <span>₹{estimatedTotal}</span>
+                  <span>AED {estimatedTotal}</span>
                 </div>
 
                 <Link

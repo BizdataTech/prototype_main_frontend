@@ -207,7 +207,7 @@ const OrderSummaryContent = () => {
               </div>
               <div className="flex justify-between items-center pt-2">
                 <span className="text-black uppercase tracking-widest font-medium">Total Amount</span>
-                <span className="font-medium text-[2rem]">₹{order.totalAmount}</span>
+                <span className="font-medium text-[2rem]">AED {order.totalAmount}</span>
               </div>
             </div>
           </div>
@@ -250,7 +250,7 @@ const OrderSummaryContent = () => {
                       </div>
                     </div>
                     <div className="text-[2rem] font-light text-black whitespace-nowrap self-end sm:self-center">
-                      ₹{Number(item.price || 0) * item.quantity}
+                      AED {Number(item.price || 0) * item.quantity}
                     </div>
                   </div>
                 );

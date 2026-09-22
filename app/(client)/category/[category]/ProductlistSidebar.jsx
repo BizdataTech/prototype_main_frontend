@@ -132,18 +132,20 @@ const ProductlistSidebar = ({ sidebar = [], filterProducts }) => {
                   </h3>
                   <ul className="flex flex-col gap-1.5 max-h-[20rem] overflow-y-auto">
                     {content.data.map((d, dIdx) => (
-                      <label key={dIdx} className="flex gap-2.5 items-center cursor-pointer hover:text-black transition-colors">
-                        <input
-                          name={content.label}
-                          type="checkbox"
-                          onChange={filterProducts}
-                          value={d}
-                          className="w-4 h-4 rounded border-neutral-300 text-[#b00015] focus:ring-[#b00015]"
-                        />
-                        <li className="text-[1.3rem] text-neutral-600 font-medium list-none select-none truncate">
-                          {d}
-                        </li>
-                      </label>
+                      <li key={dIdx} className="list-none">
+                        <label className="flex gap-2.5 items-center cursor-pointer hover:text-black transition-colors">
+                          <input
+                            name={content.label}
+                            type="checkbox"
+                            onChange={filterProducts}
+                            value={d}
+                            className="w-4 h-4 rounded border-neutral-300 text-[#b00015] focus:ring-[#b00015]"
+                          />
+                          <span className="text-[1.3rem] text-neutral-600 font-medium select-none truncate">
+                            {d}
+                          </span>
+                        </label>
+                      </li>
                     ))}
                   </ul>
                 </div>

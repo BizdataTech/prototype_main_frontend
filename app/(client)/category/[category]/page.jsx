@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import ProductlistSidebar from "./ProductlistSidebar";
 import ProductlistBody from "./ProductlistBody";
-import { useEffect, useState } from "react";
 
 const ProductList = () => {
   const { category } = useParams();

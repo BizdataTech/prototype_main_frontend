@@ -355,7 +355,8 @@ const useProducts = (id = null) => {
     if (
       rest.variantOptions &&
       rest.variantOptions.length > 0 &&
-      product_type === "Variable"
+      product_type === "Variable" &&
+      !product._pendingVarOptions
     ) {
       // We'll rebuild activeAttributes after allAvailableVariants is loaded
       setProduct((p) => ({ ...p, _pendingVarOptions: rest.variantOptions }));
@@ -552,16 +553,21 @@ const useProducts = (id = null) => {
     let res;
     try {
       if (product) {
-        // Append update values
-        Object.entries(updateData).forEach(([key, value]) => {
-          if (["category", "brand"].includes(key)) formData.append(key, value);
-          else if (key === "images")
-            value.forEach((file) => formData.append("image", file));
-          else if (typeof value === "object")
-            formData.append(key, JSON.stringify(value));
-          else formData.append(key, value);
+        // ── Edit path: send a complete, clean payload every time ──────────────
+        // Append category & brand IDs
+        formData.append("category", selectedCategory?._id || selectedCategory);
+        formData.append("brand", selectedBrand?._id || selectedBrand);
+
+        // Append all general text fields
+        Object.entries(generalData).forEach(([key, value]) => {
+          formData.append(key, value ?? "");
         });
 
+        // Append attributes and variantOptions (serialised)
+        formData.append("attributes", JSON.stringify(formattedAttributes));
+        formData.append("variantOptions", JSON.stringify(formattedVariantOptions));
+
+        // Append variants (Variable product)
         if (data.product_type === "Variable") {
           const processedVars = variations.map((v, index) => {
             const copy = { ...v };
@@ -574,15 +580,15 @@ const useProducts = (id = null) => {
           formData.append("variants", JSON.stringify(processedVars));
         }
 
-        Object.entries(generalData).forEach(([key, value]) => {
-          formData.append(key, value);
+        // Append newly uploaded product images (File objects only)
+        images.forEach((img) => {
+          if (img.file instanceof File) formData.append("image", img.file);
         });
 
-        formData.append("attributes", JSON.stringify(formattedAttributes));
-        formData.append(
-          "variantOptions",
-          JSON.stringify(formattedVariantOptions)
-        );
+        // Append cancelled image public_ids so backend can remove them from Cloudinary
+        if (updateData.cancelledPubliIds?.length) {
+          formData.append("cancelledPubliIds", JSON.stringify(updateData.cancelledPubliIds));
+        }
 
         setLoading(true);
         res = await axios.patch(

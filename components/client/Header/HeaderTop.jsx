@@ -1,7 +1,7 @@
 const HeaderTop = () => {
   return (
     <div
-      className="text-white text-center text-[1.6rem] font-medium py-[.5rem]"
+      className="hidden md:block text-white text-center text-[1.4rem] font-medium py-[.5rem]"
       style={{ backgroundColor: "#b00015" }}
     >
       New Equipments are available in 10% discount

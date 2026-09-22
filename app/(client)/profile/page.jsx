@@ -292,7 +292,7 @@ const ProfilePageContent = () => {
                           </div>
                           <div>
                             <span className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Total</span>
-                            <p className="text-[1.3rem] font-medium text-black mt-1">₹{order.totalAmount}</p>
+                            <p className="text-[1.3rem] font-medium text-black mt-1">AED {order.totalAmount}</p>
                           </div>
                           <div>
                             <span className="text-[1.1rem] uppercase tracking-widest text-neutral-500">Status</span>
@@ -323,7 +323,7 @@ const ProfilePageContent = () => {
                                       <h4 className="text-[1.4rem] font-light text-black line-clamp-1 group-hover:underline">{title}</h4>
                                       <span className="text-[1.2rem] text-neutral-500 block mt-1">Qty: {item.quantity}</span>
                                       <div className="text-[1.4rem] text-black mt-1">
-                                        ₹{Number(item.price || 0) * item.quantity}
+                                        AED {Number(item.price || 0) * item.quantity}
                                       </div>
                                     </div>
                                   </div>
@@ -397,7 +397,7 @@ const ProfilePageContent = () => {
                               </span>
                             </div>
                             <div className="flex justify-between items-end mt-4">
-                              <span className="text-[1.8rem] font-light text-black">₹{prod.price}</span>
+                              <span className="text-[1.8rem] font-light text-black">AED {prod.price}</span>
                               <button
                                 onClick={() => removeFromWishlist(prod._id)}
                                 className="text-[1.2rem] text-neutral-500 hover:text-black uppercase tracking-widest transition-colors flex items-center gap-1"
@@ -457,7 +457,7 @@ const ProfilePageContent = () => {
                                   {prod.brand?.brand_name || prod.brand}
                                 </span>
                               </div>
-                              <span className="text-[1.8rem] font-light text-black shrink-0">₹{prod.price}</span>
+                              <span className="text-[1.8rem] font-light text-black shrink-0">AED {prod.price}</span>
                             </div>
                             
                             <div className="flex items-end justify-between mt-6">
@@ -491,7 +491,7 @@ const ProfilePageContent = () => {
                     <div className="mt-8 pt-8 border-t border-black flex flex-col items-end gap-6">
                       <div className="flex justify-between items-center w-full max-w-sm">
                         <span className="text-[1.4rem] uppercase tracking-widest text-black">Subtotal</span>
-                        <span className="text-[2.2rem] font-light text-black">₹{cart.cartTotal}</span>
+                        <span className="text-[2.2rem] font-light text-black">AED {cart.cartTotal}</span>
                       </div>
                       <Link href="/checkout" className="bg-black text-white text-[1.3rem] uppercase tracking-widest py-5 px-16 hover:bg-neutral-800 transition-colors flex items-center gap-3">
                         Checkout <ArrowRight size={18} />

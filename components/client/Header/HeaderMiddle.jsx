@@ -2,17 +2,21 @@
 
 import Link from "next/link";
 import { useSearch } from "./useSearch";
-import { Spinner, ShoppingCart, Heart, User, SignOut, CaretDown, MagnifyingGlass } from "phosphor-react";
+import { Spinner, ShoppingCart, Heart, User, SignOut, CaretDown, MagnifyingGlass, List } from "phosphor-react";
 import { useContext, useState } from "react";
 import { UserContext } from "@/context/userContext";
 import { CartContext } from "@/context/cartContext";
 import { WishlistContext } from "@/context/wishlistContext";
 import CartDrawer from "./CartDrawer";
+import MobileMenuDrawer from "./MobileMenuDrawer";
+import { usePathname } from "next/navigation";
 
 const HeaderMiddle = () => {
   const { user, logoutUser } = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   const {
     containerRef,
     query,
@@ -28,20 +32,26 @@ const HeaderMiddle = () => {
 
   return (
     <div className="bg-white border-b border-neutral-200 py-4 shadow-sm">
-      <div className="w-[95%] mx-auto flex items-center justify-between gap-8">
+      <div className="w-[95%] mx-auto flex flex-wrap lg:flex-nowrap items-center justify-between gap-4 lg:gap-8">
         
         {/* Logo Section */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-3 lg:gap-0">
+          <button 
+            className="lg:hidden text-neutral-800 p-1 -ml-1" 
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <List size={28} weight="bold" />
+          </button>
           <Link href="/">
-            <div className="leading-tight uppercase text-2xl tracking-wider select-none">
-              <span className="text-[#b00015] font-extrabold text-3xl">FORTUNEAE</span>
-              <span className="text-black font-light text-lg ml-2 tracking-wider">FBM BUILDING MATERIAL</span>
+            <div className="leading-tight uppercase tracking-wider select-none flex flex-col md:flex-row md:items-baseline">
+              <span className="text-[#b00015] font-extrabold text-[2.2rem] md:text-3xl tracking-tight leading-none" style={{ textShadow: "0 0 18px rgba(176,0,21,0.15)" }}>FORTUNEAE</span>
+              <span className="text-neutral-700 font-semibold text-[1rem] md:text-lg md:ml-2 tracking-widest hidden sm:inline-block mt-1 md:mt-0">FBM BUILDING MATERIAL</span>
             </div>
           </Link>
         </div>
 
         {/* Search Bar Section */}
-        <div className="flex-1 max-w-2xl relative">
+        <div className="w-full lg:w-auto lg:flex-1 max-w-2xl relative order-last lg:order-none mt-2 lg:mt-0">
           <form
             className="w-full relative"
             onSubmit={submitQuery}
@@ -103,19 +113,29 @@ const HeaderMiddle = () => {
         </div>
 
         {/* User Navigation Options */}
-        <nav className="flex items-center gap-8">
+        <nav className="flex items-center gap-4 sm:gap-6 lg:gap-8">
           
           {/* Wishlist */}
-          <Link href="/wishlist" className="relative flex flex-col items-center gap-1 text-neutral-700 hover:text-[#b00015] transition-colors group">
+          <Link
+            href="/wishlist"
+            className={`relative flex flex-col items-center gap-1 transition-colors group ${
+              pathname === "/wishlist"
+                ? "text-[#b00015] font-bold"
+                : "text-neutral-700 hover:text-[#b00015]"
+            }`}
+          >
             <div className="relative">
-              <Heart className="w-[2.4rem] h-[2.4rem] group-hover:scale-110 transition-transform duration-200" />
+              <Heart
+                className="w-[2.4rem] h-[2.4rem] group-hover:scale-110 transition-transform duration-200"
+                weight={pathname === "/wishlist" ? "fill" : "regular"}
+              />
               {wishlistItems.length > 0 && (
                 <span className="absolute -top-1 -right-2 text-[0.8rem] font-bold py-[0.1rem] px-[0.5rem] bg-[#b00015] text-white rounded-full scale-90">
                   {wishlistItems.length}
                 </span>
               )}
             </div>
-            <span className="text-[1.2rem] font-medium hidden sm:inline">Wishlist</span>
+            <span className={`text-[1.25rem] font-bold hidden lg:inline tracking-wide ${pathname === "/wishlist" ? "font-extrabold" : ""}`}>Wishlist</span>
           </Link>
 
           {/* Cart */}
@@ -131,7 +151,7 @@ const HeaderMiddle = () => {
                 </span>
               )}
             </div>
-            <span className="text-[1.2rem] font-medium hidden sm:inline">Cart</span>
+            <span className="text-[1.25rem] font-bold hidden lg:inline tracking-wide">Cart</span>
           </div>
 
           {/* Account Dropdown */}
@@ -141,12 +161,18 @@ const HeaderMiddle = () => {
             onMouseLeave={() => setDropdownOpen(false)}
           >
             {user ? (
-              <div className="flex flex-col items-center gap-1 text-neutral-700 hover:text-black cursor-pointer select-none">
+              <div
+                className={`flex flex-col items-center gap-1 cursor-pointer select-none transition-colors ${
+                  pathname.startsWith("/profile")
+                    ? "text-[#b00015] font-bold"
+                    : "text-neutral-700 hover:text-black"
+                }`}
+              >
                 <div className="flex items-center gap-1">
                   <User className="w-[2.4rem] h-[2.4rem]" />
                   <CaretDown className="w-[1.2rem] h-[1.2rem]" />
                 </div>
-                <span className="text-[1.2rem] font-medium hidden sm:inline max-w-[8rem] truncate">
+                <span className="text-[1.25rem] font-bold hidden lg:inline max-w-[8rem] truncate tracking-wide">
                   {user.name || "My Account"}
                 </span>
 
@@ -192,6 +218,7 @@ const HeaderMiddle = () => {
       </div>
 
       <CartDrawer isOpen={cartDrawerOpen} onClose={() => setCartDrawerOpen(false)} />
+      <MobileMenuDrawer isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
     </div>
   );
 };

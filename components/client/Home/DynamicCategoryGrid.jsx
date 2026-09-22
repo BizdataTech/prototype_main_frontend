@@ -29,7 +29,7 @@ export default function DynamicCategoryGrid() {
         const res = await axios.get(`${BACKEND_URL}/api/auto-categories?filter=all`);
         const cats = res.data?.categories || [];
         // Filter out deleted or level > 1 if subcategories exist
-        const rootCats = cats.filter((c) => !c.isDeleted);
+        const rootCats = cats.filter((c) => !c.isDeleted && (!c.parent || c.level === 1));
         if (!isCancelled) {
           setCategories(rootCats);
         }

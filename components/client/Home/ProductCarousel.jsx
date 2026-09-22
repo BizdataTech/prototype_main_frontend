@@ -86,7 +86,7 @@ const ProductCarousel = ({ title, viewAllLink = "/products" }) => {
                   {product.product_title}
                 </div>
                 <div className="font-bold text-[2rem] text-neutral-900 mt-auto">
-                  ₹{Number(product.variant.price).toLocaleString('en-IN')}
+                  AED {Number(product.variant.price).toLocaleString('en-AE')}
                 </div>
               </div>
             </div>

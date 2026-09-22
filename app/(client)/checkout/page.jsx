@@ -302,7 +302,7 @@ const Checkout = () => {
                             <span className="text-[1.3rem] text-neutral-500 uppercase tracking-widest mt-2 block">Quantity: {item.quantity}</span>
                           </div>
                           <div className="text-[2rem] font-light text-black">
-                            ₹{Number(prod.price || 0)}
+                            AED {Number(prod.price || 0)}
                           </div>
                         </div>
                       </div>
@@ -345,21 +345,21 @@ const Checkout = () => {
               <div className="flex flex-col gap-6 text-[1.6rem] font-light text-black mb-8">
                 <div className="flex justify-between items-center">
                   <span>Subtotal ({cart?.items?.length || 0} items)</span>
-                  <span>₹{cart?.cartTotal || 0}</span>
+                  <span>AED {cart?.cartTotal || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? "Complimentary" : `₹${shipping}`}</span>
+                  <span>{shipping === 0 ? "Complimentary" : `AED ${shipping}`}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Tax (Estimated)</span>
-                  <span>₹{tax}</span>
+                  <span>AED {tax}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center text-[2.4rem] font-light text-black pt-8 border-t border-neutral-200 mb-8">
                 <span className="uppercase tracking-widest text-[1.6rem] font-medium">Estimated Total</span>
-                <span>₹{estimatedTotal}</span>
+                <span>AED {estimatedTotal}</span>
               </div>
               
               <div className="text-center text-[1.2rem] text-neutral-500 uppercase tracking-widest leading-relaxed">

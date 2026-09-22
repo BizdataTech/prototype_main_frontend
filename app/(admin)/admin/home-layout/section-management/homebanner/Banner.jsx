@@ -1,12 +1,17 @@
 import { InputLabel } from "@/components/admin/InputLabel";
+import ImageCropper from "@/components/admin/ImageCropper";
 import axios from "axios";
-import { X } from "phosphor-react";
+import { X, PencilSimple, Crop, ArrowsClockwise } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 
 const Banner = ({ banner, setBanner, submit, close }) => {
   const [references, setReferences] = useState([]);
   const [errors, setErrors] = useState({});
   const inputRef = useRef(null);
+
+  // Cropper state
+  const [cropSrc, setCropSrc] = useState(null);
+  const [cropFilename, setCropFilename] = useState("banner.jpg");
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -25,7 +30,6 @@ const Banner = ({ banner, setBanner, submit, close }) => {
     getReferences();
   }, [banner.type, BACKEND_URL]);
 
-
   // Reset id when type changes, but NOT on the initial mount
   const isFirstRender = useRef(true);
   useEffect(() => {
@@ -36,12 +40,36 @@ const Banner = ({ banner, setBanner, submit, close }) => {
     setBanner((prev) => ({ ...prev, id: "" }));
   }, [banner.type]);
 
+  // "Change" — pick a brand new file, then crop it
   const handleFileInput = (e) => {
     let file = e.target.files[0];
     if (!file) return;
-    let url = URL.createObjectURL(file);
-    setBanner((prev) => ({ ...prev, file, preview: url, existingImageUrl: "" }));
+    setCropFilename(file.name);
+    setCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
+
+  // "Crop" — re-crop the already-selected image (no file picker needed)
+  const openCropExisting = () => {
+    if (!banner.preview) return;
+    setCropFilename(banner.file?.name || "banner.jpg");
+    setCropSrc(banner.preview);
+  };
+
+  // Keep track of previous preview URL to revoke it later
+  const prevPreviewRef = useRef(null);
+
+  // Called when the user clicks "Apply Crop"
+  const handleCropped = (croppedFile) => {
+    // Revoke previous preview if any
+    if (prevPreviewRef.current) {
+      URL.revokeObjectURL(prevPreviewRef.current);
+    }
+    const url = URL.createObjectURL(croppedFile);
+    prevPreviewRef.current = url;
+    setBanner((prev) => ({ ...prev, file: croppedFile, preview: url, existingImageUrl: "" }));
     setErrors((prev) => { let { preview, ...rest } = prev; return rest; });
+    setCropSrc(null);
   };
 
   const handleChange = (e) => {
@@ -55,112 +83,160 @@ const Banner = ({ banner, setBanner, submit, close }) => {
   const formSubmit = () => {
     const submitErrors = {};
     if (!banner.preview) submitErrors.preview = "Banner image is required";
-    // Only require reference selection if redirection is ON
     if (banner.redirection && !banner.id) submitErrors.reference = "Select a reference for redirection";
 
     if (Object.keys(submitErrors).length) {
       return setErrors(submitErrors);
     }
-    // Pass the full current banner object to the parent so it can add it to the list
     submit(banner);
     close();
   };
 
+  // Cleanup on unmount – revoke preview URL
+  useEffect(() => {
+    return () => {
+      if (prevPreviewRef.current) {
+        URL.revokeObjectURL(prevPreviewRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <section className="flex flex-col gap-4 bg-white rounded-[1rem] shadow-md p-8 text-[1.4rem] w-[80%] max-h-[90vh] overflow-y-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div className="a-section--title">Configure Banner</div>
-        <X className="w-[2rem] h-[2rem] text-red-700 cursor-pointer" weight="bold" onClick={close} />
-      </div>
+    <>
+      {/* Crop modal -- renders above this modal */}
+      {cropSrc && (
+        <ImageCropper
+          src={cropSrc}
+          filename={cropFilename}
+          onCrop={handleCropped}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
 
-      <input type="file" accept="image/*" className="hidden" ref={inputRef} onChange={handleFileInput} />
+      <section className="flex flex-col gap-4 bg-white rounded-[1rem] shadow-md p-8 text-[1.4rem] w-[80%] max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="a-section--title">Configure Banner</div>
+          <X className="w-[2rem] h-[2rem] text-red-700 cursor-pointer" weight="bold" onClick={close} />
+        </div>
 
-      {/* Image Upload */}
-      <div className="flex flex-col gap-1">
-        <InputLabel label={"Banner Image"} error={errors.preview} />
-        <div className="w-full h-[22rem] cursor-pointer border-2 border-dashed border-neutral-300 rounded-2xl overflow-hidden" onClick={() => inputRef.current.click()}>
+        <input type="file" accept="image/*" className="hidden" ref={inputRef} onChange={handleFileInput} />
+
+        {/* Image Upload */}
+        <div className="flex flex-col gap-1">
+          <InputLabel label={"Banner Image"} error={errors.preview} />
           {banner.preview ? (
-            <img src={banner.preview} alt="Preview" className="w-full h-full object-cover" />
+            <div className="w-full relative group rounded-2xl overflow-hidden border-2 border-neutral-300">
+              <img src={banner.preview} alt="Preview" className="w-full h-auto max-h-[22rem] object-contain" />
+              {/* Hover overlay with TWO actions */}
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Crop existing image */}
+                <button
+                  type="button"
+                  onClick={openCropExisting}
+                  className="flex flex-col items-center gap-1 bg-white/15 hover:bg-violet-600 border border-white/30 rounded-xl px-5 py-3 text-white transition-all cursor-pointer"
+                  title="Crop this image"
+                >
+                  <Crop size={24} weight="bold" />
+                  <span className="text-[1.15rem] font-semibold">Crop</span>
+                </button>
+                {/* Change to a new image */}
+                <button
+                  type="button"
+                  onClick={() => inputRef.current.click()}
+                  className="flex flex-col items-center gap-1 bg-white/15 hover:bg-blue-600 border border-white/30 rounded-xl px-5 py-3 text-white transition-all cursor-pointer"
+                  title="Replace with a new image"
+                >
+                  <ArrowsClockwise size={24} weight="bold" />
+                  <span className="text-[1.15rem] font-semibold">Change</span>
+                </button>
+              </div>
+            </div>
           ) : (
-            <div className="w-full h-full flex flex-col justify-center items-center gap-2 text-neutral-500 bg-neutral-50 hover:bg-neutral-100 transition-colors">
-              <span className="text-[3rem]">🖼️</span>
-              <span>Click here to upload a banner image</span>
+            <div
+              className="w-full h-[22rem] cursor-pointer border-2 border-dashed border-neutral-300 rounded-2xl overflow-hidden"
+              onClick={() => inputRef.current.click()}
+            >
+              <div className="w-full h-full flex flex-col justify-center items-center gap-2 text-neutral-500 bg-neutral-50 hover:bg-neutral-100 transition-colors">
+                <span className="text-[3rem]">🖼️</span>
+                <span>Click here to upload a banner image</span>
+                <span className="text-[1.1rem] text-neutral-400">You can crop it after selecting</span>
+              </div>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Heading */}
-      <div className="flex flex-col gap-1">
-        <InputLabel label={"Heading / Title"} />
-        <input type="text" name="heading" value={banner.heading || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Main heading (optional)" />
-      </div>
-
-      {/* Subtitle */}
-      <div className="flex flex-col gap-1">
-        <InputLabel label={"Subtitle / Badge Text"} />
-        <input type="text" name="subtitle" value={banner.subtitle || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="e.g. Summer Collection 2026 (optional)" />
-      </div>
-
-      {/* Button Text */}
-      <div className="flex flex-col gap-1">
-        <InputLabel label={"Button Text"} />
-        <input type="text" name="button_text" value={banner.button_text || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="e.g. Shop Now (optional)" />
-      </div>
-
-      {/* Redirection */}
-      <div className="flex flex-col gap-1">
-        <div className="font-medium">Enable Redirection?</div>
-        <div className="flex items-center gap-8">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="redirection" value="true" checked={banner.redirection === true} onChange={handleChange} />
-            Yes
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="redirection" value="false" checked={banner.redirection !== true} onChange={handleChange} />
-            No
-          </label>
+        {/* Heading */}
+        <div className="flex flex-col gap-1">
+          <InputLabel label={"Heading / Title"} />
+          <input type="text" name="heading" value={banner.heading || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Main heading (optional)" />
         </div>
-      </div>
 
-      {/* Redirection Reference (only when redirection=true) */}
-      {banner.redirection && (
-        <div className="flex flex-col gap-4 border border-neutral-200 rounded-xl p-4 bg-neutral-50">
+        {/* Subtitle */}
+        <div className="flex flex-col gap-1">
+          <InputLabel label={"Subtitle / Badge Text"} />
+          <input type="text" name="subtitle" value={banner.subtitle || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="e.g. Summer Collection 2026 (optional)" />
+        </div>
+
+        {/* Button Text */}
+        <div className="flex flex-col gap-1">
+          <InputLabel label={"Button Text"} />
+          <input type="text" name="button_text" value={banner.button_text || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="e.g. Shop Now (optional)" />
+        </div>
+
+        {/* Redirection */}
+        <div className="flex flex-col gap-1">
+          <div className="font-medium">Enable Redirection?</div>
           <div className="flex items-center gap-8">
-            <div className="font-medium">Redirect To:</div>
-            <div className="flex items-center gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" id="content-block" name="type" value="content-block" checked={banner.type === "content-block"} onChange={handleChange} />
-                Content Block
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" id="category" name="type" value="category" checked={banner.type === "category"} onChange={handleChange} />
-                Category
-              </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="redirection" value="true" checked={banner.redirection === true} onChange={handleChange} />
+              Yes
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="redirection" value="false" checked={banner.redirection !== true} onChange={handleChange} />
+              No
+            </label>
+          </div>
+        </div>
+
+        {/* Redirection Reference */}
+        {banner.redirection && (
+          <div className="flex flex-col gap-4 border border-neutral-200 rounded-xl p-4 bg-neutral-50">
+            <div className="flex items-center gap-8">
+              <div className="font-medium">Redirect To:</div>
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" id="content-block" name="type" value="content-block" checked={banner.type === "content-block"} onChange={handleChange} />
+                  Content Block
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" id="category" name="type" value="category" checked={banner.type === "category"} onChange={handleChange} />
+                  Category
+                </label>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <InputLabel label={"Select Reference"} error={errors.reference} />
+              {references.length === 0 ? (
+                <div className="text-neutral-500 text-[1.2rem] italic">No {banner.type === "content-block" ? "content blocks" : "categories"} found. Create one first.</div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {references.map((ref) => (
+                    <label key={ref._id} className={`flex items-center gap-2 p-2 rounded-[.5rem] cursor-pointer border transition-colors ${banner.id === ref._id ? "bg-purple-100 border-purple-400" : "bg-neutral-200 border-transparent"}`}>
+                      <input type="radio" name="id" value={ref._id} onChange={handleChange} checked={ref._id === banner.id} className="hidden" />
+                      {ref.title}
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <InputLabel label={"Select Reference"} error={errors.reference} />
-            {references.length === 0 ? (
-              <div className="text-neutral-500 text-[1.2rem] italic">No {banner.type === "content-block" ? "content blocks" : "categories"} found. Create one first.</div>
-            ) : (
-              <div className="grid grid-cols-3 gap-3">
-                {references.map((ref) => (
-                  <label key={ref._id} className={`flex items-center gap-2 p-2 rounded-[.5rem] cursor-pointer border transition-colors ${banner.id === ref._id ? "bg-purple-100 border-purple-400" : "bg-neutral-200 border-transparent"}`}>
-                    <input type="radio" name="id" value={ref._id} onChange={handleChange} checked={ref._id === banner.id} className="hidden" />
-                    {ref.title}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+        )}
 
-      <button className="a-text--button bg-black text-white self-end !py-4 !text-[1.4rem] mt-2" onClick={formSubmit}>
-        Save Banner
-      </button>
-    </section>
+        <button className="a-text--button bg-black text-white self-end !py-4 !text-[1.4rem] mt-2" onClick={formSubmit}>
+          Save Banner
+        </button>
+      </section>
+    </>
   );
 };
 

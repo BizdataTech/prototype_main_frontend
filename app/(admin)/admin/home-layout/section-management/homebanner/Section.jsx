@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import Banner from "./Banner";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { PencilSimple, Spinner, Trash } from "phosphor-react";
+import { ArrowUp, ArrowDown, PencilSimple, Spinner, Trash } from "phosphor-react";
 
 const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) => {
   const [bannerType, setBannerType] = useState("single");
@@ -140,6 +140,16 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
     setBanners((prev) => prev.filter((_, i) => i !== index));
   };
 
+
+  const moveBanner = (index, direction) => {
+    setBanners((prev) => {
+      const next = [...prev];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= next.length) return prev;
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  };
   const submitBannerSection = async () => {
     if (banners.length === 0) {
       toast.error("Please add at least one banner first.");
@@ -250,6 +260,22 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
                 </div>
                 <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
+                    onClick={() => moveBanner(i, "up")}
+                    disabled={i === 0}
+                    className="bg-neutral-700 disabled:opacity-30 text-white p-2 rounded-full shadow-lg hover:bg-neutral-900 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    title="Move up"
+                  >
+                    <ArrowUp size={16} weight="bold" />
+                  </button>
+                  <button
+                    onClick={() => moveBanner(i, "down")}
+                    disabled={i === banners.length - 1}
+                    className="bg-neutral-700 disabled:opacity-30 text-white p-2 rounded-full shadow-lg hover:bg-neutral-900 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    title="Move down"
+                  >
+                    <ArrowDown size={16} weight="bold" />
+                  </button>
+                  <button
                     onClick={() => editBanner(i)}
                     className="bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors cursor-pointer"
                     title="Edit banner"
@@ -302,3 +328,4 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
 };
 
 export default HomeBannerSection;
+

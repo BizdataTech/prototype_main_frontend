@@ -166,11 +166,11 @@ const VariationCard = ({ variation, index, onChange, onRemove }) => {
               {field("sku", "e.g. SKU-RED-M")}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[1.15rem] font-semibold text-neutral-500">Regular Price (₹)</label>
+              <label className="text-[1.15rem] font-semibold text-neutral-500">Regular Price (AED)</label>
               {field("price", "0", "number")}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[1.15rem] font-semibold text-neutral-500">Sale Price (₹)</label>
+              <label className="text-[1.15rem] font-semibold text-neutral-500">Sale Price (AED)</label>
               {field("sale_price", "0", "number")}
             </div>
             <div className="flex flex-col gap-1">
@@ -259,8 +259,8 @@ const BulkSpreadsheet = ({ variations, setVariations, cancelImages }) => {
   const COLS = [
     { key: "combination_label", label: "Combination", readOnly: true },
     { key: "sku", label: "SKU" },
-    { key: "price", label: "Price (₹)", type: "number" },
-    { key: "sale_price", label: "Sale Price (₹)", type: "number" },
+    { key: "price", label: "Price (AED)", type: "number" },
+    { key: "sale_price", label: "Sale Price (AED)", type: "number" },
     { key: "stock", label: "Stock", type: "number" },
     { key: "status", label: "Status", select: true },
     { key: "weight", label: "Weight" },
@@ -790,11 +790,21 @@ const ProductManagement = () => {
         <Images utility_object={image_util} error={errors.images} />
 
 
-        {/* ── Submit ─────────────────────────────────────────────────────── */}
+      </div>
+
+      {/* ── Sticky Submit Bar ────────────────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 shadow-[0_-2px_16px_rgba(0,0,0,0.07)] px-8 py-4 flex items-center justify-between gap-4">
+        <div className="text-[1.25rem] text-neutral-500">
+          {id ? (
+            <span>Editing product — <span className="font-semibold text-neutral-700">unsaved changes will be lost if you leave</span></span>
+          ) : (
+            <span>New product — fill in the details and click <span className="font-semibold text-neutral-700">Create Product</span></span>
+          )}
+        </div>
         <button
-          className={`a-text--button self-end bg-black text-white !px-[4rem] !py-[1rem] !text-[1.4rem] mt-[2rem] ${
-            loading ? "!cursor-not-allowed opacity-70" : "cursor-pointer"
-          }`}
+          className={`a-text--button bg-black text-white !px-[4rem] !py-[1rem] !text-[1.4rem] shrink-0 ${
+            loading ? "!cursor-not-allowed opacity-70" : "cursor-pointer hover:bg-neutral-800"
+          } transition-colors`}
           onClick={handleSubmit}
           disabled={loading}
         >
@@ -804,13 +814,13 @@ const ProductManagement = () => {
               <Spinner className="w-[1.8rem] h-[1.8rem] animate-spin" weight="bold" />
             </div>
           ) : id ? (
-            "Edit Product"
+            "Update Product"
           ) : (
             "Create Product"
           )}
         </button>
-
       </div>
+
     </section>
   );
 };

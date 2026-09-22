@@ -29,7 +29,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
         <div className="w-screen max-w-[45rem] transform bg-white shadow-2xl transition-all duration-300 flex flex-col h-full">
           
           {/* Header */}
-          <div className="px-10 py-8 border-b border-neutral-200 flex items-center justify-between bg-white">
+          <div className="px-5 sm:px-10 py-6 sm:py-8 border-b border-neutral-200 flex items-center justify-between bg-white">
             <h2 className="text-[1.8rem] font-light text-black uppercase tracking-widest flex items-center gap-4">
               Your Cart
               {cart?.items?.length > 0 && (
@@ -47,7 +47,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
           </div>
 
           {/* Cart items list */}
-          <div className="flex-1 overflow-y-auto px-10 py-6 bg-white">
+          <div className="flex-1 overflow-y-auto px-5 sm:px-10 py-6 bg-white">
             {cart?.items?.length > 0 ? (
               <div className="flex flex-col gap-10">
                 {cart.items.map((item, idx) => {
@@ -79,7 +79,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                               {prod.product_title}
                             </Link>
                             <span className="text-[1.6rem] font-light text-black shrink-0">
-                              ₹{Number(prod.price || 0)}
+                              AED {Number(prod.price || 0)}
                             </span>
                           </div>
                           <span className="text-[1.2rem] text-neutral-500 uppercase tracking-widest mt-2 block">
@@ -148,11 +148,11 @@ const CartDrawer = ({ isOpen, onClose }) => {
 
           {/* Footer actions */}
           {cart?.items?.length > 0 && (
-            <div className="border-t border-neutral-200 px-10 py-8 bg-neutral-50 flex flex-col gap-6">
+            <div className="border-t border-neutral-200 px-5 sm:px-10 py-6 sm:py-8 bg-neutral-50 flex flex-col gap-4 sm:gap-6">
               <div className="flex justify-between items-center text-black">
                 <span className="text-[1.4rem] uppercase tracking-widest font-medium">Subtotal</span>
                 <span className="text-[2rem] font-light">
-                  ₹{cart.cartTotal}
+                  AED {cart.cartTotal}
                 </span>
               </div>
 
@@ -160,11 +160,11 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 <Link
                   href="/checkout"
                   onClick={onClose}
-                  className="w-full bg-black text-white text-center text-[1.3rem] uppercase tracking-widest py-5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-3"
+                  className="w-full bg-black text-white text-center text-[1.3rem] uppercase tracking-widest py-4 sm:py-5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-3"
                 >
                   Checkout <ArrowRight size={18} />
                 </Link>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Link
                     href="/cart"
                     onClick={onClose}

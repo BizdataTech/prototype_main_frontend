@@ -15,20 +15,15 @@ export default function DynamicProductCard({ product }) {
 
   if (!product) return null;
 
-  // Resolve ID for routing and actions
   const targetId = product.variant?._id || product._id;
   const inWishlist = isInWishlist(targetId) || isInWishlist(product._id);
 
-  // Price calculations
   const regularPrice = Number(product.variant?.price ?? product.price ?? 0);
   const salePrice = Number(product.variant?.sale_price ?? product.sale_price ?? 0);
   const currentPrice = salePrice > 0 && salePrice < regularPrice ? salePrice : regularPrice;
   const hasDiscount = salePrice > 0 && regularPrice > salePrice;
-  const discountPercent = hasDiscount
-    ? Math.round(((regularPrice - salePrice) / regularPrice) * 100)
-    : 0;
+  const discountPercent = hasDiscount ? Math.round(((regularPrice - salePrice) / regularPrice) * 100) : 0;
 
-  // Image source handling
   const rawImage =
     product.variant?.images?.[0] ||
     (Array.isArray(product.images) && product.images[0]?.url) ||
@@ -36,23 +31,18 @@ export default function DynamicProductCard({ product }) {
     product.image ||
     "";
 
-  const imageSrc =
-    imgError || !rawImage
-      ? "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80"
-      : rawImage;
+  const imageSrc = imgError || !rawImage
+    ? "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80"
+    : rawImage;
 
-  // Brand and category display
-  const brandName =
-    typeof product.brand === "object"
-      ? product.brand?.brand_name || product.brand?.name || ""
-      : product.brand || "";
+  const brandName = typeof product.brand === "object"
+    ? product.brand?.brand_name || product.brand?.name || ""
+    : product.brand || "";
 
-  const categoryName =
-    typeof product.category === "object"
-      ? product.category?.title || product.category?.name || ""
-      : product.category || "";
+  const categoryName = typeof product.category === "object"
+    ? product.category?.title || product.category?.name || ""
+    : product.category || "";
 
-  // Handlers
   const handleWishlistToggle = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -79,7 +69,6 @@ export default function DynamicProductCard({ product }) {
 
   return (
     <div className="group relative bg-white rounded-2xl border border-neutral-200/80 hover:border-neutral-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full overflow-hidden">
-      {/* Top Badges & Wishlist */}
       <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
         <div className="flex flex-col gap-1.5 pointer-events-auto">
           {hasDiscount && (
@@ -93,22 +82,18 @@ export default function DynamicProductCard({ product }) {
             </span>
           )}
         </div>
-
         <button
           onClick={handleWishlistToggle}
           type="button"
           aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
           className={`pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
-            inWishlist
-              ? "bg-[#b00015] text-white"
-              : "bg-white/90 text-neutral-600 hover:text-[#b00015] hover:bg-white hover:scale-110"
+            inWishlist ? "bg-[#b00015] text-white" : "bg-white/90 text-neutral-600 hover:text-[#b00015] hover:bg-white hover:scale-110"
           }`}
         >
           <Heart size={18} weight={inWishlist ? "fill" : "bold"} />
         </button>
       </div>
 
-      {/* Product Image Area */}
       <Link href={`/product/${targetId}`} className="block relative pt-4 px-4">
         <div className="w-full h-56 md:h-64 rounded-xl overflow-hidden bg-neutral-50 flex items-center justify-center p-3 relative group-hover:bg-neutral-100/60 transition-colors">
           <img
@@ -121,10 +106,8 @@ export default function DynamicProductCard({ product }) {
         </div>
       </Link>
 
-      {/* Card Details */}
       <div className="p-5 flex flex-col flex-grow justify-between">
         <div>
-          {/* Brand & Category */}
           <div className="flex items-center justify-between gap-2 mb-1.5">
             {brandName ? (
               <span className="text-[1.15rem] font-bold text-[#b00015] uppercase tracking-wider line-clamp-1">
@@ -135,35 +118,26 @@ export default function DynamicProductCard({ product }) {
                 {categoryName || "PRO MATERIAL"}
               </span>
             )}
-            
-            {/* Rating Stars */}
             <div className="flex items-center gap-1 text-amber-500 text-[1.2rem] font-semibold ml-auto shrink-0">
               <Star size={13} weight="fill" />
               <span>4.8</span>
             </div>
           </div>
-
-          {/* Title */}
           <Link href={`/product/${targetId}`} className="block group-hover:text-[#b00015] transition-colors">
-            <h3
-              className="text-[1.45rem] font-semibold text-neutral-800 leading-snug line-clamp-2 min-h-[3.6rem]"
-              title={product.product_title}
-            >
+            <h3 className="text-[1.45rem] font-semibold text-neutral-800 leading-snug line-clamp-2 min-h-[3.6rem]" title={product.product_title}>
               {product.product_title}
             </h3>
           </Link>
         </div>
-
-        {/* Pricing & Cart Action */}
         <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2">
               <span className="text-[1.8rem] font-extrabold text-neutral-900 leading-none">
-                ₹{currentPrice.toLocaleString("en-IN")}
+                AED {currentPrice.toLocaleString("en-AE")}
               </span>
               {hasDiscount && (
                 <span className="text-[1.25rem] text-neutral-400 line-through font-medium leading-none">
-                  ₹{regularPrice.toLocaleString("en-IN")}
+                  AED {regularPrice.toLocaleString("en-AE")}
                 </span>
               )}
             </div>
@@ -171,18 +145,13 @@ export default function DynamicProductCard({ product }) {
               ✓ In Stock • Direct Wholesale
             </span>
           </div>
-
           <button
             onClick={handleAddToCart}
             disabled={addingCart}
             aria-label="Add to cart"
             className="w-11 h-11 rounded-xl bg-neutral-900 hover:bg-[#b00015] text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 shrink-0"
           >
-            {addingCart ? (
-              <Check size={18} weight="bold" />
-            ) : (
-              <ShoppingCart size={18} weight="bold" />
-            )}
+            {addingCart ? <Check size={18} weight="bold" /> : <ShoppingCart size={18} weight="bold" />}
           </button>
         </div>
       </div>

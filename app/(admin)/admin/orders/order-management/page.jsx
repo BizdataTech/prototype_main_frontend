@@ -83,7 +83,7 @@ const OrderManagement = () => {
         <h2 className="text-[1.8rem] font-semibold mb-6 border-b pb-4">Order Summary</h2>
         <div className="grid grid-cols-2 gap-y-4 text-[1.4rem]">
           <p><span className="font-medium text-neutral-500">Order ID:</span> {order._id}</p>
-          <p><span className="font-medium text-neutral-500">Total Amount:</span> ₹{order.totalAmount}</p>
+          <p><span className="font-medium text-neutral-500">Total Amount:</span> AED {order.totalAmount}</p>
           <p><span className="font-medium text-neutral-500">Date:</span> {new Date(order.createdAt).toLocaleDateString()}</p>
           <p><span className="font-medium text-neutral-500">Payment Method:</span> {order.paymentMethod}</p>
         </div>
@@ -109,7 +109,7 @@ const OrderManagement = () => {
                 <img src={item.productId?.images[0]} alt={item.productId?.title} className="w-[50px] h-[50px] object-cover rounded border" />
                 <span>{item.productId?.title} x {item.quantity}</span>
               </div>
-              <span className="font-medium">₹{item.price * item.quantity}</span>
+              <span className="font-medium">AED {item.price * item.quantity}</span>
             </div>
           ))}
         </div>

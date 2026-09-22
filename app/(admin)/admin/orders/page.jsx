@@ -156,7 +156,7 @@ const Orders = () => {
               <div className="truncate font-medium">{o._id}</div>
               <div className="text-center truncate">{o?.userId?.name || "User"}</div>
               <div className="text-center font-medium">
-                ₹{o.totalAmount}
+                AED {o.totalAmount}
               </div>
               
               <div className="text-center">

@@ -9,6 +9,7 @@ import { ArrowRight } from "phosphor-react";
 import ServiceStrip from "@/components/client/Home/ServiceStrip";
 import DynamicCategoryGrid from "@/components/client/Home/DynamicCategoryGrid";
 import ProductShelf from "@/components/client/Home/ProductShelf";
+import BannerCarousel from "@/components/client/Home/BannerCarousel";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -21,6 +22,7 @@ const ClientPage = () => {
     fetcher,
     { refreshInterval: 5000 }
   );
+  console.log('Fetched home sections', data);
 
   // ── 2. Derive sorted & active sections ───────────────────────────────────
   const rawSections = (data?.sections || [])
@@ -85,7 +87,7 @@ const ClientPage = () => {
   // ── Loading Skeleton ─────────────────────────────────────────────────────
   if (isLoading && !displaySections.length) {
     return (
-      <main className="lg:pt-[11rem] w-[90%] mx-auto py-12 space-y-10 min-h-screen">
+      <main className="pt-[10rem] sm:pt-[12rem] lg:pt-[16rem] w-[90%] mx-auto py-12 space-y-10 min-h-screen">
         <div className="h-20 bg-neutral-200 rounded-2xl animate-pulse" />
         <div className="h-[420px] bg-neutral-200 rounded-3xl animate-pulse" />
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -103,7 +105,7 @@ const ClientPage = () => {
   // ── Error State ──────────────────────────────────────────────────────────
   if (error && !displaySections.length) {
     return (
-      <main className="lg:pt-[11rem] min-h-screen flex items-center justify-center p-6">
+      <main className="pt-[10rem] sm:pt-[12rem] lg:pt-[16rem] min-h-screen flex items-center justify-center p-6">
         <div className="text-center space-y-4 max-w-md bg-white p-10 rounded-3xl border border-neutral-200 shadow-lg">
           <span className="text-[5rem]">⚠️</span>
           <h1 className="text-[2.4rem] font-bold text-neutral-800">
@@ -122,7 +124,7 @@ const ClientPage = () => {
     (s) => s.section_type === "hero_banner"
   );
   const midBanners = displaySections.filter(
-    (s) => s.section_type === "mid_page_banner"
+    (s) => s.section_type?.includes("banner") && s.section_type !== "hero_banner"
   );
   const productSections = displaySections.filter(
     (s) => s.section_type === "product_listing"
@@ -247,7 +249,7 @@ const ClientPage = () => {
   };
 
   return (
-    <main className="lg:pt-[11rem] bg-[#f8f9fa] min-h-screen pb-20">
+    <main className="pt-[10rem] sm:pt-[12rem] lg:pt-[16rem] bg-[#f8f9fa] min-h-screen pb-20">
       
       {/* ── 1. TOP PROMOTIONAL / SERVICE STRIP ──────────────────────────── */}
       <ServiceStrip />
@@ -255,7 +257,7 @@ const ClientPage = () => {
       {/* ── 2. HERO SECTION (Dynamic from Backend) ────────────────────── */}
       {heroSections.map((section) => (
         <section key={section._id} className="w-[95%] md:w-[90%] mx-auto my-6">
-          {(section.banners || []).map((banner) => renderBannerItem(banner, true))}
+          <BannerCarousel banners={section.banners || []} isHero={true} />
         </section>
       ))}
 
@@ -275,7 +277,7 @@ const ClientPage = () => {
       {/* ── 4. PROMOTIONAL / BANNER SECTION (Mid-Page Banner 1) ────────── */}
       {promoBanner1 && (
         <section className="w-[95%] md:w-[90%] mx-auto my-12">
-          {(promoBanner1.banners || []).map((banner) => renderBannerItem(banner, false))}
+          <BannerCarousel banners={promoBanner1.banners || []} isHero={false} />
         </section>
       )}
 
@@ -323,7 +325,7 @@ const ClientPage = () => {
       {/* ── 8. PROMOTIONAL OFFER BANNER (Mid-Page Banner 2) ────────────── */}
       {promoBanner2 && promoBanner2 !== promoBanner1 && (
         <section className="w-[95%] md:w-[90%] mx-auto my-12">
-          {(promoBanner2.banners || []).map((banner) => renderBannerItem(banner, false))}
+          <BannerCarousel banners={promoBanner2.banners || []} isHero={false} />
         </section>
       )}
 
@@ -343,3 +345,4 @@ const ClientPage = () => {
 };
 
 export default ClientPage;
+

@@ -103,7 +103,7 @@ const WishlistPage = () => {
                     </Link>
                     <span className="text-[1.3rem] text-neutral-500 uppercase tracking-widest mt-2 block">{brand}</span>
                     <div className="text-[2rem] font-light text-black mt-4">
-                      ₹{Number(product.price || 0)}
+                      AED {Number(product.price || 0)}
                     </div>
                   </div>
 
