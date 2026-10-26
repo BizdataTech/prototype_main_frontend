@@ -26,7 +26,7 @@ const getInputField = (attribute, data, func, errors) => {
           <InputLabel label={attribute.label} error={errors[property]} />
           <select name={property} id="" className="a-input" onChange={func}>
             {attribute.options.map((option) => (
-              <option value={option} selected={option === input_value}>
+              <option key={option} value={option} selected={option === input_value}>
                 {option}
               </option>
             ))}
@@ -39,7 +39,7 @@ const getInputField = (attribute, data, func, errors) => {
           <InputLabel label={attribute.label} error={errors[property]} />
           <select name={property} id="" className="a-input" onChange={func}>
             {attribute.options.map((option) => (
-              <option value={option} selected={option === input_value}>
+              <option key={option} value={option} selected={option === input_value}>
                 {option}
               </option>
             ))}

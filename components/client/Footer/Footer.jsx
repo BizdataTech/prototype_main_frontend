@@ -45,12 +45,12 @@ const Footer = () => {
           <div className="flex flex-col gap-8 w-full lg:w-1/3 lg:items-end text-left lg:text-right mt-6 lg:mt-0">
             {/* Address */}
             <div className="text-gray-300 text-[1.4rem] sm:text-[1.5rem] leading-relaxed">
-              <p className="font-bold text-white text-[1.6rem] sm:text-[1.7rem] mb-3">Fortune Sealing Equipments Trading LLC,</p>
-              <p className="font-medium text-gray-400">AM Facility, Office No.31,M4</p>
-              <p className="font-medium text-gray-400">Musaffah Abu Dhabi U.A.E</p>
+              <p className="font-bold text-white text-[1.6rem] sm:text-[1.7rem] mb-3">Fortune Building Material</p>
+              <p className="font-medium text-gray-400">Ajman, UAE</p>
               <div className="flex flex-col lg:items-end gap-2 mt-4 font-semibold text-[1.5rem]">
-                <a href="tel:+97126261225" className="hover:text-white transition-colors">Tel: +971 2 6261225</a>
-                <a href="tel:+971504255636" className="hover:text-white transition-colors">Mobile No. +971 50 4255636</a>
+                <a href="tel:+971521009121" className="hover:text-white transition-colors">+971 52 100 9121</a>
+                <a href="tel:+971521009960" className="hover:text-white transition-colors">+971 52 100 9960</a>
+                <a href="tel:+971525976798" className="hover:text-white transition-colors">+971 52 597 6798</a>
               </div>
             </div>
 

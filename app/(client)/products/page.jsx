@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductlistBody from "../category/[category]/ProductlistBody";
 import ProductlistSidebar from "../category/[category]/ProductlistSidebar";
 
 const ProductsContent = () => {
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [filter, setFilter] = useState({});
-  const [sidebar, setSidebar] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
 
   useEffect(() => {
@@ -20,7 +18,6 @@ const ProductsContent = () => {
         const data = await response.json();
         if (response.ok) {
           setProducts(data.products || []);
-          setFilteredProducts(data.products || []);
         }
       } catch (error) {
         console.log("error:", error.message);
@@ -42,13 +39,11 @@ const ProductsContent = () => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    const filtered = products.filter((product) => {
-      return Object.entries(filter).every(([key, values]) => {
-        return values.includes(product[key]);
-      });
-    });
-    setFilteredProducts(filtered);
+  // Derive filteredProducts from filter + products — no useEffect needed
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      Object.entries(filter).every(([key, values]) => values.includes(product[key]))
+    );
   }, [filter, products]);
 
   const filterProducts = (e) => {
@@ -65,20 +60,14 @@ const ProductsContent = () => {
     });
   };
 
-  useEffect(() => {
+  // Derive sidebar from products + dbCategories — no useEffect needed
+  const sidebar = useMemo(() => {
     const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))];
     const categories = [...new Set(dbCategories.map((c) => c.title).filter(Boolean))];
-    const obj1 = {
-      head: "Brands",
-      label: "brand",
-      data: brands,
-    };
-    const obj2 = {
-      head: "Categories",
-      label: "category",
-      data: categories,
-    };
-    setSidebar([obj2, obj1]);
+    return [
+      { head: "Categories", label: "category", data: categories },
+      { head: "Brands", label: "brand", data: brands },
+    ];
   }, [products, dbCategories]);
 
   return (

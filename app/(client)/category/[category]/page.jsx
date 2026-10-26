@@ -5,6 +5,13 @@ import { useEffect, useState } from "react";
 import ProductlistSidebar from "./ProductlistSidebar";
 import ProductlistBody from "./ProductlistBody";
 
+// Safely extract brand title/name whether brand is string, populated object, or null
+const getBrandName = (brand) => {
+  if (!brand) return "";
+  if (typeof brand === "object") return brand.brand_name || brand.name || "";
+  return String(brand);
+};
+
 const ProductList = () => {
   const { category } = useParams();
   const [categoryObject, setCategoryObject] = useState(null);
@@ -13,37 +20,49 @@ const ProductList = () => {
   const [filter, setFilter] = useState({});
   const [sidebar, setSidebar] = useState([]);
   const [loading, setLoading] = useState(true);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  useEffect(() => {
+    setFilter({});
+    setCategoryObject(null);
+  }, [category]);
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
   useEffect(() => {
     const getProducts = async () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${BACKEND_URL}/api/products?filter=product-list&category=${category}`,
+          `${BACKEND_URL}/api/products?filter=product-list&category=${encodeURIComponent(category)}`,
           {
             method: "GET",
           }
         );
         let data = await response.json();
         if (!response.ok) throw new Error(data.message || "Failed to fetch products");
-        else {
-          setProducts(data.products || []);
-          setFilteredProducts(data.products || []);
-        }
+        setProducts(data.products || []);
+        setFilteredProducts(data.products || []);
       } catch (error) {
-        console.log("error:", error.message);
+        console.error("Error fetching category products:", error.message);
+        setProducts([]);
+        setFilteredProducts([]);
       } finally {
         setLoading(false);
       }
     };
-    if (category) getProducts();
+
+    if (category) {
+      getProducts();
+    } else {
+      setLoading(false);
+    }
   }, [category, BACKEND_URL]);
 
   useEffect(() => {
     const filtered = products.filter((product) => {
       return Object.entries(filter).every(([key, values]) => {
-        return values.includes(product[key]);
+        if (!values || values.length === 0) return true;
+        const prodVal = key === "brand" ? getBrandName(product.brand) : product[key];
+        return values.includes(prodVal);
       });
     });
 
@@ -72,23 +91,23 @@ const ProductList = () => {
     const getCategory = async () => {
       try {
         let response = await fetch(
-          `${BACKEND_URL}/api/auto-categories/${category}?filter=product-list`,
+          `${BACKEND_URL}/api/auto-categories/${encodeURIComponent(category)}?filter=product-list`,
           { method: "GET" }
         );
         let data = await response.json();
         if (!response.ok) throw new Error(data.message);
-        else {
-          setCategoryObject(data.category);
-        }
+        setCategoryObject(data.category);
       } catch (error) {
-        console.error(error.message);
+        console.error("Error fetching category object:", error.message);
       }
     };
     if (category) getCategory();
   }, [category, BACKEND_URL]);
 
   useEffect(() => {
-    let brands = [...new Set(products.map((product) => product.brand).filter(Boolean))];
+    const brands = [
+      ...new Set(products.map((product) => getBrandName(product.brand)).filter(Boolean)),
+    ];
     let obj1 = {
       head: "Brands",
       label: "brand",
@@ -98,7 +117,7 @@ const ProductList = () => {
   }, [products]);
 
   return (
-    <main className="lg:pt-[11rem] bg-[#f8f9fa] min-h-screen pb-20">
+    <main className="pt-[13rem] md:pt-[14rem] lg:pt-[11rem] bg-[#f8f9fa] min-h-screen pb-20">
       <div className="product-list w-[95%] md:w-[90%] mx-auto py-8">
         <div className="flex flex-col md:flex-row gap-6 my-2">
           <ProductlistSidebar

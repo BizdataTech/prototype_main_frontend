@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { AdminContext } from "@/app/(admin)/AdminContext";
 import { Spinner } from "phosphor-react";
+import OrderNotificationBell from "@/components/admin/OrderNotificationBell";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -60,23 +61,26 @@ const Sidebar = () => {
             ),
         )}
       </ul>
-      <button
-        className={`text-[1.4rem] text-center font-semibold bg-neutral-300/80 hover:bg-red-50 hover:text-red-800 active:bg-red-100 transition-colors rounded-[.5rem] py-2 ${loading ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
-        onClick={logoutAdminUser}
-        disabled={loading}
-      >
-        {loading ? (
-          <div className="flex items-center justify-center gap-2">
-            Logging Out{" "}
-            <Spinner
-              className="w-[1.5rem] h-[1.5rem] animate-spin"
-              weight="bold"
-            />
-          </div>
-        ) : (
-          "Logout"
-        )}
-      </button>
+      <div className="flex flex-col gap-3">
+        <OrderNotificationBell />
+        <button
+          className={`text-[1.4rem] text-center font-semibold bg-neutral-300/80 hover:bg-red-50 hover:text-red-800 active:bg-red-100 transition-colors rounded-[.5rem] py-2 ${loading ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
+          onClick={logoutAdminUser}
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              Logging Out{" "}
+              <Spinner
+                className="w-[1.5rem] h-[1.5rem] animate-spin"
+                weight="bold"
+              />
+            </div>
+          ) : (
+            "Logout"
+          )}
+        </button>
+      </div>
     </aside>
   );
 };

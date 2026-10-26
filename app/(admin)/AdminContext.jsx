@@ -9,10 +9,6 @@ const AdminProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(null);
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    validateLogin();
-  }, []);
-
   const validateLogin = async () => {
     try {
       let res = await axios(`${BACKEND_URL}/api/admin-users/verify`, {
@@ -23,6 +19,11 @@ const AdminProvider = ({ children }) => {
       setAdminUser(false);
     }
   };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    validateLogin();
+  }, []);
 
   let value = { adminUser, setAdminUser };
   return <AdminContext value={value}>{children}</AdminContext>;

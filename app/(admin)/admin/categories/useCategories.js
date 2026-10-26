@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 const useCategories = () => {
   const [categories, setCategories] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [error, setError] = useState(null);
   const [actualCategoryTitle, setActualCategoryTitle] = useState("");
   const [categoryTitle, setCategoryTitle] = useState("");
@@ -20,6 +21,17 @@ const useCategories = () => {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Active"); // Defaults to Active
   const [image, setImage] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const handleImageFile = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setImage("");
+    }
+  };
 
   const [attributeCollection, setAttributeCollection] = useState(null);
 
@@ -54,6 +66,7 @@ const useCategories = () => {
         setDescription(description || "");
         setStatus(status || "Active");
         setImage(image || "");
+        setImagePreview(image || "");
         setSelectedVariants(variants || []);
         console.log("parent:", parent);
       }
@@ -70,8 +83,8 @@ const useCategories = () => {
     else if (action === "down" && currentPage > 1)
       setCurrentPage((prevPage) => prevPage - 1);
   };
-  useEffect(() => {
-    const fetchCategories = async () => {
+  const fetchCategories = async () => {
+    try {
       const response = await fetch(
         `${BACKEND_API_URL}/api/auto-categories?filter=all&current_page=${currentPage}`,
         {
@@ -80,11 +93,15 @@ const useCategories = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        console.log("categories:", data.categories);
         setCategories(data.categories);
         setTotalPages(data.total_pages);
       } else throw new Error(data.message);
-    };
+    } catch (err) {
+      console.error("fetchCategories error:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchCategories();
   }, [currentPage]);
 
@@ -190,38 +207,67 @@ const useCategories = () => {
           return newErrors;
         });
       }
-      const data = {
-        title: categoryTitle,
-        level: selectedLevel,
-        isNavItem: navbar,
-        parent: selectedParent,
-        attribute_collection: attributeCollection,
-        slug,
-        description,
-        status,
-        image,
-        variants: selectedVariants,
-      };
       let response;
-      if (action === "create") {
-        response = await fetch(`${BACKEND_API_URL}/api/auto-categories`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-      } else if (action === "update") {
-        response = await fetch(
-          `${BACKEND_API_URL}/api/auto-categories/${category_id}`,
-          {
-            method: "PUT",
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("title", categoryTitle);
+        formData.append("level", selectedLevel);
+        formData.append("isNavItem", navbar);
+        if (selectedParent) formData.append("parent", selectedParent);
+        if (attributeCollection) formData.append("attribute_collection", attributeCollection);
+        if (slug) formData.append("slug", slug);
+        if (description) formData.append("description", description);
+        if (status) formData.append("status", status);
+        formData.append("image", imageFile);
+        formData.append("variants", JSON.stringify(selectedVariants || []));
+
+        if (action === "create") {
+          response = await fetch(`${BACKEND_API_URL}/api/auto-categories`, {
+            method: "POST",
+            body: formData,
+          });
+        } else if (action === "update") {
+          response = await fetch(
+            `${BACKEND_API_URL}/api/auto-categories/${category_id}`,
+            {
+              method: "PUT",
+              body: formData,
+            },
+          );
+        }
+      } else {
+        const data = {
+          title: categoryTitle,
+          level: selectedLevel,
+          isNavItem: navbar,
+          parent: selectedParent,
+          attribute_collection: attributeCollection,
+          slug,
+          description,
+          status,
+          image,
+          variants: selectedVariants,
+        };
+        if (action === "create") {
+          response = await fetch(`${BACKEND_API_URL}/api/auto-categories`, {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(data),
-          },
-        );
+          });
+        } else if (action === "update") {
+          response = await fetch(
+            `${BACKEND_API_URL}/api/auto-categories/${category_id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            },
+          );
+        }
       }
 
       const responseData = await response.json();
@@ -239,21 +285,74 @@ const useCategories = () => {
     let deleteid = id || category_id;
     try {
       const response = await fetch(
-        `http://localhost:4000/api/auto-categories/${deleteid}`,
+        `${BACKEND_API_URL}/api/auto-categories/${deleteid}`,
         {
           method: "DELETE",
         },
       );
       const data = await response.json();
-      if (response.ok) {
+      if (response.ok && data.success !== false) {
         if (data.delete) {
-          setCategories(data.categories);
-          toast.success(data.message);
+          toast.success(data.message || "Category deleted successfully");
+          const deletedSet = new Set(data.deletedIds || [deleteid]);
+          setSelectedCategories((prev) =>
+            prev.filter((item) => !deletedSet.has(item))
+          );
+          if (data.categories) {
+            setCategories(data.categories);
+          } else {
+            fetchCategories();
+          }
           if (action === "update") router.push("/admin/categories");
-        } else toast.error(data.message);
-      } else throw new Error(data.message);
+        } else {
+          toast.error(data.message || "Failed to delete category");
+        }
+      } else {
+        throw new Error(data.message);
+      }
     } catch (error) {
-      console.log("error:", error.message);
+      console.error("error:", error.message);
+      toast.error(error.message || "Failed to delete category");
+    }
+  };
+
+  const bulkDeleteCategories = async () => {
+    if (!selectedCategories || selectedCategories.length === 0) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedCategories.length} selected category(ies)? All associated subcategories will also be deleted from the database.`
+      )
+    )
+      return;
+    try {
+      const response = await fetch(
+        `${BACKEND_API_URL}/api/auto-categories/bulk-delete`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ids: selectedCategories }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.success !== false) {
+        toast.success(data.message || "Categories and subcategories deleted successfully");
+        const deletedSet = new Set(data.deletedIds || selectedCategories);
+        setSelectedCategories((prev) =>
+          prev.filter((id) => !deletedSet.has(id))
+        );
+        if (data.categories) {
+          setCategories(data.categories);
+        } else {
+          fetchCategories();
+        }
+      } else {
+        toast.error(data.message || "Failed to delete categories");
+      }
+    } catch (error) {
+      console.error("Bulk delete error:", error);
+      toast.error(error.message || "Failed to delete categories");
     }
   };
 
@@ -272,6 +371,10 @@ const useCategories = () => {
     deleteAll,
     action,
     categories,
+    selectedCategories,
+    setSelectedCategories,
+    bulkDeleteCategories,
+    fetchCategories,
     currentPage,
     totalPages,
     handlePage,
@@ -294,6 +397,9 @@ const useCategories = () => {
     description, setDescription,
     status, setStatus,
     image, setImage,
+    imageFile, setImageFile,
+    imagePreview, setImagePreview,
+    handleImageFile,
     globalVariants,
     selectedVariants,
     setSelectedVariants

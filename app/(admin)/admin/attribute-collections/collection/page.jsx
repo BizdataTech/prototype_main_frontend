@@ -11,10 +11,11 @@ const Page = () => {
   let id = queryParams.get("id");
 
   let { data, refetch } = useCollection(id);
-  let [updateData, setUpdateData] = useState(null);
+  const [updateData, setUpdateData] = useState(null);
 
+  // Reset updateData whenever data refreshes
   useEffect(() => {
-    setUpdateData(null);
+    setUpdateData(null); // eslint-disable-line react-hooks/set-state-in-effect
   }, [data]);
 
   return (

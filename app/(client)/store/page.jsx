@@ -24,11 +24,8 @@ const StorePage = () => {
                 Store Address
               </h2>
               <address className="text-[1.5rem] font-light text-neutral-700 leading-loose not-italic">
-                <p className="font-medium text-black text-[1.6rem]">Fortuneae FBM Building Material</p>
-                <p>Ashtamudi Towers</p>
-                <p>TechnoPark</p>
-                <p>Kollam – 691501</p>
-                <p>Kerala, India</p>
+                <p className="font-medium text-black text-[1.6rem]">Fortune Building Material</p>
+                <p>Ajman, UAE</p>
               </address>
             </div>
 
@@ -51,7 +48,7 @@ const StorePage = () => {
                 Getting Here
               </h2>
               <div className="text-[1.5rem] font-light text-neutral-600 leading-relaxed">
-                <p className="mb-4">We are located inside the prestigious TechnoPark campus, Ashtamudi Towers, in Kollam, Kerala.</p>
+                <p className="mb-4">We are located at Fortune Building Material in Ajman, United Arab Emirates.</p>
                 <p>Easily accessible by road and public transport. Ample parking is available on-site for visitors.</p>
               </div>
             </div>
@@ -61,9 +58,11 @@ const StorePage = () => {
                 Contact Store
               </h2>
               <div className="text-[1.5rem] font-light text-neutral-600 flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   <span className="text-[1.1rem] uppercase tracking-widest text-neutral-400">Phone</span>
-                  <a href="tel:+91-0000000000" className="hover:underline text-black">+91 00000 00000</a>
+                  <a href="tel:+971521009121" className="hover:underline text-black">+971 52 100 9121</a>
+                  <a href="tel:+971521009960" className="hover:underline text-black">+971 52 100 9960</a>
+                  <a href="tel:+971525976798" className="hover:underline text-black">+971 52 597 6798</a>
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[1.1rem] uppercase tracking-widest text-neutral-400">Email</span>

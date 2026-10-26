@@ -21,8 +21,7 @@ const Sections = () => {
   let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
-  useEffect(() => { getSections(); }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getSections = async () => {
     try {
       let res = await axios.get(`${BACKEND_URL}/api/home-sections`, { withCredentials: true });
@@ -33,6 +32,8 @@ const Sections = () => {
       toast.error("Something Went Wrong");
     }
   };
+
+  useEffect(() => { getSections(); }, []);
 
   const deleteSection = async (id) => {
     if (!confirm("Are you sure you want to delete this section?")) return;
@@ -119,7 +120,7 @@ const Sections = () => {
               </span>
               <div className="flex flex-col gap-0.5">
                 <div className="font-semibold text-[1.4rem]">{sectionLabel(obj.section_type)}</div>
-                {obj.title && <div className="text-[1.2rem] text-neutral-500">"{obj.title}"</div>}
+                {obj.title && <div className="text-[1.2rem] text-neutral-500">&quot;{obj.title}&quot;</div>}
                 {obj.banners?.length > 0 && <div className="text-[1.2rem] text-neutral-500">{obj.banners.length} banner(s)</div>}
               </div>
               {obj.active === false && (

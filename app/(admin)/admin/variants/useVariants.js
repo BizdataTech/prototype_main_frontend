@@ -5,10 +5,7 @@ const useVariants = () => {
   const [variants, setVariants] = useState(null);
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    getVariants();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getVariants = async () => {
     try {
       let res = await axios.get(`${BACKEND_URL}/api/variants`, {
@@ -20,6 +17,10 @@ const useVariants = () => {
       console.log(err.message);
     }
   };
+
+  useEffect(() => {
+    getVariants();
+  }, []);
 
   return { variants, refetch: getVariants };
 };

@@ -82,7 +82,7 @@ const SignInForm = () => {
           )}
         </button>
         <p className="text-[1.4rem] text-gray-400 flex flex-col items-end">
-          let's create an account ?{" "}
+          let&apos;s create an account ?{" "}
           <Link
             className="cursor-pointer text-blue-800 capitalize"
             href="/register/sign-up"

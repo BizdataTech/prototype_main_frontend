@@ -6,10 +6,7 @@ const useCollection = (id) => {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    getCollectionData();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCollectionData = async () => {
     try {
       let res = await axios(`${BACKEND_URL}/api/attribute-collections/${id}`, {
@@ -21,6 +18,10 @@ const useCollection = (id) => {
       console.log(err.message);
     }
   };
+
+  useEffect(() => {
+    getCollectionData();
+  }, []);
 
   return { data, refetch: getCollectionData };
 };

@@ -230,20 +230,18 @@ const OrderSummaryContent = () => {
                     key={item._id}
                     className="flex flex-col sm:flex-row sm:items-center gap-8 pb-8 border-b border-neutral-100 last:border-0 last:pb-0"
                   >
-                    <Link href={`/product/${prod._id}`} className="w-[10rem] h-[12rem] bg-neutral-50 p-2 shrink-0 flex items-center justify-center cursor-pointer border border-transparent hover:border-black transition-colors">
+                    <Link href={`/product/${prod.parentId?._id || prod._id}`} className="w-[10rem] h-[12rem] bg-neutral-50 p-2 shrink-0 flex items-center justify-center cursor-pointer border border-transparent hover:border-black transition-colors">
                       {image ? <img src={image} alt={title} className="max-w-full max-h-full object-contain mix-blend-multiply" /> : <span className="text-[1rem] text-neutral-400 uppercase tracking-widest">No Image</span>}
                     </Link>
                     <div className="flex flex-col flex-1">
-                      <Link href={`/product/${prod._id}`} className="font-light text-[1.8rem] text-black line-clamp-2 leading-relaxed hover:underline cursor-pointer">
+                      <Link href={`/product/${prod.parentId?._id || prod._id}`} className="font-light text-[1.8rem] text-black line-clamp-2 leading-relaxed hover:underline cursor-pointer">
                         {title}
                       </Link>
                       <p className="text-[1.3rem] text-neutral-500 mt-2 uppercase tracking-widest">
                         Quantity: {item.quantity}
                       </p>
                       <div className="mt-4">
-                        <Link
-                          href={`/product/${prod._id}`}
-                          className="inline-block bg-black hover:bg-neutral-800 text-white text-[1.1rem] uppercase tracking-widest px-6 py-3 transition-colors text-center"
+                        <Link href={`/product/${prod.parentId?._id || prod._id}`} className="inline-block bg-black hover:bg-neutral-800 text-white text-[1.1rem] uppercase tracking-widest px-6 py-3 transition-colors text-center"
                         >
                           View Product
                         </Link>

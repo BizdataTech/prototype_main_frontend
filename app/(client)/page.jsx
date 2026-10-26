@@ -34,6 +34,7 @@ const ClientPage = () => {
 
   useEffect(() => {
     if (!rawSections.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEnrichedSections([]);
       return;
     }

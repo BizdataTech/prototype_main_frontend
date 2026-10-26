@@ -60,11 +60,11 @@ const CartDrawer = ({ isOpen, onClose }) => {
                       key={idx}
                       className="flex gap-8 pb-8 border-b border-neutral-100 last:border-0"
                     >
-                      <Link href={`/product/${prod._id}`} onClick={onClose} className="w-[10rem] h-[12rem] bg-neutral-50 flex items-center justify-center shrink-0 p-2">
+                      <Link href={`/product/${prod.parentId?._id || prod._id}`} onClick={onClose} className="w-[10rem] h-[12rem] bg-neutral-50 flex items-center justify-center shrink-0 p-2">
                         {image ? (
                           <img
                             src={image}
-                            alt={prod.product_title}
+                            alt={prod.product_title || prod.parentId?.product_title}
                             className="max-w-full max-h-full object-contain mix-blend-multiply"
                           />
                         ) : (
@@ -75,8 +75,8 @@ const CartDrawer = ({ isOpen, onClose }) => {
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start gap-4">
-                            <Link href={`/product/${prod._id}`} onClick={onClose} className="text-[1.6rem] font-light text-black leading-tight hover:underline">
-                              {prod.product_title}
+                            <Link href={`/product/${prod.parentId?._id || prod._id}`} onClick={onClose} className="text-[1.6rem] font-light text-black leading-tight hover:underline">
+                              {prod.product_title || prod.parentId?.product_title}
                             </Link>
                             <span className="text-[1.6rem] font-light text-black shrink-0">
                               AED {Number(prod.price || 0)}

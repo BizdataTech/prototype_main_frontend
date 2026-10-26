@@ -8,11 +8,7 @@ const useModal = () => {
 
   let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    if (!category) return;
-    getProducts();
-  }, [category]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getProducts = async () => {
     try {
       let res = await axios.get(
@@ -25,6 +21,11 @@ const useModal = () => {
       console.log(err.message);
     }
   };
+
+  useEffect(() => {
+    if (!category) return;
+    getProducts();
+  }, [category]);
 
   return { products, setProducts, category, setCategory };
 };

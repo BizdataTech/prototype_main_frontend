@@ -3,6 +3,7 @@
 import useCategories from "../useCategories.js";
 import AttributeSection from "./AttributeSection.jsx";
 import VariantSection from "./VariantSection.jsx";
+import { Upload, X } from "phosphor-react";
 
 const CategoryManagement = () => {
   const {
@@ -27,6 +28,9 @@ const CategoryManagement = () => {
     description, setDescription,
     status, setStatus,
     image, setImage,
+    imageFile, setImageFile,
+    imagePreview, setImagePreview,
+    handleImageFile,
     globalVariants,
     selectedVariants,
     setSelectedVariants,

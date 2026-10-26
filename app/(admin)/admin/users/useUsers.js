@@ -5,10 +5,7 @@ const useUsers = () => {
   let [users, setUsers] = useState(null);
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    getClients();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getClients = async () => {
     try {
       let res = await axios.get(`${BACKEND_URL}/api/admin-users/clients`, {
@@ -19,6 +16,10 @@ const useUsers = () => {
       console.log(err.message);
     }
   };
+
+  useEffect(() => {
+    getClients();
+  }, []);
 
   return { users, refetch: getClients };
 };

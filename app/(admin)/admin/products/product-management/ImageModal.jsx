@@ -1,12 +1,16 @@
-﻿import { createPortal } from "react-dom";
+import { createPortal } from "react-dom";
 import { X, Plus, Crop, ArrowsClockwise } from "phosphor-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ImageCropper from "@/components/admin/ImageCropper";
 
 const ImageModal = ({ variants, sku, func, handleImages }) => {
   let inputRef = useRef(null);
   let editInputRef = useRef(null);
-  let [images, setImages] = useState([]);
+  // Initialize images from the matching variant — lazy initializer avoids extra render
+  let [images, setImages] = useState(() => {
+    const result = variants.find((variant) => variant.sku === sku);
+    return result?.images?.length ? result.images : [];
+  });
 
   // Cropper state
   const [cropSrc, setCropSrc] = useState(null);
@@ -19,12 +23,6 @@ const ImageModal = ({ variants, sku, func, handleImages }) => {
     inputRef.current.click();
   };
 
-  useEffect(() => {
-    let result = variants.find((variant) => variant.sku === sku);
-    if (result.images.length) setImages(result.images);
-  }, []);
-
-  // Add new file -- open cropper
   const handleFileChange = (event) => {
     let files = Array.from(event.target.files);
     if (!files.length) return;

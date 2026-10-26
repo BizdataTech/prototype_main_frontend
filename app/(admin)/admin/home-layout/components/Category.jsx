@@ -2,14 +2,10 @@ import useMouseClick from "@/app/(admin)/hooks/useMouseClick";
 import { InputLabel } from "@/components/admin/InputLabel";
 import axios from "axios";
 import { ArrowLeft } from "phosphor-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const Category = ({ selectedCategory, setCategory, error }) => {
   let [categories, setCategories] = useState([]);
-
-  let [history, setHistory] = useState([]);
-  let currentCategories = history[history.length - 1];
-
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
 
@@ -29,11 +25,25 @@ const Category = ({ selectedCategory, setCategory, error }) => {
     getCategories();
   }, []);
 
-  useEffect(() => {
-    setHistory([{ categories: categories.filter((cata) => cata.level === 1) }]);
-  }, [categories]);
+  // Derive root categories with useMemo — no extra state needed
+  const rootCategories = useMemo(
+    () => categories.filter((cata) => cata.level === 1),
+    [categories]
+  );
+  const [history, setHistory] = useState([]);
+  const currentCategories = history[history.length - 1];
 
+  // Sync history root when categories load
   useEffect(() => {
+    if (rootCategories.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHistory([{ categories: rootCategories }]);
+    }
+  }, [rootCategories]);
+
+  // Close box when selectedCategory changes
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBox(false);
   }, [selectedCategory]);
 

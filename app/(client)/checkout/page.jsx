@@ -45,17 +45,18 @@ const Checkout = () => {
     name: "", phone: "", pincode: "", locality: "", address: "", city: "", state: "", landmark: "", alternatePhone: "", addressType: "Home"
   });
 
+  // Sync activeStep with auth state
   useEffect(() => {
-    if (user && activeStep === 1) setActiveStep(2);
-    if (!user) setActiveStep(1);
-  }, [user, activeStep]);
+    if (user && activeStep === 1) setActiveStep(2); // eslint-disable-line react-hooks/set-state-in-effect
+    if (!user) setActiveStep(1); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [user]); // intentionally omits activeStep to avoid loop
 
-  // Set default address if available
+  // Pre-fill default address when addresses load
   useEffect(() => {
     if (addresses && addresses.length > 0) {
       const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
-      setSelectedAddress(defaultAddr);
-      setAddressForm(defaultAddr);
+      setSelectedAddress(defaultAddr); // eslint-disable-line react-hooks/set-state-in-effect
+      setAddressForm(defaultAddr); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [addresses]);
 
@@ -345,21 +346,21 @@ const Checkout = () => {
               <div className="flex flex-col gap-6 text-[1.6rem] font-light text-black mb-8">
                 <div className="flex justify-between items-center">
                   <span>Subtotal ({cart?.items?.length || 0} items)</span>
-                  <span>AED {cart?.cartTotal || 0}</span>
+                  <span>AED {Number(cart?.cartTotal || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? "Complimentary" : `AED ${shipping}`}</span>
+                  <span>{shipping === 0 ? "Complimentary" : `AED ${Number(shipping).toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Tax (Estimated)</span>
-                  <span>AED {tax}</span>
+                  <span>AED {Number(tax).toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center text-[2.4rem] font-light text-black pt-8 border-t border-neutral-200 mb-8">
                 <span className="uppercase tracking-widest text-[1.6rem] font-medium">Estimated Total</span>
-                <span>AED {estimatedTotal}</span>
+                <span>AED {Number(estimatedTotal).toFixed(2)}</span>
               </div>
               
               <div className="text-center text-[1.2rem] text-neutral-500 uppercase tracking-widest leading-relaxed">

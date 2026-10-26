@@ -19,7 +19,7 @@ const TestimonialsPage = () => {
         <div className="flex flex-col gap-8">
           <div className="bg-neutral-50 p-8 border border-neutral-100 rounded-lg">
             <p className="text-[1.6rem] italic text-neutral-700 leading-relaxed mb-6">
-              "Fortune Sealing Equipments Trading LLC provided us with exceptional quality materials for our recent commercial project. Their sealing equipment performed flawlessly and their customer service is top-notch."
+              &quot;Fortune Sealing Equipments Trading LLC provided us with exceptional quality materials for our recent commercial project. Their sealing equipment performed flawlessly and their customer service is top-notch.&quot;
             </p>
             <p className="text-[1.4rem] font-medium text-black uppercase tracking-wider">
               - Ahmed R., Lead Contractor
@@ -27,7 +27,7 @@ const TestimonialsPage = () => {
           </div>
           <div className="bg-neutral-50 p-8 border border-neutral-100 rounded-lg">
             <p className="text-[1.6rem] italic text-neutral-700 leading-relaxed mb-6">
-              "We have been sourcing materials from Fortuneae for over five years. Their reliability and dedication to quality make them our preferred supplier in the UAE."
+              &quot;We have been sourcing materials from Fortuneae for over five years. Their reliability and dedication to quality make them our preferred supplier in the UAE.&quot;
             </p>
             <p className="text-[1.4rem] font-medium text-black uppercase tracking-wider">
               - Sarah L., Project Manager

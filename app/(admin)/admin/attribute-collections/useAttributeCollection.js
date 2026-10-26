@@ -5,10 +5,7 @@ const useAttributeCollection = () => {
   const [attributeCollections, setAttributeCollections] = useState(null);
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    getAttributeCollections();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getAttributeCollections = async () => {
     try {
       let res = await axios.get(`${BACKEND_URL}/api/attribute-collections`, {
@@ -20,6 +17,10 @@ const useAttributeCollection = () => {
       console.log(err.message);
     }
   };
+
+  useEffect(() => {
+    getAttributeCollections();
+  }, []);
 
   return { attributeCollections, refetch: getAttributeCollections };
 };

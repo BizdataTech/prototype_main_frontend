@@ -12,18 +12,7 @@ const Contents = () => {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    getBlocks();
-  }, []);
-
-  useEffect(() => {
-    if (selectedBlock) setModal(true);
-  }, [selectedBlock]);
-
-  useEffect(() => {
-    if (!modal && selectedBlock) setSelectedBlock(null);
-  }, [modal]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getBlocks = async () => {
     try {
       let res = await axios.get(`${BACKEND_URL}/api/content-blocks`, {
@@ -35,6 +24,18 @@ const Contents = () => {
       toast.error("Something Went Wrong");
     }
   };
+
+  useEffect(() => {
+    getBlocks();
+  }, []);
+
+  useEffect(() => {
+    if (selectedBlock) setModal(true);
+  }, [selectedBlock]);
+
+  useEffect(() => {
+    if (!modal && selectedBlock) setSelectedBlock(null);
+  }, [modal]);
   return (
     <section>
       {blocks === null && (
@@ -45,7 +46,7 @@ const Contents = () => {
       {blocks && blocks.length === 0 && (
         <div className="bg-yellow-50 text-center border border-neutral-300 p-8">
           <div className="a-section--title">
-            Couldn't find any content blocks
+            Couldn&apos;t find any content blocks
           </div>
           <p className="a-text--body">
             Content blocks are simply a set of product batches that can either

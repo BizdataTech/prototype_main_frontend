@@ -11,7 +11,7 @@ import {
   Funnel,
 } from "phosphor-react";
 
-const ProductlistSidebar = ({ sidebar = [], filterProducts }) => {
+const ProductlistSidebar = ({ sidebar = [], filterProducts = () => {}, selectedFilters = {}, currentCategory = null }) => {
   const { rootCategories } = useHeader();
   const [expanded, setExpanded] = useState({});
 
@@ -131,22 +131,29 @@ const ProductlistSidebar = ({ sidebar = [], filterProducts }) => {
                     {content.head}
                   </h3>
                   <ul className="flex flex-col gap-1.5 max-h-[20rem] overflow-y-auto">
-                    {content.data.map((d, dIdx) => (
-                      <li key={dIdx} className="list-none">
-                        <label className="flex gap-2.5 items-center cursor-pointer hover:text-black transition-colors">
-                          <input
-                            name={content.label}
-                            type="checkbox"
-                            onChange={filterProducts}
-                            value={d}
-                            className="w-4 h-4 rounded border-neutral-300 text-[#b00015] focus:ring-[#b00015]"
-                          />
-                          <span className="text-[1.3rem] text-neutral-600 font-medium select-none truncate">
-                            {d}
-                          </span>
-                        </label>
-                      </li>
-                    ))}
+                    {content.data.map((d, dIdx) => {
+                      const displayValue = typeof d === "object" && d !== null
+                        ? d.brand_name || d.name || d.title || d._id || ""
+                        : String(d);
+
+                      return (
+                        <li key={dIdx} className="list-none">
+                          <label className="flex gap-2.5 items-center cursor-pointer hover:text-black transition-colors">
+                            <input
+                              name={content.label}
+                              type="checkbox"
+                              onChange={filterProducts}
+                              value={displayValue}
+                              checked={Boolean(selectedFilters?.[content.label]?.includes(displayValue))}
+                              className="w-4 h-4 rounded border-neutral-300 text-[#b00015] focus:ring-[#b00015]"
+                            />
+                            <span className="text-[1.3rem] text-neutral-600 font-medium select-none truncate">
+                              {displayValue}
+                            </span>
+                          </label>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               );

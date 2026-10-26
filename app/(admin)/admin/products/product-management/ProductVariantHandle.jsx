@@ -6,20 +6,18 @@ import {
   AlignBottom,
 } from "phosphor-react";
 import ImageModal from "./ImageModal";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 const ProductVariantHandle = ({ utils }) => {
   const { categoryDataInputs, variantActions, errors, handleImages } = utils;
   const { handleVariantData, deleteVariant } = variantActions;
 
-  let [variants, setVariants] = useState(categoryDataInputs.variants);
+  // Derive sorted variants with useMemo — no setState needed
+  const variants = useMemo(
+    () => [...categoryDataInputs.variants].sort((a, b) => a.block - b.block),
+    [categoryDataInputs.variants]
+  );
   let [open, setOpen] = useState(false);
   let [SKU, setSKU] = useState(null);
-
-  useEffect(() => {
-    setVariants(() => {
-      return categoryDataInputs.variants.sort((a, b) => a.block - b.block);
-    });
-  }, [categoryDataInputs.variants]);
 
   const handleModal = (sku = null) => {
     console.log("sku:", sku);
@@ -34,7 +32,10 @@ const ProductVariantHandle = ({ utils }) => {
           <div className="a-section--title">{`Product Variants ( ${variants.length} )`}</div>
 
           {variants.map((variant) => (
-            <div className={`${variant?.block ? "relative" : "mt-[1rem]"}`}>
+            <div
+              key={variant.sku || variant._id}
+              className={`${variant?.block ? "relative" : "mt-[1rem]"}`}
+            >
               <div
                 className={`border ${
                   variant?.block
@@ -62,8 +63,11 @@ const ProductVariantHandle = ({ utils }) => {
                     <div className="border w-1/2 border-neutral-200 p-2 rounded-[.3rem]">
                       <div>
                         {variant.attributes &&
-                          variant.attributes.map((attribute) => (
-                            <div className="flex items-center gap-2">
+                          variant.attributes.map((attribute, attrIdx) => (
+                            <div
+                              key={attribute.label || attribute._id || attrIdx}
+                              className="flex items-center gap-2"
+                            >
                               <span>{`${attribute.label}:`}</span>
                               <span className="font-medium">
                                 {attribute.value}
@@ -138,8 +142,9 @@ const ProductVariantHandle = ({ utils }) => {
                           </div>
 
                           <div className="flex flex-wrap gap-4">
-                            {variant.images.map((image) => (
+                            {variant.images.map((image, imgIdx) => (
                               <img
+                                key={image.url || imgIdx}
                                 src={image.url}
                                 alt=""
                                 className="w-[5rem] h-[5rem] object-cover"

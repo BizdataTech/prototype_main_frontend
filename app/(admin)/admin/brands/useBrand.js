@@ -8,10 +8,7 @@ const useBrand = () => {
   let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // get all brands
-  useEffect(() => {
-    getBrands();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   let getBrands = async () => {
     try {
       let res = await axios.get(`${BACKEND_URL}/api/brands`, {
@@ -23,6 +20,10 @@ const useBrand = () => {
       console.log("error:", err.message);
     }
   };
+
+  useEffect(() => {
+    getBrands();
+  }, []);
 
   return { brands, refetch: getBrands };
 };

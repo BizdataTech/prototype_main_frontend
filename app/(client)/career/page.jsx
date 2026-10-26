@@ -50,11 +50,8 @@ const CareerPage = () => {
                 Our Address
               </h2>
               <address className="text-[1.5rem] font-light text-neutral-700 leading-loose not-italic">
-                <p className="font-medium text-black text-[1.6rem]">Fortuneae FBM Building Material</p>
-                <p>Ashtamudi Towers</p>
-                <p>TechnoPark</p>
-                <p>Kollam – 691501</p>
-                <p>Kerala, India</p>
+                <p className="font-medium text-black text-[1.6rem]">Fortune Building Material</p>
+                <p>Ajman, UAE</p>
               </address>
             </div>
           </div>

@@ -51,8 +51,11 @@ const BlockModal = ({ close, block, refetch }) => {
   useEffect(() => {
     if (!blockData) return;
     let { title, products, block_type } = blockData;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTitle(title);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedProducts(products);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (block_type) setBlockType(block_type);
   }, [blockData]);
 
@@ -79,11 +82,13 @@ const BlockModal = ({ close, block, refetch }) => {
           selectedProducts.some((pro) => item._id === pro._id),
         );
       if (same)
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         return setUpdateData((prev) => {
           let new_update = { ...prev };
           delete new_update.products;
           return new_update;
         });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUpdateData((prev) => ({
         ...prev,
         products: selectedProducts,
@@ -144,12 +149,14 @@ const BlockModal = ({ close, block, refetch }) => {
       let res;
       setLoading(true);
       if (block) {
-        if (updateData.products)
-          updateData.products = updateData.products.map((pro) => pro._id);
-        if (updateData.title) updateData.slug = slug;
+        // Build a local patch copy — never mutate state directly
+        const patch = { ...updateData };
+        if (patch.products)
+          patch.products = patch.products.map((pro) => pro._id);
+        if (patch.title) patch.slug = slug;
         res = await axios.patch(
           `${BACKEND_URL}/api/content-blocks/${blockData._id}`,
-          { ...updateData, block_type: blockType, category: category?._id || blockData?.category },
+          { ...patch, block_type: blockType, category: category?._id || blockData?.category },
           { withCredentials: true },
         );
       } else {
@@ -239,7 +246,7 @@ const BlockModal = ({ close, block, refetch }) => {
         <div>
           {products.length === 0 && (
             <div className="bg-red-50 text-center a-text--label p-6">
-              Couldn't find any products to choose. Select a category above,
+              Couldn&apos;t find any products to choose. Select a category above,
               that have atleast one active product.
             </div>
           )}

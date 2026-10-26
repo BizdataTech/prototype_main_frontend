@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const ImageGrid = ({ images }) => {
   const imageUrls =
     images?.map((img) => (typeof img === "string" ? img : img?.url)).filter(Boolean) || [];
-  let [heroImage, setHeroImage] = useState(imageUrls[0]);
+  let [heroImage, setHeroImage] = useState(() => imageUrls[0]);
 
+  // Sync hero image when imageUrls changes (e.g. variant switch)
+  const firstUrl = imageUrls[0];
   useEffect(() => {
-    if (imageUrls.length > 0) {
-      setHeroImage(imageUrls[0]);
-    }
-  }, [JSON.stringify(imageUrls)]);
+    if (firstUrl) setHeroImage(firstUrl); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [firstUrl]);
 
   return (
     <div className="md:w-3/6 bg-white flex p-4 self-start">

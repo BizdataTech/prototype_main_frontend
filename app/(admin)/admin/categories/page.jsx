@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import AdminElseBlock from "@/components/admin/AdminElseBlock";
 import { DotsThreeVertical } from "phosphor-react";
 import { useState, useRef } from "react";
 import useCategories from "./useCategories";
 import { CaretRight, CaretLeft } from "phosphor-react";
-import ShimmerContainer from "@/components/admin/ShimmerContainer";
 import TableLoadingRow from "@/components/admin/LoadingRow";
 import TableEmptyRow from "@/components/admin/TableEmptyRow";
 import SearchSection from "@/components/admin/SearchSections";
@@ -15,8 +13,10 @@ import SearchSection from "@/components/admin/SearchSections";
 const Categories = () => {
   const {
     deleteCategory,
-    deleteAll,
     categories,
+    selectedCategories,
+    setSelectedCategories,
+    bulkDeleteCategories,
     currentPage,
     totalPages,
     handlePage,
@@ -33,49 +33,114 @@ const Categories = () => {
 
   return (
     <main className="w-full max-w-full min-h-[88svh] flex flex-col gap-6">
-      <div className="flex flex-row justify-between items-center gap-4">
-        <SearchSection placeholder={"Search for Categories"} />
-        <Link
-          className="a-text--button ml-auto !text-[1.2rem] text-white bg-black/80 hover:bg-black !py-3 transition !rounded-[.3rem]"
-          href="categories/category-management?action=create"
-        >
-          Add new category
-        </Link>
+      <div className="flex flex-row justify-between items-center gap-4 flex-wrap">
+        <div className="flex-1 max-w-md">
+          <SearchSection placeholder={"Search for Categories"} />
+        </div>
+        <div className="flex items-center gap-3 ml-auto">
+          {selectedCategories?.length > 0 && (
+            <button
+              type="button"
+              onClick={bulkDeleteCategories}
+              className="flex items-center gap-2 text-[1.25rem] bg-red-600 text-white rounded-xl px-4 py-2 hover:bg-red-700 transition-all font-medium h-[40px] shadow-sm cursor-pointer"
+            >
+              Delete Selected ({selectedCategories.length})
+            </button>
+          )}
+          <Link
+            className="a-text--button !text-[1.2rem] text-white bg-black/80 hover:bg-black !py-3 !px-4 transition !rounded-[.3rem] flex items-center justify-center"
+            href="categories/category-management?action=create"
+          >
+            Add new category
+          </Link>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="a-section--box !p-0">
-        <div className="grid grid-cols-5">
-          {["Title", "Category Level", "Parent Category", "Status", "Options"].map(
-            (item, i) => (
-              <div
-                key={i}
-                className="text-[1.4rem] font-medium  text-center first:text-start last:text-end p-4"
-              >
-                {item}
-              </div>
-            ),
-          )}
+      <div className="a-section--box !p-0 overflow-hidden bg-white rounded-xl border border-neutral-200 shadow-sm">
+        <div className="grid grid-cols-[40px_1.5fr_1fr_1.5fr_1fr_80px] bg-neutral-50 border-b border-neutral-200 text-neutral-600 text-[1.2rem] font-semibold items-center">
+          <div className="p-4 flex items-center justify-center">
+            <input
+              type="checkbox"
+              className="w-5 h-5 cursor-pointer accent-black"
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedCategories(categories?.map((c) => c._id) || []);
+                } else {
+                  setSelectedCategories([]);
+                }
+              }}
+              checked={
+                Boolean(
+                  categories &&
+                  categories.length > 0 &&
+                  categories.every((c) => selectedCategories?.includes(c._id))
+                )
+              }
+            />
+          </div>
+          <div className="p-4 text-center font-medium">Image</div>
+          <div className="p-4 text-left font-medium">Title</div>
+          <div className="p-4 text-center font-medium">Category Level</div>
+          <div className="p-4 text-center font-medium">Parent Category</div>
+          <div className="p-4 text-center font-medium">Status</div>
+          <div className="p-4 text-right font-medium">Options</div>
         </div>
+
         {categories === null && <TableLoadingRow />}
         {categories && categories.length === 0 && (
           <TableEmptyRow message={"No Result Found"} />
         )}
         {categories &&
           categories.length >= 1 &&
-          categories.map((c, index) => (
+          categories.map((c) => (
             <div
               key={c._id}
-              className="grid grid-cols-5 gap-8 py-4 px-4 border-b-0 border-neutral-200 last:border-b-0 text-[1.3rem] text-neutral-800 items-center even:bg-neutral-100"
+              className="grid grid-cols-[40px_54px_1.5fr_1fr_1.5fr_1fr_80px] gap-2 py-3 px-0 border-b border-neutral-100 last:border-b-0 text-[1.3rem] text-neutral-800 items-center even:bg-neutral-50/50 hover:bg-neutral-50 transition-colors"
             >
-              <div className="truncate font-medium">{c.title}</div>
+              <div className="p-4 flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 cursor-pointer accent-black"
+                  checked={selectedCategories?.includes(c._id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedCategories((prev) => [...prev, c._id]);
+                    } else {
+                      setSelectedCategories((prev) =>
+                        prev.filter((id) => id !== c._id)
+                      );
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-center p-1">
+                {c.image ? (
+                  <img
+                    src={typeof c.image === "object" ? c.image.url : c.image}
+                    alt={c.title}
+                    className="w-9 h-9 object-contain rounded-lg border border-neutral-200 bg-white p-0.5"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-lg border border-neutral-200 bg-neutral-100 flex items-center justify-center text-neutral-400 text-[1rem]">
+                    -
+                  </div>
+                )}
+              </div>
+              <div className="truncate font-medium px-4">{c.title}</div>
               <div className="text-center">{c.level}</div>
               <div className="text-center font-medium">
                 {c?.parent?.title ? c?.parent?.title : "-"}
               </div>
-              {/* Display category status as a colored pill (Green = Active, Red = Inactive) */}
+              {/* Display category status as a colored pill */}
               <div className="text-center">
-                <span className={`px-2 py-1 rounded-full text-xs ${c.status === 'Inactive' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    c.status === "Inactive"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
                   {c.status || "Active"}
                 </span>
               </div>
@@ -119,10 +184,10 @@ const Categories = () => {
             </div>
           ))}
       </div>
-      <div className="flex justify-end items-center  gap-8 mt-auto">
+      <div className="flex justify-end items-center gap-8 mt-auto">
         <CaretLeft
           className={`w-[1.5rem] h-[1.5rem] cursor-pointer ${
-            currentPage == 1 ? "text-neutral-300" : ""
+            currentPage == 1 ? "text-neutral-300 pointer-events-none" : ""
           }`}
           weight="bold"
           onClick={() => handlePage("down")}
@@ -130,7 +195,7 @@ const Categories = () => {
         <div className="text-[1.4rem]">{currentPage}</div>
         <CaretRight
           className={`w-[1.5rem] h-[1.5rem] cursor-pointer ${
-            currentPage === totalPages ? "text-neutral-300" : ""
+            currentPage === totalPages ? "text-neutral-300 pointer-events-none" : ""
           }`}
           weight="bold"
           onClick={() => handlePage("up")}

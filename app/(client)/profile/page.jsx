@@ -358,7 +358,7 @@ const ProfilePageContent = () => {
                   <div className="py-24 flex flex-col items-start gap-6 border border-neutral-200 bg-neutral-50 p-12">
                     <h4 className="text-[1.8rem] font-light text-black uppercase tracking-widest">No Orders Found</h4>
                     <p className="text-[1.4rem] font-light text-neutral-500 max-w-lg leading-relaxed">
-                      You haven't placed any orders yet. Once you place an order, it will appear here.
+                      You haven&apos;t placed any orders yet. Once you place an order, it will appear here.
                     </p>
                     <Link href="/" className="mt-4 bg-black hover:bg-neutral-800 text-white text-[1.2rem] uppercase tracking-widest px-10 py-4 transition-colors">
                       Start Shopping
@@ -658,7 +658,7 @@ const ProfilePageContent = () => {
                   ))}
                 </div>
                 {addresses.length === 0 && !showAddressForm && (
-                  <p className="text-[1.4rem] font-light text-neutral-500">You haven't saved any addresses yet.</p>
+                  <p className="text-[1.4rem] font-light text-neutral-500">You haven&apos;t saved any addresses yet.</p>
                 )}
               </div>
             )}

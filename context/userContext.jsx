@@ -6,6 +6,7 @@ import { toast } from "sonner";
 const UserContext = createContext();
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   useEffect(() => {
     let url = `${BACKEND_URL}/api/auth/verify/me`;
@@ -22,6 +23,8 @@ const UserProvider = ({ children }) => {
       } catch (error) {
         console.log(error.message);
         setUser(null);
+      } finally {
+        setAuthLoading(false);
       }
     };
     getUserStat();
@@ -207,6 +210,7 @@ const UserProvider = ({ children }) => {
 
   const value = {
     user,
+    authLoading,
     loginUser,
     registerUser,
     logoutUser,

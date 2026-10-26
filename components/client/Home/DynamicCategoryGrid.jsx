@@ -9,11 +9,11 @@ import { ArrowRight, SquaresFour } from "phosphor-react";
 const categoryImageMap = {
   "acrylic-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788417093/prototype_products/hm3qf68kbaxa3dk6ps5w.jpg",
   "acp-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788432934/prototype_products/uig5r0uxvrvojb1stfjk.jpg",
-  "solid-colors-acp-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788435028/prototype_products/vz8kngmbrmpthpcadj3m.jpg",
-  "power-tools": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788604691/prototype_products/j9gyyqvewdux0quzlhxs.jpg",
+  "solid-colors-acp-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788435308/prototype_products/dpinlf7ds4qsmurty2so.jpg",
+  "power-tools": "https://res.cloudinary.com/do0hja6ug/image/upload/v1792817925/prototype_products/z2wkmo9avsipchxz9p3s.jpg",
   "hand-tools": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788501223/prototype_products/u28ic0ccgtg0svw3xzow.jpg",
-  "safety-equipment": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788606745/prototype_products/v1wviydedkoiwlzkioo1.jpg",
-  "bathware": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
+  "safety-equipment": "https://res.cloudinary.com/do0hja6ug/image/upload/v1792818362/prototype_products/ddm1msp9wtv72czwtmpc.jpg",
+  "bathware": "https://res.cloudinary.com/do0hja6ug/image/upload/v1792818614/prototype_products/fp3exz7xjyo8fxwaap3s.jpg",
   "polycarbonate-sheets": "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=600&q=80",
 };
 
@@ -28,8 +28,10 @@ export default function DynamicCategoryGrid() {
       try {
         const res = await axios.get(`${BACKEND_URL}/api/auto-categories?filter=all`);
         const cats = res.data?.categories || [];
-        // Filter out deleted or level > 1 if subcategories exist
-        const rootCats = cats.filter((c) => !c.isDeleted && (!c.parent || c.level === 1));
+        // Only show root/main (level 1) categories that are active and not deleted
+        const rootCats = cats.filter(
+          (c) => c.level === 1 && !c.isDeleted && c.status !== "Inactive"
+        );
         if (!isCancelled) {
           setCategories(rootCats);
         }
@@ -87,8 +89,15 @@ export default function DynamicCategoryGrid() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
         {categories.slice(0, 12).map((category) => {
           const slugKey = category.slug || "";
+          // Resolve image: handle both plain string URL and object {url} formats
+          const rawCatImage =
+            typeof category.image === "object" && category.image !== null
+              ? category.image.url || ""
+              : typeof category.image === "string"
+              ? category.image
+              : "";
           const catImg =
-            category.image?.trim() ||
+            rawCatImage.trim() ||
             categoryImageMap[slugKey] ||
             categoryImageMap[category.title?.toLowerCase().replace(/\s+/g, "-")] ||
             "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80";
@@ -105,6 +114,12 @@ export default function DynamicCategoryGrid() {
                   alt={category.title}
                   className="w-full h-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500"
                   loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src =
+                      categoryImageMap[slugKey] ||
+                      "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80";
+                  }}
                 />
               </div>
               <h3 className="text-[1.4rem] font-bold text-neutral-800 group-hover:text-[#b00015] transition-colors line-clamp-1">

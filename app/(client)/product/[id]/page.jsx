@@ -57,6 +57,7 @@ const Productpage = () => {
       variants.find((v) => String(v._id) === String(product._id)) || variants[0];
 
     if (initialVariant?.combination) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedOptions((prev) => {
         if (Object.keys(prev).length > 0) return prev;
         const initial = {};
@@ -107,7 +108,12 @@ const Productpage = () => {
   }, [product, isVariable, matchingVariant]);
 
   if (!product) {
-    return null;
+    return (
+      <div className="w-full min-h-[70vh] flex flex-col items-center justify-center pt-[15rem] gap-4">
+        <div className="w-10 h-10 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[1.4rem] uppercase tracking-widest text-neutral-500 font-light">Loading Product...</p>
+      </div>
+    );
   }
 
   return (

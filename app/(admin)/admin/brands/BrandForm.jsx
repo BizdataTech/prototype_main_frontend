@@ -33,10 +33,11 @@ const BrandForm = ({ refetch, close, id }) => {
     getData();
   }, [id]);
 
+  // Sync preview and name when brand data loads
   useEffect(() => {
     if (!brand) return;
-    setPreviewURL(brand?.image?.url || null);
-    setBrandName(brand?.brand_name || "");
+    setPreviewURL(brand?.image?.url || null); // eslint-disable-line react-hooks/set-state-in-effect
+    setBrandName(brand?.brand_name || ""); // eslint-disable-line react-hooks/set-state-in-effect
   }, [brand]);
 
   const openSystemFiles = () => {

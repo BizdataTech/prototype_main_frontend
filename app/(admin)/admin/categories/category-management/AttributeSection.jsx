@@ -7,10 +7,7 @@ const AttributeSection = ({ setCollection }) => {
   let [collections, setCollections] = useState([]);
   let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    getCollections();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCollections = async () => {
     try {
       let res = await axios.get(
@@ -22,6 +19,10 @@ const AttributeSection = ({ setCollection }) => {
       console.log(error.message);
     }
   };
+
+  useEffect(() => {
+    getCollections();
+  }, []);
   return (
     <section className="w-full a-section--box flex flex-col gap-4 self-start">
       <div>

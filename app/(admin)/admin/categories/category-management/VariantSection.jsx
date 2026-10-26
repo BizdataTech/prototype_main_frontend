@@ -38,7 +38,7 @@ const VariantSection = ({ globalVariants, selectedVariants, setSelectedVariants 
       </div>
 
       <div className="a-text--body bg-yellow-50 !text-yellow-700 p-4">
-        Note : "Link variants to this category to make them available for variable products."
+        Note : &quot;Link variants to this category to make them available for variable products.&quot;
       </div>
 
       <div className="flex flex-col gap-2 mt-2">
