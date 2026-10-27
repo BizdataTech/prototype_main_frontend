@@ -15,7 +15,7 @@ const useCategories = () => {
   const [errors, setErrors] = useState({});
 
   const [navbar, setNavbar] = useState(false);
-  
+
   // New state variables for extended category fields
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
@@ -40,7 +40,7 @@ const useCategories = () => {
   const [selectedVariants, setSelectedVariants] = useState([]);
 
   const router = useRouter();
-  const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_API_URL = process.env.BACKEND_URL;
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const category_id = searchParams.get("category_id");
@@ -56,7 +56,16 @@ const useCategories = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        const { title, level, parent, slug, description, status, image, variants } = data.category;
+        const {
+          title,
+          level,
+          parent,
+          slug,
+          description,
+          status,
+          image,
+          variants,
+        } = data.category;
         setActualCategoryTitle(title);
         setCategoryTitle(title);
         setSelectedLevel(level);
@@ -214,7 +223,8 @@ const useCategories = () => {
         formData.append("level", selectedLevel);
         formData.append("isNavItem", navbar);
         if (selectedParent) formData.append("parent", selectedParent);
-        if (attributeCollection) formData.append("attribute_collection", attributeCollection);
+        if (attributeCollection)
+          formData.append("attribute_collection", attributeCollection);
         if (slug) formData.append("slug", slug);
         if (description) formData.append("description", description);
         if (status) formData.append("status", status);
@@ -296,7 +306,7 @@ const useCategories = () => {
           toast.success(data.message || "Category deleted successfully");
           const deletedSet = new Set(data.deletedIds || [deleteid]);
           setSelectedCategories((prev) =>
-            prev.filter((item) => !deletedSet.has(item))
+            prev.filter((item) => !deletedSet.has(item)),
           );
           if (data.categories) {
             setCategories(data.categories);
@@ -320,7 +330,7 @@ const useCategories = () => {
     if (!selectedCategories || selectedCategories.length === 0) return;
     if (
       !window.confirm(
-        `Are you sure you want to delete ${selectedCategories.length} selected category(ies)? All associated subcategories will also be deleted from the database.`
+        `Are you sure you want to delete ${selectedCategories.length} selected category(ies)? All associated subcategories will also be deleted from the database.`,
       )
     )
       return;
@@ -333,14 +343,16 @@ const useCategories = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ids: selectedCategories }),
-        }
+        },
       );
       const data = await response.json();
       if (response.ok && data.success !== false) {
-        toast.success(data.message || "Categories and subcategories deleted successfully");
+        toast.success(
+          data.message || "Categories and subcategories deleted successfully",
+        );
         const deletedSet = new Set(data.deletedIds || selectedCategories);
         setSelectedCategories((prev) =>
-          prev.filter((id) => !deletedSet.has(id))
+          prev.filter((id) => !deletedSet.has(id)),
         );
         if (data.categories) {
           setCategories(data.categories);
@@ -393,16 +405,22 @@ const useCategories = () => {
     navbar,
     setNavbar,
     errors,
-    slug, setSlug,
-    description, setDescription,
-    status, setStatus,
-    image, setImage,
-    imageFile, setImageFile,
-    imagePreview, setImagePreview,
+    slug,
+    setSlug,
+    description,
+    setDescription,
+    status,
+    setStatus,
+    image,
+    setImage,
+    imageFile,
+    setImageFile,
+    imagePreview,
+    setImagePreview,
     handleImageFile,
     globalVariants,
     selectedVariants,
-    setSelectedVariants
+    setSelectedVariants,
   };
 };
 

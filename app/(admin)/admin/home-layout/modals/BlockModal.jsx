@@ -31,7 +31,7 @@ const BlockModal = ({ close, block, refetch }) => {
   const [blockData, setBlockData] = useState(null);
   const [updateData, setUpdateData] = useState({});
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     const getBlockData = async () => {
@@ -156,7 +156,11 @@ const BlockModal = ({ close, block, refetch }) => {
         if (patch.title) patch.slug = slug;
         res = await axios.patch(
           `${BACKEND_URL}/api/content-blocks/${blockData._id}`,
-          { ...patch, block_type: blockType, category: category?._id || blockData?.category },
+          {
+            ...patch,
+            block_type: blockType,
+            category: category?._id || blockData?.category,
+          },
           { withCredentials: true },
         );
       } else {
@@ -246,14 +250,16 @@ const BlockModal = ({ close, block, refetch }) => {
         <div>
           {products.length === 0 && (
             <div className="bg-red-50 text-center a-text--label p-6">
-              Couldn&apos;t find any products to choose. Select a category above,
-              that have atleast one active product.
+              Couldn&apos;t find any products to choose. Select a category
+              above, that have atleast one active product.
             </div>
           )}
           {products.length >= 1 && (
             <div className="bg-violet-50 border border-neutral-300 flex flex-col gap-4 p-4">
               <div className="a-text--label !flex items-center justify-between">
-                <div>Total products under selected category : {products.length}</div>
+                <div>
+                  Total products under selected category : {products.length}
+                </div>
                 <div className="flex items-center gap-6">
                   <CaretLeft className="w-[1.5rem] h-[1.5rem] cursor-pointer" />
                   {products.length}

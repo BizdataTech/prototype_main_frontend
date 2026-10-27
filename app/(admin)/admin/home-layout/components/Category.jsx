@@ -9,7 +9,7 @@ const Category = ({ selectedCategory, setCategory, error }) => {
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     let getCategories = async () => {
@@ -28,7 +28,7 @@ const Category = ({ selectedCategory, setCategory, error }) => {
   // Derive root categories with useMemo — no extra state needed
   const rootCategories = useMemo(
     () => categories.filter((cata) => cata.level === 1),
-    [categories]
+    [categories],
   );
   const [history, setHistory] = useState([]);
   const currentCategories = history[history.length - 1];

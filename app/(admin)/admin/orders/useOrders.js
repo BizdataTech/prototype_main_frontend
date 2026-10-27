@@ -8,21 +8,25 @@ const useOrders = () => {
   const [orders, setOrders] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   const getAllOrders = async (filters = {}) => {
     try {
       setOrders(null);
       let queryParams = new URLSearchParams();
-      if (filters.status && filters.status !== 'All') queryParams.append('status', filters.status);
-      if (filters.search) queryParams.append('search', filters.search);
-      if (filters.startDate) queryParams.append('startDate', filters.startDate);
-      if (filters.endDate) queryParams.append('endDate', filters.endDate);
-      
-      let res = await axios.get(`${BACKEND_URL}/api/admin/orders?${queryParams.toString()}`, {
-        withCredentials: true,
-      });
+      if (filters.status && filters.status !== "All")
+        queryParams.append("status", filters.status);
+      if (filters.search) queryParams.append("search", filters.search);
+      if (filters.startDate) queryParams.append("startDate", filters.startDate);
+      if (filters.endDate) queryParams.append("endDate", filters.endDate);
+
+      let res = await axios.get(
+        `${BACKEND_URL}/api/admin/orders?${queryParams.toString()}`,
+        {
+          withCredentials: true,
+        },
+      );
       setOrders(res.data.orders);
     } catch (err) {
       console.log(err.response?.data?.message);
@@ -35,7 +39,7 @@ const useOrders = () => {
       await axios.put(
         `${BACKEND_URL}/api/admin/orders/${id}/status`,
         { orderStatus, paymentStatus },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       toast.success("Order updated successfully!");
     } catch (err) {
@@ -73,7 +77,7 @@ const useOrders = () => {
     handlePage,
     getAllOrders,
     updateOrder,
-    deleteOrder
+    deleteOrder,
   };
 };
 

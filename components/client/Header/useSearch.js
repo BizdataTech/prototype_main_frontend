@@ -9,7 +9,7 @@ export const useSearch = () => {
   let debounce = useRef(null);
   let router = useRouter();
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -26,7 +26,7 @@ export const useSearch = () => {
       setOpen(true);
       try {
         let url = `${BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
-          newQuery
+          newQuery,
         )}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error("Network response not Ok!");

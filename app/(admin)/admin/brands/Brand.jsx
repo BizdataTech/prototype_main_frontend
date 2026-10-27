@@ -11,7 +11,7 @@ const Brand = ({ brand, slno, refetch, open }) => {
   let [box, setBox] = useState(false);
   const boxRef = useRef(null);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useMouseClick(boxRef, () => setBox(false));

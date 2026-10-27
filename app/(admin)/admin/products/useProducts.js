@@ -13,7 +13,7 @@ const useProducts = (id = null) => {
   const [brands, setBrands] = useState([]);
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   const router = useRouter();
 
   // input field schema
@@ -98,7 +98,7 @@ const useProducts = (id = null) => {
         title: varDef.title,
         color: varDef.color,
         values: varDef.values, // all available values for this attribute
-        selectedValues: [],    // user will choose which ones to use
+        selectedValues: [], // user will choose which ones to use
         usedForVariations: true,
       },
     ]);
@@ -106,7 +106,9 @@ const useProducts = (id = null) => {
 
   // ─── Remove an attribute from the product ───────────────────────────────────
   const handleRemoveAttribute = (variantId) => {
-    setActiveAttributes((prev) => prev.filter((a) => a.variantId !== variantId));
+    setActiveAttributes((prev) =>
+      prev.filter((a) => a.variantId !== variantId),
+    );
   };
 
   // ─── Toggle a value inside an attribute (multi-select pills) ────────────────
@@ -121,7 +123,7 @@ const useProducts = (id = null) => {
             ? a.selectedValues.filter((v) => v !== value)
             : [...a.selectedValues, value],
         };
-      })
+      }),
     );
   };
 
@@ -131,26 +133,26 @@ const useProducts = (id = null) => {
       prev.map((a) =>
         a.variantId === variantId
           ? { ...a, usedForVariations: !a.usedForVariations }
-          : a
-      )
+          : a,
+      ),
     );
   };
 
   // ─── Generate Variations (only when user clicks the button) ─────────────────
   const handleGenerateVariations = () => {
     const forVariations = activeAttributes.filter(
-      (a) => a.usedForVariations && a.selectedValues.length > 0
+      (a) => a.usedForVariations && a.selectedValues.length > 0,
     );
 
     if (forVariations.length === 0) {
       toast.error(
-        "Please add attributes, select values, and enable 'Used for Variations' first."
+        "Please add attributes, select values, and enable 'Used for Variations' first.",
       );
       return;
     }
 
     const arrays = forVariations.map((a) =>
-      a.selectedValues.map((val) => ({ title: a.title, value: val }))
+      a.selectedValues.map((val) => ({ title: a.title, value: val })),
     );
 
     const combos = generateCombinations(arrays);
@@ -160,7 +162,7 @@ const useProducts = (id = null) => {
         const existing = prev.find(
           (p) =>
             p.combination &&
-            Object.keys(combo).every((k) => p.combination[k] === combo[k])
+            Object.keys(combo).every((k) => p.combination[k] === combo[k]),
         );
         return (
           existing || {
@@ -176,7 +178,7 @@ const useProducts = (id = null) => {
             combination: combo,
           }
         );
-      })
+      }),
     );
 
     toast.success(`${combos.length} variation(s) generated!`);
@@ -206,9 +208,12 @@ const useProducts = (id = null) => {
   useEffect(() => {
     let getProduct = async () => {
       try {
-        let res = await axios.get(`${BACKEND_URL}/api/products/${id}?admin=true`, {
-          withCredentials: true,
-        });
+        let res = await axios.get(
+          `${BACKEND_URL}/api/products/${id}?admin=true`,
+          {
+            withCredentials: true,
+          },
+        );
         setProduct(res.data.product);
       } catch (error) {
         console.log(error.message);
@@ -223,7 +228,7 @@ const useProducts = (id = null) => {
       try {
         const response = await fetch(
           `${BACKEND_URL}/api/auto-categories?filter=product-category`,
-          { method: "GET" }
+          { method: "GET" },
         );
         const data = await response.json();
         setCategories(Array.isArray(data.categories) ? data.categories : []);
@@ -258,7 +263,7 @@ const useProducts = (id = null) => {
         if (!selectedCategory?._id) return;
         let res = await axios.get(
           `${BACKEND_URL}/api/categories/${selectedCategory._id}/attribute-collections`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         setAttributes(res.data.attributes);
         if (selectedCategory._id !== product?.category?._id)
@@ -291,7 +296,9 @@ const useProducts = (id = null) => {
 
   const deleteProduct = async (id) => {
     try {
-      const res = await axios.delete(`${BACKEND_URL}/api/products/${id}`, { withCredentials: true });
+      const res = await axios.delete(`${BACKEND_URL}/api/products/${id}`, {
+        withCredentials: true,
+      });
       toast.success(res.data.message || "Product deleted");
       fetchProducts();
     } catch (error) {
@@ -302,7 +309,11 @@ const useProducts = (id = null) => {
   const bulkDeleteProducts = async () => {
     if (selectedProducts.length === 0) return;
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/products/bulk-delete`, { ids: selectedProducts }, { withCredentials: true });
+      const res = await axios.post(
+        `${BACKEND_URL}/api/products/bulk-delete`,
+        { ids: selectedProducts },
+        { withCredentials: true },
+      );
       toast.success(res.data.message || "Products deleted");
       setSelectedProducts([]);
       fetchProducts();
@@ -344,7 +355,7 @@ const useProducts = (id = null) => {
       let attVals = {};
       rest.attributes.forEach(
         (attr) =>
-          (attVals[attr.attributeId?._id || attr.attributeId] = attr.value)
+          (attVals[attr.attributeId?._id || attr.attributeId] = attr.value),
       );
       setAttributeValues(attVals);
     }
@@ -374,7 +385,7 @@ const useProducts = (id = null) => {
     const rebuilt = product._pendingVarOptions
       .map((vo) => {
         const varDef = allAvailableVariants.find(
-          (v) => v._id === (vo.variantId?._id || vo.variantId)
+          (v) => v._id === (vo.variantId?._id || vo.variantId),
         );
         if (!varDef) return null;
         return {
@@ -477,22 +488,19 @@ const useProducts = (id = null) => {
       prev.filter((obj) => {
         if (image.public_id) return obj.public_id !== image.public_id;
         return obj.preview !== image.preview;
-      })
+      }),
     );
 
     if (image.public_id)
       setUpdateData((prev) => ({
         ...prev,
-        cancelledPubliIds: [
-          ...(prev.cancelledPubliIds || []),
-          image.public_id,
-        ],
+        cancelledPubliIds: [...(prev.cancelledPubliIds || []), image.public_id],
       }));
     else
       setUpdateData((prev) => {
         let new_update = { ...prev };
         new_update.images = (new_update.images || []).filter(
-          (imgFile) => imgFile !== image.file
+          (imgFile) => imgFile !== image.file,
         );
         if (!new_update.images.length) delete new_update.images;
         return new_update;
@@ -509,7 +517,7 @@ const useProducts = (id = null) => {
     let formattedAttributes = Object.keys(attributeValues)
       .map((key) => ({ attributeId: key, value: attributeValues[key] }))
       .filter(
-        (a) => a.value !== undefined && a.value !== null && a.value !== ""
+        (a) => a.value !== undefined && a.value !== null && a.value !== "",
       );
 
     // Build formatted variantOptions from activeAttributes
@@ -565,7 +573,10 @@ const useProducts = (id = null) => {
 
         // Append attributes and variantOptions (serialised)
         formData.append("attributes", JSON.stringify(formattedAttributes));
-        formData.append("variantOptions", JSON.stringify(formattedVariantOptions));
+        formData.append(
+          "variantOptions",
+          JSON.stringify(formattedVariantOptions),
+        );
 
         // Append variants (Variable product)
         if (data.product_type === "Variable") {
@@ -587,14 +598,17 @@ const useProducts = (id = null) => {
 
         // Append cancelled image public_ids so backend can remove them from Cloudinary
         if (updateData.cancelledPubliIds?.length) {
-          formData.append("cancelledPubliIds", JSON.stringify(updateData.cancelledPubliIds));
+          formData.append(
+            "cancelledPubliIds",
+            JSON.stringify(updateData.cancelledPubliIds),
+          );
         }
 
         setLoading(true);
         res = await axios.patch(
           `${BACKEND_URL}/api/products/${product._id}`,
           formData,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         setLoading(false);
         toast.success(res.data?.message || "Product Updated");

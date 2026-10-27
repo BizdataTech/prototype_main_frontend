@@ -20,7 +20,7 @@
    Create a `.env` file in the root directory:
 
    ```
-   NEXT_PUBLIC_BACKEND_URL=http://your-backend-url
+   BACKEND_URL=http://your-backend-url
    ```
 
 3. **Run Development Server**

@@ -25,7 +25,7 @@ const ProductList = () => {
     setFilter({});
     setCategoryObject(null);
   }, [category]);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
   useEffect(() => {
     const getProducts = async () => {
@@ -35,10 +35,11 @@ const ProductList = () => {
           `${BACKEND_URL}/api/products?filter=product-list&category=${encodeURIComponent(category)}`,
           {
             method: "GET",
-          }
+          },
         );
         let data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Failed to fetch products");
+        if (!response.ok)
+          throw new Error(data.message || "Failed to fetch products");
         setProducts(data.products || []);
         setFilteredProducts(data.products || []);
       } catch (error) {
@@ -61,7 +62,8 @@ const ProductList = () => {
     const filtered = products.filter((product) => {
       return Object.entries(filter).every(([key, values]) => {
         if (!values || values.length === 0) return true;
-        const prodVal = key === "brand" ? getBrandName(product.brand) : product[key];
+        const prodVal =
+          key === "brand" ? getBrandName(product.brand) : product[key];
         return values.includes(prodVal);
       });
     });
@@ -92,7 +94,7 @@ const ProductList = () => {
       try {
         let response = await fetch(
           `${BACKEND_URL}/api/auto-categories/${encodeURIComponent(category)}?filter=product-list`,
-          { method: "GET" }
+          { method: "GET" },
         );
         let data = await response.json();
         if (!response.ok) throw new Error(data.message);
@@ -106,7 +108,9 @@ const ProductList = () => {
 
   useEffect(() => {
     const brands = [
-      ...new Set(products.map((product) => getBrandName(product.brand)).filter(Boolean)),
+      ...new Set(
+        products.map((product) => getBrandName(product.brand)).filter(Boolean),
+      ),
     ];
     let obj1 = {
       head: "Brands",
@@ -129,7 +133,10 @@ const ProductList = () => {
               <div className="h-28 bg-white rounded-2xl animate-pulse border border-neutral-200" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="h-80 bg-white rounded-2xl animate-pulse border border-neutral-200" />
+                  <div
+                    key={i}
+                    className="h-80 bg-white rounded-2xl animate-pulse border border-neutral-200"
+                  />
                 ))}
               </div>
             </div>

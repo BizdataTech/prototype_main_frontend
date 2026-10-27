@@ -12,7 +12,7 @@ const Product = ({ product, refetch, selected, onSelect }) => {
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   let [loading, setLoading] = useState(false);
 
   useMouseClick(boxRef, () => setBox(false));
@@ -36,17 +36,25 @@ const Product = ({ product, refetch, selected, onSelect }) => {
   return (
     <div className="grid grid-cols-[40px_1fr_1fr_1fr_1fr_1fr] items-center border-b border-neutral-100 last:border-none hover:bg-neutral-50 transition-colors bg-white text-[1.3rem]">
       <div className="p-4 flex items-center justify-center">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           className="w-5 h-5 cursor-pointer"
           checked={!!selected}
           onChange={(e) => onSelect(e.target.checked)}
         />
       </div>
-      <div className="p-4 font-medium text-neutral-800 truncate">{product_title}</div>
-      <div className="p-4 text-neutral-600 truncate">{category?.title || "-"}</div>
-      <div className="p-4 text-neutral-600 truncate">{brand?.brand_name || "-"}</div>
-      <div className="p-4 text-neutral-600">{dayjs(createdAt).format("DD-MM-YYYY")}</div>
+      <div className="p-4 font-medium text-neutral-800 truncate">
+        {product_title}
+      </div>
+      <div className="p-4 text-neutral-600 truncate">
+        {category?.title || "-"}
+      </div>
+      <div className="p-4 text-neutral-600 truncate">
+        {brand?.brand_name || "-"}
+      </div>
+      <div className="p-4 text-neutral-600">
+        {dayjs(createdAt).format("DD-MM-YYYY")}
+      </div>
       <div className="relative p-4 flex justify-end">
         <DotsThree
           weight="bold"
@@ -70,7 +78,7 @@ const Product = ({ product, refetch, selected, onSelect }) => {
             </li>
             <li className="w-full">
               <div className="w-full flex justify-center py-2 px-4 hover:bg-neutral-100 transition-colors">
-                 <ModalDeleteButton loading={loading} dlt={deleteProduct} />
+                <ModalDeleteButton loading={loading} dlt={deleteProduct} />
               </div>
             </li>
           </ul>

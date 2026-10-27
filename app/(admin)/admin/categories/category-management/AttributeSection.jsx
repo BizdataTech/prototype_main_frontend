@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 const AttributeSection = ({ setCollection }) => {
   let [collections, setCollections] = useState([]);
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCollections = async () => {

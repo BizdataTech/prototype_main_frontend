@@ -6,7 +6,7 @@ import { toast } from "sonner";
 const useAttributes = () => {
   const [attributes, setAttributes] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
   // Form State
   const [name, setName] = useState("");
   const [type, setType] = useState("Text");
@@ -18,7 +18,7 @@ const useAttributes = () => {
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const attributeId = searchParams.get("id");
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   // Fetch all attributes
   const fetchAttributes = async () => {
@@ -45,9 +45,12 @@ const useAttributes = () => {
 
   const fetchSingleAttribute = async () => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/attributes/${attributeId}`, {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${BACKEND_URL}/api/attributes/${attributeId}`,
+        {
+          withCredentials: true,
+        },
+      );
       if (res.data?.success) {
         const attr = res.data.attribute;
         setName(attr.name);
@@ -73,7 +76,7 @@ const useAttributes = () => {
 
     try {
       setLoading(true);
-      
+
       const payload = {
         name: name.trim(),
         type,
@@ -84,15 +87,19 @@ const useAttributes = () => {
 
       let res;
       if (action === "update" && attributeId) {
-        res = await axios.put(`${BACKEND_URL}/api/attributes/${attributeId}`, payload, {
-          withCredentials: true,
-        });
+        res = await axios.put(
+          `${BACKEND_URL}/api/attributes/${attributeId}`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        );
       } else {
         res = await axios.post(`${BACKEND_URL}/api/attributes`, payload, {
           withCredentials: true,
         });
       }
-      
+
       toast.success(res.data?.message || "Operation successful");
       router.push("/admin/attributes");
     } catch (error) {
@@ -107,19 +114,24 @@ const useAttributes = () => {
   const deleteAttribute = async (idToDelete) => {
     try {
       setLoading(true);
-      const res = await axios.delete(`${BACKEND_URL}/api/attributes/${idToDelete}`, {
-        withCredentials: true,
-      });
+      const res = await axios.delete(
+        `${BACKEND_URL}/api/attributes/${idToDelete}`,
+        {
+          withCredentials: true,
+        },
+      );
       if (res.data?.success) {
         toast.success(res.data.message);
         // Remove from local state to refresh list without reloading page
         if (attributes) {
-          setAttributes(attributes.filter(attr => attr._id !== idToDelete));
+          setAttributes(attributes.filter((attr) => attr._id !== idToDelete));
         }
       }
     } catch (error) {
       console.error("Error deleting attribute:", error);
-      toast.error(error.response?.data?.message || "Failed to delete attribute");
+      toast.error(
+        error.response?.data?.message || "Failed to delete attribute",
+      );
     } finally {
       setLoading(false);
     }
@@ -132,14 +144,19 @@ const useAttributes = () => {
     action,
     attributeId,
     // Form state and setters
-    name, setName,
-    type, setType,
-    values, setValues,
-    description, setDescription,
-    status, setStatus,
+    name,
+    setName,
+    type,
+    setType,
+    values,
+    setValues,
+    description,
+    setDescription,
+    status,
+    setStatus,
     // Actions
     submitAttribute,
-    deleteAttribute
+    deleteAttribute,
   };
 };
 

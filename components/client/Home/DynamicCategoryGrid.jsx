@@ -7,30 +7,40 @@ import { ArrowRight, SquaresFour } from "phosphor-react";
 
 // Fallback high-quality representative images for building material categories if category.image is blank
 const categoryImageMap = {
-  "acrylic-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788417093/prototype_products/hm3qf68kbaxa3dk6ps5w.jpg",
-  "acp-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788432934/prototype_products/uig5r0uxvrvojb1stfjk.jpg",
-  "solid-colors-acp-sheets": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788435308/prototype_products/dpinlf7ds4qsmurty2so.jpg",
-  "power-tools": "https://res.cloudinary.com/do0hja6ug/image/upload/v1792817925/prototype_products/z2wkmo9avsipchxz9p3s.jpg",
-  "hand-tools": "https://res.cloudinary.com/do0hja6ug/image/upload/v1788501223/prototype_products/u28ic0ccgtg0svw3xzow.jpg",
-  "safety-equipment": "https://res.cloudinary.com/do0hja6ug/image/upload/v1792818362/prototype_products/ddm1msp9wtv72czwtmpc.jpg",
-  "bathware": "https://res.cloudinary.com/do0hja6ug/image/upload/v1792818614/prototype_products/fp3exz7xjyo8fxwaap3s.jpg",
-  "polycarbonate-sheets": "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=600&q=80",
+  "acrylic-sheets":
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1788417093/prototype_products/hm3qf68kbaxa3dk6ps5w.jpg",
+  "acp-sheets":
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1788432934/prototype_products/uig5r0uxvrvojb1stfjk.jpg",
+  "solid-colors-acp-sheets":
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1788435308/prototype_products/dpinlf7ds4qsmurty2so.jpg",
+  "power-tools":
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1792817925/prototype_products/z2wkmo9avsipchxz9p3s.jpg",
+  "hand-tools":
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1788501223/prototype_products/u28ic0ccgtg0svw3xzow.jpg",
+  "safety-equipment":
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1792818362/prototype_products/ddm1msp9wtv72czwtmpc.jpg",
+  bathware:
+    "https://res.cloudinary.com/do0hja6ug/image/upload/v1792818614/prototype_products/fp3exz7xjyo8fxwaap3s.jpg",
+  "polycarbonate-sheets":
+    "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=600&q=80",
 };
 
 export default function DynamicCategoryGrid() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     let isCancelled = false;
     const loadCategories = async () => {
       try {
-        const res = await axios.get(`${BACKEND_URL}/api/auto-categories?filter=all`);
+        const res = await axios.get(
+          `${BACKEND_URL}/api/auto-categories?filter=all`,
+        );
         const cats = res.data?.categories || [];
         // Only show root/main (level 1) categories that are active and not deleted
         const rootCats = cats.filter(
-          (c) => c.level === 1 && !c.isDeleted && c.status !== "Inactive"
+          (c) => c.level === 1 && !c.isDeleted && c.status !== "Inactive",
         );
         if (!isCancelled) {
           setCategories(rootCats);
@@ -55,7 +65,10 @@ export default function DynamicCategoryGrid() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-44 bg-neutral-100 rounded-2xl animate-pulse" />
+            <div
+              key={i}
+              className="h-44 bg-neutral-100 rounded-2xl animate-pulse"
+            />
           ))}
         </div>
       </section>
@@ -94,12 +107,14 @@ export default function DynamicCategoryGrid() {
             typeof category.image === "object" && category.image !== null
               ? category.image.url || ""
               : typeof category.image === "string"
-              ? category.image
-              : "";
+                ? category.image
+                : "";
           const catImg =
             rawCatImage.trim() ||
             categoryImageMap[slugKey] ||
-            categoryImageMap[category.title?.toLowerCase().replace(/\s+/g, "-")] ||
+            categoryImageMap[
+              category.title?.toLowerCase().replace(/\s+/g, "-")
+            ] ||
             "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80";
 
           return (

@@ -18,7 +18,7 @@ const VariantManagement = () => {
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const variantId = searchParams.get("id");
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     if (action === "update" && variantId) {
@@ -97,28 +97,41 @@ const VariantManagement = () => {
 
     try {
       setLoading(true);
-      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-      
+      const BACKEND_URL = process.env.BACKEND_URL;
+
       let res;
       if (action === "update" && variantId) {
-        res = await axios.put(`${BACKEND_URL}/api/variants/${variantId}`, {
-          title: title.trim(),
-          color,
-          values,
-        }, {
-          withCredentials: true,
-        });
+        res = await axios.put(
+          `${BACKEND_URL}/api/variants/${variantId}`,
+          {
+            title: title.trim(),
+            color,
+            values,
+          },
+          {
+            withCredentials: true,
+          },
+        );
       } else {
-        res = await axios.post(`${BACKEND_URL}/api/variants`, {
-          title: title.trim(),
-          color,
-          values,
-        }, {
-          withCredentials: true,
-        });
+        res = await axios.post(
+          `${BACKEND_URL}/api/variants`,
+          {
+            title: title.trim(),
+            color,
+            values,
+          },
+          {
+            withCredentials: true,
+          },
+        );
       }
-      
-      toast.success(res.data?.message || (action === "update" ? "Variant updated successfully" : "Variant created successfully"));
+
+      toast.success(
+        res.data?.message ||
+          (action === "update"
+            ? "Variant updated successfully"
+            : "Variant created successfully"),
+      );
       router.push("/admin/variants");
     } catch (error) {
       console.error("error submitting variant:", error);
@@ -233,10 +246,15 @@ const VariantManagement = () => {
         {loading ? (
           <>
             Submitting{" "}
-            <Spinner className="animate-spin w-[1.4rem] h-[1.4rem]" weight="bold" />
+            <Spinner
+              className="animate-spin w-[1.4rem] h-[1.4rem]"
+              weight="bold"
+            />
           </>
+        ) : action === "update" ? (
+          "Update Variant"
         ) : (
-          action === "update" ? "Update Variant" : "Submit Variant"
+          "Submit Variant"
         )}
       </button>
     </main>

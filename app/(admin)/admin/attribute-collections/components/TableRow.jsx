@@ -9,7 +9,7 @@ const TableRow = ({ data, slno, refetch }) => {
   const [optionBox, setOptionBox] = useState(false);
   const optionBoxRef = useRef(null);
 
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

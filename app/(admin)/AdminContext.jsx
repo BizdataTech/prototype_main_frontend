@@ -7,7 +7,7 @@ const AdminContext = createContext();
 
 const AdminProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(null);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   const validateLogin = async () => {
     try {

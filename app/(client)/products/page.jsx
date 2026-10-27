@@ -13,7 +13,7 @@ const ProductsContent = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?filter=product-list`;
+        const url = `${process.env.BACKEND_URL}/api/products?filter=product-list`;
         const response = await fetch(url, { method: "GET" });
         const data = await response.json();
         if (response.ok) {
@@ -25,7 +25,7 @@ const ProductsContent = () => {
     };
     const fetchCategories = async () => {
       try {
-        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auto-categories?filter=product-category`;
+        const url = `${process.env.BACKEND_URL}/api/auto-categories?filter=product-category`;
         const response = await fetch(url, { method: "GET" });
         const data = await response.json();
         if (response.ok) {
@@ -42,7 +42,9 @@ const ProductsContent = () => {
   // Derive filteredProducts from filter + products — no useEffect needed
   const filteredProducts = useMemo(() => {
     return products.filter((product) =>
-      Object.entries(filter).every(([key, values]) => values.includes(product[key]))
+      Object.entries(filter).every(([key, values]) =>
+        values.includes(product[key]),
+      ),
     );
   }, [filter, products]);
 
@@ -62,8 +64,12 @@ const ProductsContent = () => {
 
   // Derive sidebar from products + dbCategories — no useEffect needed
   const sidebar = useMemo(() => {
-    const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))];
-    const categories = [...new Set(dbCategories.map((c) => c.title).filter(Boolean))];
+    const brands = [
+      ...new Set(products.map((product) => product.brand).filter(Boolean)),
+    ];
+    const categories = [
+      ...new Set(dbCategories.map((c) => c.title).filter(Boolean)),
+    ];
     return [
       { head: "Categories", label: "category", data: categories },
       { head: "Brands", label: "brand", data: brands },
@@ -90,7 +96,13 @@ const ProductsContent = () => {
 
 const Products = () => {
   return (
-    <Suspense fallback={<div className="pt-[15rem] text-center text-[1.6rem]">Loading Products...</div>}>
+    <Suspense
+      fallback={
+        <div className="pt-[15rem] text-center text-[1.6rem]">
+          Loading Products...
+        </div>
+      }
+    >
       <ProductsContent />
     </Suspense>
   );

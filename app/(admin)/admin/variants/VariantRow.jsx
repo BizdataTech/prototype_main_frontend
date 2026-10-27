@@ -8,7 +8,7 @@ const VariantRow = ({ data, slno, refetch }) => {
   const [optionBox, setOptionBox] = useState(false);
   const optionBoxRef = useRef(null);
 
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,10 +23,9 @@ const VariantRow = ({ data, slno, refetch }) => {
   const handleDeleteVariant = async () => {
     try {
       setLoading(true);
-      let res = await axios.delete(
-        `${BACKEND_URL}/api/variants/${data._id}`,
-        { withCredentials: true },
-      );
+      let res = await axios.delete(`${BACKEND_URL}/api/variants/${data._id}`, {
+        withCredentials: true,
+      });
       setLoading(false);
       toast.success(res.data?.message || "Variant Deleted Successfully");
       refetch();
@@ -42,8 +41,11 @@ const VariantRow = ({ data, slno, refetch }) => {
       <div className="p-4 text-start">{slno}</div>
       <div className="p-4 text-center font-medium">{data.title}</div>
       <div className="p-4 text-center">{data.color ? "Yes" : "No"}</div>
-      <div className="p-4 text-center truncate" title={data.values.map(v => v.label).join(", ")}>
-        {data.values.map(v => v.label).join(", ")}
+      <div
+        className="p-4 text-center truncate"
+        title={data.values.map((v) => v.label).join(", ")}
+      >
+        {data.values.map((v) => v.label).join(", ")}
       </div>
       <div className="relative p-4">
         <DotsThree

@@ -4,9 +4,18 @@ import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ArrowUp, ArrowDown, PencilSimple, Spinner, Trash } from "phosphor-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  PencilSimple,
+  Spinner,
+  Trash,
+} from "phosphor-react";
 
-const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) => {
+const HomeBannerSection = ({
+  sectionTypeParam = "hero_banner",
+  editId = null,
+}) => {
   const [bannerType, setBannerType] = useState("single");
   const [banners, setBanners] = useState([]);
   const [currentBanner, setCurrentBanner] = useState(null);
@@ -15,7 +24,7 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
   const [loading, setLoading] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(!!editId);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   const router = useRouter();
 
   const bannerSchema = {
@@ -37,12 +46,15 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
     const loadExisting = async () => {
       try {
         setLoadingExisting(true);
-        const res = await axios.get(`${BACKEND_URL}/api/home-sections/${editId}`, { withCredentials: true });
+        const res = await axios.get(
+          `${BACKEND_URL}/api/home-sections/${editId}`,
+          { withCredentials: true },
+        );
         const section = res.data?.section;
         if (section) {
           setBannerType(section.banner_type || "single");
           // Map existing banners to our local schema
-          const mapped = (section.banners || []).map(b => ({
+          const mapped = (section.banners || []).map((b) => ({
             file: null,
             preview: b.image?.url || "",
             existingImageUrl: b.image?.url || "",
@@ -101,21 +113,33 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
     const target = banners[index];
     if (!target) return;
 
-    const isLocalOnly = !!target.file || (!target.existingImageUrl && !target.existingPublicId);
+    const isLocalOnly =
+      !!target.file || (!target.existingImageUrl && !target.existingPublicId);
 
     if (editId && !isLocalOnly) {
-      if (!confirm("Are you sure you want to delete this banner image? It will be permanently deleted from Cloud Storage.")) return;
+      if (
+        !confirm(
+          "Are you sure you want to delete this banner image? It will be permanently deleted from Cloud Storage.",
+        )
+      )
+        return;
       try {
         let dbIndex = 0;
         for (let i = 0; i < index; i++) {
-          if (!banners[i].file && (banners[i].existingImageUrl || banners[i].existingPublicId)) {
+          if (
+            !banners[i].file &&
+            (banners[i].existingImageUrl || banners[i].existingPublicId)
+          ) {
             dbIndex++;
           }
         }
-        const res = await axios.delete(`${BACKEND_URL}/api/home-sections/${editId}/banners/${dbIndex}`, { withCredentials: true });
+        const res = await axios.delete(
+          `${BACKEND_URL}/api/home-sections/${editId}/banners/${dbIndex}`,
+          { withCredentials: true },
+        );
         toast.success("Banner image deleted from cloud & database");
         if (res.data?.banners) {
-          const mappedFromDb = res.data.banners.map(b => ({
+          const mappedFromDb = res.data.banners.map((b) => ({
             file: null,
             preview: b.image?.url || "",
             existingImageUrl: b.image?.url || "",
@@ -127,7 +151,11 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
             subtitle: b.subtitle || "",
             button_text: b.button_text || "",
           }));
-          const unsavedLocalBanners = banners.filter((b, i) => i !== index && (b.file || (!b.existingImageUrl && !b.existingPublicId)));
+          const unsavedLocalBanners = banners.filter(
+            (b, i) =>
+              i !== index &&
+              (b.file || (!b.existingImageUrl && !b.existingPublicId)),
+          );
           setBanners([...mappedFromDb, ...unsavedLocalBanners]);
           return;
         }
@@ -139,7 +167,6 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
     }
     setBanners((prev) => prev.filter((_, i) => i !== index));
   };
-
 
   const moveBanner = (index, direction) => {
     setBanners((prev) => {
@@ -164,15 +191,30 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
         if (item.file) {
           formData.append(`banners[${index}][image]`, item.file);
         } else if (item.existingImageUrl) {
-          formData.append(`banners[${index}][existing_image_url]`, item.existingImageUrl);
-          if (item.existingPublicId) formData.append(`banners[${index}][existing_public_id]`, item.existingPublicId);
+          formData.append(
+            `banners[${index}][existing_image_url]`,
+            item.existingImageUrl,
+          );
+          if (item.existingPublicId)
+            formData.append(
+              `banners[${index}][existing_public_id]`,
+              item.existingPublicId,
+            );
         }
-        formData.append(`banners[${index}][redirection]`, item.redirection ? "true" : "false");
+        formData.append(
+          `banners[${index}][redirection]`,
+          item.redirection ? "true" : "false",
+        );
         formData.append(`banners[${index}][heading]`, item.heading || "");
         formData.append(`banners[${index}][subtitle]`, item.subtitle || "");
-        formData.append(`banners[${index}][button_text]`, item.button_text || "");
-        if (item.redirection && item.type) formData.append(`banners[${index}][type]`, item.type);
-        if (item.redirection && item.id) formData.append(`banners[${index}][id]`, item.id);
+        formData.append(
+          `banners[${index}][button_text]`,
+          item.button_text || "",
+        );
+        if (item.redirection && item.type)
+          formData.append(`banners[${index}][type]`, item.type);
+        if (item.redirection && item.id)
+          formData.append(`banners[${index}][id]`, item.id);
       });
 
       setLoading(true);
@@ -182,10 +224,12 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
         res = await axios.put(
           `${BACKEND_URL}/api/home-sections/${editId}/banners`,
           formData,
-          { withCredentials: true }
+          { withCredentials: true },
         );
       } else {
-        res = await axios.post(`${BACKEND_URL}/api/home-sections`, formData, { withCredentials: true });
+        res = await axios.post(`${BACKEND_URL}/api/home-sections`, formData, {
+          withCredentials: true,
+        });
       }
 
       setLoading(false);
@@ -214,11 +258,21 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
         <div className="font-medium text-neutral-700">Banner Display Type</div>
         <div className="flex items-center gap-8">
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="banner_type" checked={bannerType === "single"} onChange={() => setBannerType("single")} />
+            <input
+              type="radio"
+              name="banner_type"
+              checked={bannerType === "single"}
+              onChange={() => setBannerType("single")}
+            />
             Single
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="banner_type" checked={bannerType === "carousel"} onChange={() => setBannerType("carousel")} />
+            <input
+              type="radio"
+              name="banner_type"
+              checked={bannerType === "carousel"}
+              onChange={() => setBannerType("carousel")}
+            />
             Carousel (Multiple)
           </label>
         </div>
@@ -228,9 +282,17 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="font-medium">
-            Banners {banners.length > 0 && <span className="text-neutral-500 text-[1.2rem]">({banners.length} added)</span>}
+            Banners{" "}
+            {banners.length > 0 && (
+              <span className="text-neutral-500 text-[1.2rem]">
+                ({banners.length} added)
+              </span>
+            )}
           </div>
-          <button className="a-text--button bg-black text-white cursor-pointer" onClick={openBannerForm}>
+          <button
+            className="a-text--button bg-black text-white cursor-pointer"
+            onClick={openBannerForm}
+          >
             + Add Banner
           </button>
         </div>
@@ -241,22 +303,52 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
             onClick={openBannerForm}
           >
             <span className="text-[3rem]">🖼️</span>
-            <div className="text-neutral-600">No banners yet — click to add one</div>
+            <div className="text-neutral-600">
+              No banners yet — click to add one
+            </div>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
             {banners.filter(Boolean).map((banner, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden border border-neutral-200 group">
+              <div
+                key={i}
+                className="relative rounded-xl overflow-hidden border border-neutral-200 group"
+              >
                 {banner.preview ? (
-                  <img src={banner.preview} alt="banner preview" className="w-full h-[22rem] object-cover" />
+                  <img
+                    src={banner.preview}
+                    alt="banner preview"
+                    className="w-full h-[22rem] object-cover"
+                  />
                 ) : (
-                  <div className="w-full h-[22rem] bg-neutral-200 flex items-center justify-center text-neutral-500">No image</div>
+                  <div className="w-full h-[22rem] bg-neutral-200 flex items-center justify-center text-neutral-500">
+                    No image
+                  </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4 gap-1">
-                  {banner.subtitle && <div className="text-blue-300 text-[1.1rem] font-semibold uppercase tracking-wider">{banner.subtitle}</div>}
-                  {banner.heading && <div className="text-white text-[1.8rem] font-bold">{banner.heading}</div>}
-                  {banner.button_text && <span className="bg-white text-black text-[1.1rem] font-semibold px-4 py-1 rounded-lg w-fit mt-1">{banner.button_text}</span>}
-                  {banner.redirection && banner.id && <div className="text-green-300 text-[1.1rem]">↪ Redirects to: {banner.type === "content-block" ? "Content Block" : "Category"}</div>}
+                  {banner.subtitle && (
+                    <div className="text-blue-300 text-[1.1rem] font-semibold uppercase tracking-wider">
+                      {banner.subtitle}
+                    </div>
+                  )}
+                  {banner.heading && (
+                    <div className="text-white text-[1.8rem] font-bold">
+                      {banner.heading}
+                    </div>
+                  )}
+                  {banner.button_text && (
+                    <span className="bg-white text-black text-[1.1rem] font-semibold px-4 py-1 rounded-lg w-fit mt-1">
+                      {banner.button_text}
+                    </span>
+                  )}
+                  {banner.redirection && banner.id && (
+                    <div className="text-green-300 text-[1.1rem]">
+                      ↪ Redirects to:{" "}
+                      {banner.type === "content-block"
+                        ? "Content Block"
+                        : "Category"}
+                    </div>
+                  )}
                 </div>
                 <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
@@ -306,26 +398,35 @@ const HomeBannerSection = ({ sectionTypeParam = "hero_banner", editId = null }) 
           <div className="flex items-center gap-2">
             Saving <Spinner className="w-[1.7rem] h-[1.7rem] animate-spin" />
           </div>
-        ) : editId ? "Update Section" : (
-          sectionTypeParam === "hero_banner" ? "Submit Hero Banner" : "Submit Promotional Banner"
+        ) : editId ? (
+          "Update Section"
+        ) : sectionTypeParam === "hero_banner" ? (
+          "Submit Hero Banner"
+        ) : (
+          "Submit Promotional Banner"
         )}
       </button>
 
       {/* Banner Modal */}
-      {bannerBox && currentBanner && createPortal(
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-          <Banner
-            banner={currentBanner}
-            setBanner={setCurrentBanner}
-            submit={submitBanner}
-            close={() => { setBannerBox(false); setCurrentBanner(null); setEditingIndex(null); }}
-          />
-        </div>,
-        document.body,
-      )}
+      {bannerBox &&
+        currentBanner &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+            <Banner
+              banner={currentBanner}
+              setBanner={setCurrentBanner}
+              submit={submitBanner}
+              close={() => {
+                setBannerBox(false);
+                setCurrentBanner(null);
+                setEditingIndex(null);
+              }}
+            />
+          </div>,
+          document.body,
+        )}
     </section>
   );
 };
 
 export default HomeBannerSection;
-

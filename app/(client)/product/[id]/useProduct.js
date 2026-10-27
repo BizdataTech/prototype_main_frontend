@@ -11,7 +11,7 @@ export const useProduct = () => {
 
   const { user } = useContext(UserContext);
   const { addToCart } = useContext(CartContext);
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     const getProductData = async () => {
@@ -45,7 +45,7 @@ export const useProduct = () => {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
@@ -53,7 +53,7 @@ export const useProduct = () => {
       if (fetchProduct && fetchProduct.stock <= 0) {
         return toast.error("Sorry, This product is now out of stock.");
       }
-      
+
       await addToCart(productId);
       return;
     } catch (error) {

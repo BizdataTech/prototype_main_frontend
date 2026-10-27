@@ -14,15 +14,15 @@ import BannerCarousel from "@/components/client/Home/BannerCarousel";
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ClientPage = () => {
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   // ── 1. Fetch all home sections (auto-refreshes every 5s from DB) ────────
   const { data, error, isLoading } = useSWR(
     `${BACKEND_URL}/api/home-sections`,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 5000 },
   );
-  console.log('Fetched home sections', data);
+  console.log("Fetched home sections", data);
 
   // ── 2. Derive sorted & active sections ───────────────────────────────────
   const rawSections = (data?.sections || [])
@@ -53,17 +53,17 @@ const ClientPage = () => {
             try {
               const refId =
                 typeof section.reference.id === "object"
-                  ? section.reference.id._id ?? section.reference.id
+                  ? (section.reference.id._id ?? section.reference.id)
                   : section.reference.id;
 
               if (section.reference.type === "category") {
                 const prodRes = await axios.get(
-                  `${BACKEND_URL}/api/products?filter=product-list&category=${refId}`
+                  `${BACKEND_URL}/api/products?filter=product-list&category=${refId}`,
                 );
                 section.products = prodRes.data?.products || [];
               } else {
                 const prodRes = await axios.get(
-                  `${BACKEND_URL}/api/content-blocks/${refId}?filter=client`
+                  `${BACKEND_URL}/api/content-blocks/${refId}?filter=client`,
                 );
                 section.products = prodRes.data?.block?.products || [];
               }
@@ -71,7 +71,7 @@ const ClientPage = () => {
               section.products = [];
             }
           }
-        })
+        }),
       );
 
       if (!cancelled) setEnrichedSections(cloned);
@@ -93,11 +93,17 @@ const ClientPage = () => {
         <div className="h-[420px] bg-neutral-200 rounded-3xl animate-pulse" />
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-44 bg-neutral-200 rounded-2xl animate-pulse" />
+            <div
+              key={i}
+              className="h-44 bg-neutral-200 rounded-2xl animate-pulse"
+            />
           ))}
         </div>
         {[...Array(2)].map((_, i) => (
-          <div key={i} className="h-[320px] bg-neutral-200 rounded-2xl animate-pulse" />
+          <div
+            key={i}
+            className="h-[320px] bg-neutral-200 rounded-2xl animate-pulse"
+          />
         ))}
       </main>
     );
@@ -122,13 +128,14 @@ const ClientPage = () => {
 
   // ── Separate Sections for the exact requested visual hierarchy ───────────
   const heroSections = displaySections.filter(
-    (s) => s.section_type === "hero_banner"
+    (s) => s.section_type === "hero_banner",
   );
   const midBanners = displaySections.filter(
-    (s) => s.section_type?.includes("banner") && s.section_type !== "hero_banner"
+    (s) =>
+      s.section_type?.includes("banner") && s.section_type !== "hero_banner",
   );
   const productSections = displaySections.filter(
-    (s) => s.section_type === "product_listing"
+    (s) => s.section_type === "product_listing",
   );
 
   // Identify specific product sections based on title or fallback order
@@ -148,9 +155,7 @@ const ClientPage = () => {
     productSections.find((s) => /tools|best seller|popular/i.test(s.title)) ||
     productSections.find(
       (s) =>
-        s !== newArrivals &&
-        s !== trendingProducts &&
-        s !== featuredProducts
+        s !== newArrivals && s !== trendingProducts && s !== featuredProducts,
     );
 
   const promoBanner1 = midBanners[0];
@@ -162,7 +167,7 @@ const ClientPage = () => {
       s !== newArrivals &&
       s !== trendingProducts &&
       s !== featuredProducts &&
-      s !== bestSellersOrTools
+      s !== bestSellersOrTools,
   );
 
   // Helper to render banner cards
@@ -224,7 +229,11 @@ const ClientPage = () => {
           ? `/category/${banner.reference.slug}`
           : `/products?block=${banner.reference.slug}`;
       return (
-        <Link key={banner.image.public_id || banner.image.url} href={href} className="block">
+        <Link
+          key={banner.image.public_id || banner.image.url}
+          href={href}
+          className="block"
+        >
           {bannerContent}
         </Link>
       );
@@ -251,7 +260,6 @@ const ClientPage = () => {
 
   return (
     <main className="pt-[10rem] sm:pt-[12rem] lg:pt-[16rem] bg-[#f8f9fa] min-h-screen pb-20">
-      
       {/* ── 1. TOP PROMOTIONAL / SERVICE STRIP ──────────────────────────── */}
       <ServiceStrip />
 
@@ -346,4 +354,3 @@ const ClientPage = () => {
 };
 
 export default ClientPage;
-

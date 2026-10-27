@@ -15,7 +15,7 @@ const Sidebar = () => {
   const slug = pathname.split("/").filter(Boolean)[1];
   const [currentSlug, setCurrentSlug] = useState(slug);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   const router = useRouter();
 
   const { setAdminUser } = useContext(AdminContext);

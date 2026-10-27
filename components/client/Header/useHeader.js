@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 export const useHeader = () => {
   const [categories, setCategories] = useState([]);
   const [rootCategories, setRootCategories] = useState(null);
-  const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_API_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     const getCategories = async () => {
@@ -12,7 +12,7 @@ export const useHeader = () => {
           `${BACKEND_API_URL}/api/auto-categories?filter=all`,
           {
             method: "GET",
-          }
+          },
         );
         let data = await response.json();
         if (!response.ok) throw new Error(data.message);
@@ -32,11 +32,12 @@ export const useHeader = () => {
     const roots = categories.filter((c) => !c.parent || c.level === 1);
     const tree = roots.map((root) => {
       const children = categories.filter(
-        (c) => c.parent && (c.parent._id === root._id || c.parent === root._id)
+        (c) => c.parent && (c.parent._id === root._id || c.parent === root._id),
       );
       const childrenWithSubs = children.map((child) => {
         const subSub = categories.filter(
-          (c) => c.parent && (c.parent._id === child._id || c.parent === child._id)
+          (c) =>
+            c.parent && (c.parent._id === child._id || c.parent === child._id),
         );
         return { ...child, subcategories: subSub };
       });

@@ -12,11 +12,11 @@ const SearchResultContent = () => {
 
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     let url = `${BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
-      query
+      query,
     )}`;
     let fetchProducts = async () => {
       try {
@@ -54,7 +54,13 @@ const SearchResultContent = () => {
 
 const SearchResult = () => {
   return (
-    <Suspense fallback={<div className="pt-[15rem] text-center text-[1.6rem]">Searching products...</div>}>
+    <Suspense
+      fallback={
+        <div className="pt-[15rem] text-center text-[1.6rem]">
+          Searching products...
+        </div>
+      }
+    >
       <SearchResultContent />
     </Suspense>
   );

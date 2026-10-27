@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 const useBrand = () => {
   let [brands, setBrands] = useState([]);
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
 
   // get all brands
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -16,7 +16,7 @@ const BrandForm = ({ refetch, close, id }) => {
   let [brand, setBrand] = useState(null);
   let [updateData, setUpdateData] = useState({});
 
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     if (!id) return;

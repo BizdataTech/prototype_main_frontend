@@ -13,7 +13,7 @@ const Banner = ({ banner, setBanner, submit, close }) => {
   const [cropSrc, setCropSrc] = useState(null);
   const [cropFilename, setCropFilename] = useState("banner.jpg");
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   useEffect(() => {
     const getReferences = async () => {
@@ -67,8 +67,16 @@ const Banner = ({ banner, setBanner, submit, close }) => {
     }
     const url = URL.createObjectURL(croppedFile);
     prevPreviewRef.current = url;
-    setBanner((prev) => ({ ...prev, file: croppedFile, preview: url, existingImageUrl: "" }));
-    setErrors((prev) => { let { preview, ...rest } = prev; return rest; });
+    setBanner((prev) => ({
+      ...prev,
+      file: croppedFile,
+      preview: url,
+      existingImageUrl: "",
+    }));
+    setErrors((prev) => {
+      let { preview, ...rest } = prev;
+      return rest;
+    });
     setCropSrc(null);
   };
 
@@ -77,13 +85,17 @@ const Banner = ({ banner, setBanner, submit, close }) => {
     let newValue = name === "redirection" ? value === "true" : value;
     setBanner((prev) => ({ ...prev, [name]: newValue }));
     if (name === "id")
-      setErrors((prev) => { let { reference, ...rest } = prev; return rest; });
+      setErrors((prev) => {
+        let { reference, ...rest } = prev;
+        return rest;
+      });
   };
 
   const formSubmit = () => {
     const submitErrors = {};
     if (!banner.preview) submitErrors.preview = "Banner image is required";
-    if (banner.redirection && !banner.id) submitErrors.reference = "Select a reference for redirection";
+    if (banner.redirection && !banner.id)
+      submitErrors.reference = "Select a reference for redirection";
 
     if (Object.keys(submitErrors).length) {
       return setErrors(submitErrors);
@@ -116,17 +128,31 @@ const Banner = ({ banner, setBanner, submit, close }) => {
       <section className="flex flex-col gap-4 bg-white rounded-[1rem] shadow-md p-8 text-[1.4rem] w-[80%] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="a-section--title">Configure Banner</div>
-          <X className="w-[2rem] h-[2rem] text-red-700 cursor-pointer" weight="bold" onClick={close} />
+          <X
+            className="w-[2rem] h-[2rem] text-red-700 cursor-pointer"
+            weight="bold"
+            onClick={close}
+          />
         </div>
 
-        <input type="file" accept="image/*" className="hidden" ref={inputRef} onChange={handleFileInput} />
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          ref={inputRef}
+          onChange={handleFileInput}
+        />
 
         {/* Image Upload */}
         <div className="flex flex-col gap-1">
           <InputLabel label={"Banner Image"} error={errors.preview} />
           {banner.preview ? (
             <div className="w-full relative group rounded-2xl overflow-hidden border-2 border-neutral-300">
-              <img src={banner.preview} alt="Preview" className="w-full h-auto max-h-[22rem] object-contain" />
+              <img
+                src={banner.preview}
+                alt="Preview"
+                className="w-full h-auto max-h-[22rem] object-contain"
+              />
               {/* Hover overlay with TWO actions */}
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 {/* Crop existing image */}
@@ -159,7 +185,9 @@ const Banner = ({ banner, setBanner, submit, close }) => {
               <div className="w-full h-full flex flex-col justify-center items-center gap-2 text-neutral-500 bg-neutral-50 hover:bg-neutral-100 transition-colors">
                 <span className="text-[3rem]">🖼️</span>
                 <span>Click here to upload a banner image</span>
-                <span className="text-[1.1rem] text-neutral-400">You can crop it after selecting</span>
+                <span className="text-[1.1rem] text-neutral-400">
+                  You can crop it after selecting
+                </span>
               </div>
             </div>
           )}
@@ -168,19 +196,40 @@ const Banner = ({ banner, setBanner, submit, close }) => {
         {/* Heading */}
         <div className="flex flex-col gap-1">
           <InputLabel label={"Heading / Title"} />
-          <input type="text" name="heading" value={banner.heading || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Main heading (optional)" />
+          <input
+            type="text"
+            name="heading"
+            value={banner.heading || ""}
+            onChange={handleChange}
+            className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            placeholder="Main heading (optional)"
+          />
         </div>
 
         {/* Subtitle */}
         <div className="flex flex-col gap-1">
           <InputLabel label={"Subtitle / Badge Text"} />
-          <input type="text" name="subtitle" value={banner.subtitle || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="e.g. Summer Collection 2026 (optional)" />
+          <input
+            type="text"
+            name="subtitle"
+            value={banner.subtitle || ""}
+            onChange={handleChange}
+            className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            placeholder="e.g. Summer Collection 2026 (optional)"
+          />
         </div>
 
         {/* Button Text */}
         <div className="flex flex-col gap-1">
           <InputLabel label={"Button Text"} />
-          <input type="text" name="button_text" value={banner.button_text || ""} onChange={handleChange} className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="e.g. Shop Now (optional)" />
+          <input
+            type="text"
+            name="button_text"
+            value={banner.button_text || ""}
+            onChange={handleChange}
+            className="border border-neutral-300 rounded-[.5rem] p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            placeholder="e.g. Shop Now (optional)"
+          />
         </div>
 
         {/* Redirection */}
@@ -188,11 +237,23 @@ const Banner = ({ banner, setBanner, submit, close }) => {
           <div className="font-medium">Enable Redirection?</div>
           <div className="flex items-center gap-8">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="redirection" value="true" checked={banner.redirection === true} onChange={handleChange} />
+              <input
+                type="radio"
+                name="redirection"
+                value="true"
+                checked={banner.redirection === true}
+                onChange={handleChange}
+              />
               Yes
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="redirection" value="false" checked={banner.redirection !== true} onChange={handleChange} />
+              <input
+                type="radio"
+                name="redirection"
+                value="false"
+                checked={banner.redirection !== true}
+                onChange={handleChange}
+              />
               No
             </label>
           </div>
@@ -205,11 +266,25 @@ const Banner = ({ banner, setBanner, submit, close }) => {
               <div className="font-medium">Redirect To:</div>
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" id="content-block" name="type" value="content-block" checked={banner.type === "content-block"} onChange={handleChange} />
+                  <input
+                    type="radio"
+                    id="content-block"
+                    name="type"
+                    value="content-block"
+                    checked={banner.type === "content-block"}
+                    onChange={handleChange}
+                  />
                   Content Block
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" id="category" name="type" value="category" checked={banner.type === "category"} onChange={handleChange} />
+                  <input
+                    type="radio"
+                    id="category"
+                    name="type"
+                    value="category"
+                    checked={banner.type === "category"}
+                    onChange={handleChange}
+                  />
                   Category
                 </label>
               </div>
@@ -217,12 +292,28 @@ const Banner = ({ banner, setBanner, submit, close }) => {
             <div className="flex flex-col gap-1">
               <InputLabel label={"Select Reference"} error={errors.reference} />
               {references.length === 0 ? (
-                <div className="text-neutral-500 text-[1.2rem] italic">No {banner.type === "content-block" ? "content blocks" : "categories"} found. Create one first.</div>
+                <div className="text-neutral-500 text-[1.2rem] italic">
+                  No{" "}
+                  {banner.type === "content-block"
+                    ? "content blocks"
+                    : "categories"}{" "}
+                  found. Create one first.
+                </div>
               ) : (
                 <div className="grid grid-cols-3 gap-3">
                   {references.map((ref) => (
-                    <label key={ref._id} className={`flex items-center gap-2 p-2 rounded-[.5rem] cursor-pointer border transition-colors ${banner.id === ref._id ? "bg-purple-100 border-purple-400" : "bg-neutral-200 border-transparent"}`}>
-                      <input type="radio" name="id" value={ref._id} onChange={handleChange} checked={ref._id === banner.id} className="hidden" />
+                    <label
+                      key={ref._id}
+                      className={`flex items-center gap-2 p-2 rounded-[.5rem] cursor-pointer border transition-colors ${banner.id === ref._id ? "bg-purple-100 border-purple-400" : "bg-neutral-200 border-transparent"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="id"
+                        value={ref._id}
+                        onChange={handleChange}
+                        checked={ref._id === banner.id}
+                        className="hidden"
+                      />
                       {ref.title}
                     </label>
                   ))}
@@ -232,7 +323,10 @@ const Banner = ({ banner, setBanner, submit, close }) => {
           </div>
         )}
 
-        <button className="a-text--button bg-black text-white self-end !py-4 !text-[1.4rem] mt-2" onClick={formSubmit}>
+        <button
+          className="a-text--button bg-black text-white self-end !py-4 !text-[1.4rem] mt-2"
+          onClick={formSubmit}
+        >
           Save Banner
         </button>
       </section>

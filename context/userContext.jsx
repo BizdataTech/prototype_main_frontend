@@ -7,7 +7,7 @@ const UserContext = createContext();
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  let BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  let BACKEND_URL = process.env.BACKEND_URL;
   useEffect(() => {
     let url = `${BACKEND_URL}/api/auth/verify/me`;
     const getUserStat = async () => {
@@ -193,10 +193,13 @@ const UserProvider = ({ children }) => {
 
   const deleteAddress = async (addressId) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/addresses/${addressId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/api/auth/addresses/${addressId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       setAddresses(data.addresses || []);

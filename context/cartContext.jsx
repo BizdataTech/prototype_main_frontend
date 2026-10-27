@@ -6,7 +6,7 @@ import axios from "axios";
 const CartContext = createContext();
 const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(null);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   const { user } = useContext(UserContext);
 
   // Fetch cart data whenever the logged-in user state changes

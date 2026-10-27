@@ -16,7 +16,7 @@ const Form = ({ id, refetch, updateData }) => {
 
   const [attributeData, setAttributeData] = useState(schema);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -153,13 +153,14 @@ const Form = ({ id, refetch, updateData }) => {
         </div>
         <div className="w-full">
           <InputLabel label={"Input Type"} error={errors?.input_type} />
-          <select className="a-input" name="input_type" onChange={handleInput} value={attributeData.input_type}>
+          <select
+            className="a-input"
+            name="input_type"
+            onChange={handleInput}
+            value={attributeData.input_type}
+          >
             {["text", "select", "multi-select"].map((item) => (
-              <option
-                key={item}
-                value={item}
-                className="capitalize"
-              >
+              <option key={item} value={item} className="capitalize">
                 {item.replace("-", " ")}
               </option>
             ))}

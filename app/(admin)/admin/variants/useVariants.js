@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 const useVariants = () => {
   const [variants, setVariants] = useState(null);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getVariants = async () => {
