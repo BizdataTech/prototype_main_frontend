@@ -7,7 +7,7 @@ const Attribute = ({ attribute, slno, collection_id, refetch, update }) => {
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
 
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   let [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Attribute = ({ attribute, slno, collection_id, refetch, update }) => {
     try {
       setLoading(true);
       let res = await axios.delete(
-        `${BACKEND_URL}/api/attribute-collections/${collection_id}/${attribute._id}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/attribute-collections/${collection_id}/${attribute._id}`,
         { withCredentials: true },
       );
       setLoading(false);

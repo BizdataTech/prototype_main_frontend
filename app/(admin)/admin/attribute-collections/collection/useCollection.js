@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 const useCollection = (id) => {
   let [data, setData] = useState(null);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCollectionData = async () => {
     try {
-      let res = await axios(`${BACKEND_URL}/api/attribute-collections/${id}`, {
+      let res = await axios(`${NEXT_PUBLIC_BACKEND_URL}/api/attribute-collections/${id}`, {
         withCredentials: true,
       });
       setData(res.data.data);

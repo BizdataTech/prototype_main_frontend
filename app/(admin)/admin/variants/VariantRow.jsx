@@ -8,7 +8,7 @@ const VariantRow = ({ data, slno, refetch }) => {
   const [optionBox, setOptionBox] = useState(false);
   const optionBoxRef = useRef(null);
 
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const VariantRow = ({ data, slno, refetch }) => {
   const handleDeleteVariant = async () => {
     try {
       setLoading(true);
-      let res = await axios.delete(`${BACKEND_URL}/api/variants/${data._id}`, {
+      let res = await axios.delete(`${NEXT_PUBLIC_BACKEND_URL}/api/variants/${data._id}`, {
         withCredentials: true,
       });
       setLoading(false);

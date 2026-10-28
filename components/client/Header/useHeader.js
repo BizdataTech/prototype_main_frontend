@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 export const useHeader = () => {
   const [categories, setCategories] = useState([]);
   const [rootCategories, setRootCategories] = useState(null);
-  const BACKEND_API_URL = process.env.BACKEND_URL;
+  const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     const getCategories = async () => {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 const AboutPage = () => {
+  console.log("connection string:", process.env.NEXT_PUBLIC_BACKEND_URL)
   return (
     <div className="w-full min-h-screen bg-white pt-[14rem] pb-24">
       <div className="w-[95%] max-w-[900px] mx-auto flex flex-col gap-16">

@@ -11,7 +11,7 @@ const Brand = ({ brand, slno, refetch, open }) => {
   let [box, setBox] = useState(false);
   const boxRef = useRef(null);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useMouseClick(boxRef, () => setBox(false));
@@ -19,7 +19,7 @@ const Brand = ({ brand, slno, refetch, open }) => {
   const deleteBrand = async () => {
     try {
       setLoading(true);
-      let res = await axios.delete(`${BACKEND_URL}/api/brands/${brand._id}`, {
+      let res = await axios.delete(`${NEXT_PUBLIC_BACKEND_URL}/api/brands/${brand._id}`, {
         withCredentials: true,
       });
       setLoading(false);

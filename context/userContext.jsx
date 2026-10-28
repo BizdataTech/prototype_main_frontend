@@ -7,9 +7,9 @@ const UserContext = createContext();
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   useEffect(() => {
-    let url = `${BACKEND_URL}/api/auth/verify/me`;
+    let url = `${NEXT_PUBLIC_BACKEND_URL}/api/auth/verify/me`;
     const getUserStat = async () => {
       try {
         const response = await fetch(url, {
@@ -33,7 +33,7 @@ const UserProvider = ({ children }) => {
   const loginUser = async (userData) => {
     console.log("user login data:", userData);
     try {
-      let response = await fetch(`${BACKEND_URL}/api/auth/sign-in`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-in`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -58,7 +58,7 @@ const UserProvider = ({ children }) => {
   const registerUser = async (userData) => {
     console.log("user register data:", userData);
     try {
-      let response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/register`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -83,7 +83,7 @@ const UserProvider = ({ children }) => {
 
   const logoutUser = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -96,7 +96,7 @@ const UserProvider = ({ children }) => {
 
   const updateProfile = async (name) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -115,7 +115,7 @@ const UserProvider = ({ children }) => {
 
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/change-password`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/change-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -133,7 +133,7 @@ const UserProvider = ({ children }) => {
 
   const deactivateAccount = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/deactivate`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/deactivate`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -157,7 +157,7 @@ const UserProvider = ({ children }) => {
         return;
       }
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/addresses`, {
+        const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/addresses`, {
           method: "GET",
           credentials: "include",
         });
@@ -174,7 +174,7 @@ const UserProvider = ({ children }) => {
 
   const addAddress = async (address) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/addresses`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/auth/addresses`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -194,7 +194,7 @@ const UserProvider = ({ children }) => {
   const deleteAddress = async (addressId) => {
     try {
       const response = await fetch(
-        `${BACKEND_URL}/api/auth/addresses/${addressId}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/auth/addresses/${addressId}`,
         {
           method: "DELETE",
           credentials: "include",

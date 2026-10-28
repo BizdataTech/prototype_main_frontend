@@ -13,7 +13,7 @@ const ProductsContent = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const url = `${process.env.BACKEND_URL}/api/products?filter=product-list`;
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?filter=product-list`;
         const response = await fetch(url, { method: "GET" });
         const data = await response.json();
         if (response.ok) {
@@ -25,7 +25,7 @@ const ProductsContent = () => {
     };
     const fetchCategories = async () => {
       try {
-        const url = `${process.env.BACKEND_URL}/api/auto-categories?filter=product-category`;
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auto-categories?filter=product-category`;
         const response = await fetch(url, { method: "GET" });
         const data = await response.json();
         if (response.ok) {

@@ -90,7 +90,7 @@ const Checkout = () => {
     }
 
     try {
-      const BACKEND_URL = process.env.BACKEND_URL;
+      const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
       const orderItems = cart.items.map((item) => ({
         productId: item.productId._id || item.productId,
@@ -110,7 +110,7 @@ const Checkout = () => {
         paymentMethod: "Cash on Delivery",
       };
 
-      const response = await fetch(`${BACKEND_URL}/api/orders`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

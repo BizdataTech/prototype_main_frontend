@@ -16,7 +16,7 @@ const Form = ({ id, refetch, updateData }) => {
 
   const [attributeData, setAttributeData] = useState(schema);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -114,13 +114,13 @@ const Form = ({ id, refetch, updateData }) => {
         }
 
         res = await axios.patch(
-          `${BACKEND_URL}/api/attribute-collections/${id}/${updateData._id}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/attribute-collections/${id}/${updateData._id}`,
           updateInfo,
           { withCredentials: true },
         );
       } else {
         res = await axios.post(
-          `${BACKEND_URL}/api/attribute-collections/${id}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/attribute-collections/${id}`,
           { attribute: attributeData },
           { withCredentials: true },
         );

@@ -28,14 +28,14 @@ const categoryImageMap = {
 export default function DynamicCategoryGrid() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     let isCancelled = false;
     const loadCategories = async () => {
       try {
         const res = await axios.get(
-          `${BACKEND_URL}/api/auto-categories?filter=all`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/auto-categories?filter=all`,
         );
         const cats = res.data?.categories || [];
         // Only show root/main (level 1) categories that are active and not deleted
@@ -55,7 +55,7 @@ export default function DynamicCategoryGrid() {
     return () => {
       isCancelled = true;
     };
-  }, [BACKEND_URL]);
+  }, [NEXT_PUBLIC_BACKEND_URL]);
 
   if (loading) {
     return (

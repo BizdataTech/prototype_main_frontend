@@ -24,7 +24,7 @@ const HomeBannerSection = ({
   const [loading, setLoading] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(!!editId);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
   const bannerSchema = {
@@ -47,7 +47,7 @@ const HomeBannerSection = ({
       try {
         setLoadingExisting(true);
         const res = await axios.get(
-          `${BACKEND_URL}/api/home-sections/${editId}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${editId}`,
           { withCredentials: true },
         );
         const section = res.data?.section;
@@ -75,7 +75,7 @@ const HomeBannerSection = ({
       }
     };
     loadExisting();
-  }, [editId, BACKEND_URL]);
+  }, [editId, NEXT_PUBLIC_BACKEND_URL]);
 
   const openBannerForm = () => {
     setEditingIndex(null);
@@ -134,7 +134,7 @@ const HomeBannerSection = ({
           }
         }
         const res = await axios.delete(
-          `${BACKEND_URL}/api/home-sections/${editId}/banners/${dbIndex}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${editId}/banners/${dbIndex}`,
           { withCredentials: true },
         );
         toast.success("Banner image deleted from cloud & database");
@@ -222,12 +222,12 @@ const HomeBannerSection = ({
       let res;
       if (editId) {
         res = await axios.put(
-          `${BACKEND_URL}/api/home-sections/${editId}/banners`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${editId}/banners`,
           formData,
           { withCredentials: true },
         );
       } else {
-        res = await axios.post(`${BACKEND_URL}/api/home-sections`, formData, {
+        res = await axios.post(`${NEXT_PUBLIC_BACKEND_URL}/api/home-sections`, formData, {
           withCredentials: true,
         });
       }

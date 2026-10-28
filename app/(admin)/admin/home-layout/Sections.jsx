@@ -25,13 +25,13 @@ const sectionLabel = (type) => {
 
 const Sections = () => {
   let [sections, setSections] = useState(null);
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getSections = async () => {
     try {
-      let res = await axios.get(`${BACKEND_URL}/api/home-sections`, {
+      let res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/home-sections`, {
         withCredentials: true,
       });
       let data = (res.data?.sections || []).sort((a, b) => a.order - b.order);
@@ -49,7 +49,7 @@ const Sections = () => {
   const deleteSection = async (id) => {
     if (!confirm("Are you sure you want to delete this section?")) return;
     try {
-      await axios.delete(`${BACKEND_URL}/api/home-sections/${id}`, {
+      await axios.delete(`${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${id}`, {
         withCredentials: true,
       });
       toast.success("Section deleted");
@@ -63,7 +63,7 @@ const Sections = () => {
     try {
       const newStatus = currentStatus === false ? true : false;
       await axios.put(
-        `${BACKEND_URL}/api/home-sections/${id}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${id}`,
         { active: newStatus },
         { withCredentials: true },
       );
@@ -78,7 +78,7 @@ const Sections = () => {
     try {
       let orderedIds = newSections.map((s) => s._id);
       await axios.put(
-        `${BACKEND_URL}/api/home-sections/reorder`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/reorder`,
         { orderedIds },
         { withCredentials: true },
       );

@@ -14,11 +14,11 @@ import BannerCarousel from "@/components/client/Home/BannerCarousel";
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ClientPage = () => {
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // ── 1. Fetch all home sections (auto-refreshes every 5s from DB) ────────
   const { data, error, isLoading } = useSWR(
-    `${BACKEND_URL}/api/home-sections`,
+    `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections`,
     fetcher,
     { refreshInterval: 5000 },
   );
@@ -58,12 +58,12 @@ const ClientPage = () => {
 
               if (section.reference.type === "category") {
                 const prodRes = await axios.get(
-                  `${BACKEND_URL}/api/products?filter=product-list&category=${refId}`,
+                  `${NEXT_PUBLIC_BACKEND_URL}/api/products?filter=product-list&category=${refId}`,
                 );
                 section.products = prodRes.data?.products || [];
               } else {
                 const prodRes = await axios.get(
-                  `${BACKEND_URL}/api/content-blocks/${refId}?filter=client`,
+                  `${NEXT_PUBLIC_BACKEND_URL}/api/content-blocks/${refId}?filter=client`,
                 );
                 section.products = prodRes.data?.block?.products || [];
               }

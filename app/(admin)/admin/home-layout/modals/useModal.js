@@ -6,13 +6,13 @@ const useModal = () => {
   let [products, setProducts] = useState([]);
   let [category, setCategory] = useState(null);
 
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getProducts = async () => {
     try {
       let res = await axios.get(
-        `${BACKEND_URL}/api/products?filter=admin-products-category&category=${category._id}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/products?filter=admin-products-category&category=${category._id}`,
         { withCredentials: true },
       );
       setProducts(res.data?.products);

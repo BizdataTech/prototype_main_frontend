@@ -25,14 +25,14 @@ const ProductList = () => {
     setFilter({});
     setCategoryObject(null);
   }, [category]);
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
   useEffect(() => {
     const getProducts = async () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${BACKEND_URL}/api/products?filter=product-list&category=${encodeURIComponent(category)}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/products?filter=product-list&category=${encodeURIComponent(category)}`,
           {
             method: "GET",
           },
@@ -56,7 +56,7 @@ const ProductList = () => {
     } else {
       setLoading(false);
     }
-  }, [category, BACKEND_URL]);
+  }, [category, NEXT_PUBLIC_BACKEND_URL]);
 
   useEffect(() => {
     const filtered = products.filter((product) => {
@@ -93,7 +93,7 @@ const ProductList = () => {
     const getCategory = async () => {
       try {
         let response = await fetch(
-          `${BACKEND_URL}/api/auto-categories/${encodeURIComponent(category)}?filter=product-list`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/auto-categories/${encodeURIComponent(category)}?filter=product-list`,
           { method: "GET" },
         );
         let data = await response.json();
@@ -104,7 +104,7 @@ const ProductList = () => {
       }
     };
     if (category) getCategory();
-  }, [category, BACKEND_URL]);
+  }, [category, NEXT_PUBLIC_BACKEND_URL]);
 
   useEffect(() => {
     const brands = [

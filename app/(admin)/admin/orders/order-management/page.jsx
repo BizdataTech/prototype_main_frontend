@@ -17,7 +17,7 @@ const OrderManagement = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     if (orderId) {
@@ -30,7 +30,7 @@ const OrderManagement = () => {
       setLoading(true);
       // Wait, there's no admin-specific getOrderById, but the normal one works if no auth guard.
       // Wait, let's use the normal route /api/orders/:id
-      const res = await axios.get(`${BACKEND_URL}/api/orders/${orderId}`, {
+      const res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/orders/${orderId}`, {
         withCredentials: true,
       });
       setOrder(res.data.order);
@@ -48,7 +48,7 @@ const OrderManagement = () => {
     try {
       setUpdating(true);
       const res = await axios.put(
-        `${BACKEND_URL}/api/admin/orders/${orderId}/status`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/admin/orders/${orderId}/status`,
         { orderStatus, paymentStatus },
         { withCredentials: true },
       );

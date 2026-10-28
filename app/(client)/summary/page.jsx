@@ -35,9 +35,9 @@ const OrderSummaryContent = () => {
       }
 
       try {
-        const BACKEND_URL = process.env.BACKEND_URL;
+        const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
         const response = await fetch(
-          `${BACKEND_URL}/api/orders/${savedOrderId}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/orders/${savedOrderId}`,
           {
             method: "GET",
             credentials: "include",

@@ -16,7 +16,7 @@ const OrderNotificationBell = () => {
   const dropdownRef = useRef(null);
   const router = useRouter();
   const { adminUser } = useContext(AdminContext);
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
   const getLastSeenTime = () => {
     try {
@@ -36,7 +36,7 @@ const OrderNotificationBell = () => {
     if (!adminUser) return;
     try {
       setLoading(true);
-      const res = await axios.get(`${BACKEND_URL}/api/admin/orders`, {
+      const res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/admin/orders`, {
         withCredentials: true,
       });
       const fetched = res.data?.orders || [];

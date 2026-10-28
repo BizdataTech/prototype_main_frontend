@@ -17,14 +17,14 @@ const ProductListingSection = ({ editId = null }) => {
     reference: { type: "content-block", id: "" },
   });
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     if (!editId) return;
     const fetchExisting = async () => {
       try {
         const res = await axios.get(
-          `${BACKEND_URL}/api/home-sections/${editId}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${editId}`,
           { withCredentials: true },
         );
         const sec = res.data?.section;
@@ -47,13 +47,13 @@ const ProductListingSection = ({ editId = null }) => {
       }
     };
     fetchExisting();
-  }, [editId, BACKEND_URL]);
+  }, [editId, NEXT_PUBLIC_BACKEND_URL]);
 
   useEffect(() => {
     const getReferences = async () => {
       try {
         let res = await axios.get(
-          `${BACKEND_URL}/api/home-sections/references/${formData.reference.type}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/references/${formData.reference.type}`,
           { withCredentials: true },
         );
         setReferences(res.data?.references || []);
@@ -62,7 +62,7 @@ const ProductListingSection = ({ editId = null }) => {
       }
     };
     getReferences();
-  }, [formData.reference.type, BACKEND_URL]);
+  }, [formData.reference.type, NEXT_PUBLIC_BACKEND_URL]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,7 +93,7 @@ const ProductListingSection = ({ editId = null }) => {
       setLoading(true);
       if (editId) {
         await axios.put(
-          `${BACKEND_URL}/api/home-sections/${editId}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/${editId}`,
           {
             title: formData.title,
             limit: formData.limit,
@@ -105,7 +105,7 @@ const ProductListingSection = ({ editId = null }) => {
         toast.success("Product Listing Section Updated");
       } else {
         await axios.post(
-          `${BACKEND_URL}/api/home-sections`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections`,
           {
             section_type: "product_listing",
             title: formData.title,

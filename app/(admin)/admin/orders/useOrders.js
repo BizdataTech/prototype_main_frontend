@@ -9,7 +9,7 @@ const useOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const getAllOrders = async (filters = {}) => {
     try {
@@ -22,7 +22,7 @@ const useOrders = () => {
       if (filters.endDate) queryParams.append("endDate", filters.endDate);
 
       let res = await axios.get(
-        `${BACKEND_URL}/api/admin/orders?${queryParams.toString()}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/admin/orders?${queryParams.toString()}`,
         {
           withCredentials: true,
         },
@@ -37,7 +37,7 @@ const useOrders = () => {
   const updateOrder = async (id, orderStatus, paymentStatus) => {
     try {
       await axios.put(
-        `${BACKEND_URL}/api/admin/orders/${id}/status`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/admin/orders/${id}/status`,
         { orderStatus, paymentStatus },
         { withCredentials: true },
       );
@@ -50,7 +50,7 @@ const useOrders = () => {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`${BACKEND_URL}/api/admin/orders/${id}`, {
+      await axios.delete(`${NEXT_PUBLIC_BACKEND_URL}/api/admin/orders/${id}`, {
         withCredentials: true,
       });
       toast.success("Order deleted successfully!");

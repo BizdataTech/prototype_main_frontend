@@ -18,12 +18,12 @@ const useAttributes = () => {
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const attributeId = searchParams.get("id");
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // Fetch all attributes
   const fetchAttributes = async () => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/attributes`, {
+      const res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/attributes`, {
         withCredentials: true,
       });
       if (res.data?.success) {
@@ -46,7 +46,7 @@ const useAttributes = () => {
   const fetchSingleAttribute = async () => {
     try {
       const res = await axios.get(
-        `${BACKEND_URL}/api/attributes/${attributeId}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/attributes/${attributeId}`,
         {
           withCredentials: true,
         },
@@ -88,14 +88,14 @@ const useAttributes = () => {
       let res;
       if (action === "update" && attributeId) {
         res = await axios.put(
-          `${BACKEND_URL}/api/attributes/${attributeId}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/attributes/${attributeId}`,
           payload,
           {
             withCredentials: true,
           },
         );
       } else {
-        res = await axios.post(`${BACKEND_URL}/api/attributes`, payload, {
+        res = await axios.post(`${NEXT_PUBLIC_BACKEND_URL}/api/attributes`, payload, {
           withCredentials: true,
         });
       }
@@ -115,7 +115,7 @@ const useAttributes = () => {
     try {
       setLoading(true);
       const res = await axios.delete(
-        `${BACKEND_URL}/api/attributes/${idToDelete}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/attributes/${idToDelete}`,
         {
           withCredentials: true,
         },

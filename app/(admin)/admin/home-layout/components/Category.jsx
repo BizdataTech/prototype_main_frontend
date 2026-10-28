@@ -9,13 +9,13 @@ const Category = ({ selectedCategory, setCategory, error }) => {
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     let getCategories = async () => {
       try {
         let res = await axios.get(
-          `${BACKEND_URL}/api/auto-categories?filter=section-block`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/auto-categories?filter=section-block`,
         );
         setCategories(res.data?.categories);
       } catch (err) {

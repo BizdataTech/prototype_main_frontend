@@ -11,7 +11,7 @@ const User = ({ user, refetch }) => {
 
   useMouseClick(boxRef, () => setBox(false));
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [updateLoading, setUpdateLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ const User = ({ user, refetch }) => {
       setUpdateLoading(true);
       setLoading(true);
       let res = await axios.patch(
-        `${BACKEND_URL}/api/admin-users/clients/${user._id}/status`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/admin-users/clients/${user._id}/status`,
         {},
         { withCredentials: true },
       );
@@ -45,7 +45,7 @@ const User = ({ user, refetch }) => {
       setDeleteLoading(true);
       setLoading(true);
       let res = await axios.delete(
-        `${BACKEND_URL}/api/admin-users/clients/${user._id}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/admin-users/clients/${user._id}`,
         { withCredentials: true },
       );
       setDeleteLoading(false);

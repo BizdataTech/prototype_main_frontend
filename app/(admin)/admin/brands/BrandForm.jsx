@@ -16,13 +16,13 @@ const BrandForm = ({ refetch, close, id }) => {
   let [brand, setBrand] = useState(null);
   let [updateData, setUpdateData] = useState({});
 
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     if (!id) return;
     const getData = async () => {
       try {
-        let res = await axios.get(`${BACKEND_URL}/api/brands/${id}`, {
+        let res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/brands/${id}`, {
           withCredentials: true,
         });
         setBrand(res.data?.brand);
@@ -108,7 +108,7 @@ const BrandForm = ({ refetch, close, id }) => {
           formData.append(key, value),
         );
         res = await axios.patch(
-          `${BACKEND_URL}/api/brands/${brand._id}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/brands/${brand._id}`,
           formData,
           { withCredentials: true },
         );
@@ -116,7 +116,7 @@ const BrandForm = ({ refetch, close, id }) => {
         formData.append("image", file);
         formData.append("brand_name", brandName);
 
-        res = await axios.post(`${BACKEND_URL}/api/brands`, formData, {
+        res = await axios.post(`${NEXT_PUBLIC_BACKEND_URL}/api/brands`, formData, {
           withCredentials: true,
         });
       }

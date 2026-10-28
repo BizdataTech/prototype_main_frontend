@@ -18,7 +18,7 @@ const VariantManagement = () => {
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const variantId = searchParams.get("id");
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     if (action === "update" && variantId) {
@@ -28,7 +28,7 @@ const VariantManagement = () => {
 
   const fetchVariant = async () => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/variants/${variantId}`, {
+      const res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/variants/${variantId}`, {
         withCredentials: true,
       });
       if (res.data?.variant) {
@@ -97,12 +97,12 @@ const VariantManagement = () => {
 
     try {
       setLoading(true);
-      const BACKEND_URL = process.env.BACKEND_URL;
+      const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
       let res;
       if (action === "update" && variantId) {
         res = await axios.put(
-          `${BACKEND_URL}/api/variants/${variantId}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/variants/${variantId}`,
           {
             title: title.trim(),
             color,
@@ -114,7 +114,7 @@ const VariantManagement = () => {
         );
       } else {
         res = await axios.post(
-          `${BACKEND_URL}/api/variants`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/variants`,
           {
             title: title.trim(),
             color,

@@ -80,9 +80,9 @@ const ProfilePageContent = () => {
 
       const fetchOrders = async () => {
         try {
-          const BACKEND_URL = process.env.BACKEND_URL;
+          const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
           const response = await fetch(
-            `${BACKEND_URL}/api/orders/user/${user._id || user.id}`,
+            `${NEXT_PUBLIC_BACKEND_URL}/api/orders/user/${user._id || user.id}`,
             {
               method: "GET",
               credentials: "include",

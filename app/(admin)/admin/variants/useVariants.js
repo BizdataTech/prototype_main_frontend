@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 
 const useVariants = () => {
   const [variants, setVariants] = useState(null);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getVariants = async () => {
     try {
-      let res = await axios.get(`${BACKEND_URL}/api/variants`, {
+      let res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/variants`, {
         withCredentials: true,
       });
       console.log("variants:", res.data.variants);

@@ -40,7 +40,7 @@ const useCategories = () => {
   const [selectedVariants, setSelectedVariants] = useState([]);
 
   const router = useRouter();
-  const BACKEND_API_URL = process.env.BACKEND_URL;
+  const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const category_id = searchParams.get("category_id");

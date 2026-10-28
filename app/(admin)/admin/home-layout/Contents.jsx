@@ -10,12 +10,12 @@ const Contents = () => {
   const [selectedBlock, setSelectedBlock] = useState(null);
   const [modal, setModal] = useState(false);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getBlocks = async () => {
     try {
-      let res = await axios.get(`${BACKEND_URL}/api/content-blocks`, {
+      let res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/content-blocks`, {
         withCredentials: true,
       });
       setBlocks(res.data?.blocks);

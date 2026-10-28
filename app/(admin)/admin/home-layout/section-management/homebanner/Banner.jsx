@@ -13,13 +13,13 @@ const Banner = ({ banner, setBanner, submit, close }) => {
   const [cropSrc, setCropSrc] = useState(null);
   const [cropFilename, setCropFilename] = useState("banner.jpg");
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     const getReferences = async () => {
       try {
         let res = await axios.get(
-          `${BACKEND_URL}/api/home-sections/references/${banner.type}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/home-sections/references/${banner.type}`,
           { withCredentials: true },
         );
         setReferences(res.data?.references || []);
@@ -28,7 +28,7 @@ const Banner = ({ banner, setBanner, submit, close }) => {
       }
     };
     getReferences();
-  }, [banner.type, BACKEND_URL]);
+  }, [banner.type, NEXT_PUBLIC_BACKEND_URL]);
 
   // Reset id when type changes, but NOT on the initial mount
   const isFirstRender = useRef(true);

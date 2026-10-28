@@ -7,11 +7,11 @@ const AdminContext = createContext();
 
 const AdminProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(null);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const validateLogin = async () => {
     try {
-      let res = await axios(`${BACKEND_URL}/api/admin-users/verify`, {
+      let res = await axios(`${NEXT_PUBLIC_BACKEND_URL}/api/admin-users/verify`, {
         withCredentials: true,
       });
       setAdminUser(res.data.user);

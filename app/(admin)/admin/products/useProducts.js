@@ -13,7 +13,7 @@ const useProducts = (id = null) => {
   const [brands, setBrands] = useState([]);
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
   // input field schema
@@ -65,7 +65,7 @@ const useProducts = (id = null) => {
   useEffect(() => {
     const fetchAllVariants = async () => {
       try {
-        const res = await axios.get(`${BACKEND_URL}/api/variants`);
+        const res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/variants`);
         setAllAvailableVariants(res.data.variants || []);
       } catch (err) {
         console.log("Failed to fetch global variants:", err.message);
@@ -209,7 +209,7 @@ const useProducts = (id = null) => {
     let getProduct = async () => {
       try {
         let res = await axios.get(
-          `${BACKEND_URL}/api/products/${id}?admin=true`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/products/${id}?admin=true`,
           {
             withCredentials: true,
           },
@@ -227,7 +227,7 @@ const useProducts = (id = null) => {
     const getCategories = async () => {
       try {
         const response = await fetch(
-          `${BACKEND_URL}/api/auto-categories?filter=product-category`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/auto-categories?filter=product-category`,
           { method: "GET" },
         );
         const data = await response.json();
@@ -243,7 +243,7 @@ const useProducts = (id = null) => {
   useEffect(() => {
     let getBrands = async () => {
       try {
-        let response = await fetch(`${BACKEND_URL}/api/brands`, {
+        let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/brands`, {
           method: "GET",
         });
         let result = await response.json();
@@ -262,7 +262,7 @@ const useProducts = (id = null) => {
       try {
         if (!selectedCategory?._id) return;
         let res = await axios.get(
-          `${BACKEND_URL}/api/categories/${selectedCategory._id}/attribute-collections`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/categories/${selectedCategory._id}/attribute-collections`,
           { withCredentials: true },
         );
         setAttributes(res.data.attributes);
@@ -282,7 +282,7 @@ const useProducts = (id = null) => {
   // ─── Fetch all products (list) ───────────────────────────────────────────────
   const fetchProducts = async () => {
     try {
-      let url = `${BACKEND_URL}/api/products?filter=admin-products&current_page=${currentPage}`;
+      let url = `${NEXT_PUBLIC_BACKEND_URL}/api/products?filter=admin-products&current_page=${currentPage}`;
       if (searchQuery) url += `&search=${searchQuery}`;
       let response = await fetch(url, { method: "GET" });
       let data = await response.json();
@@ -296,7 +296,7 @@ const useProducts = (id = null) => {
 
   const deleteProduct = async (id) => {
     try {
-      const res = await axios.delete(`${BACKEND_URL}/api/products/${id}`, {
+      const res = await axios.delete(`${NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`, {
         withCredentials: true,
       });
       toast.success(res.data.message || "Product deleted");
@@ -310,7 +310,7 @@ const useProducts = (id = null) => {
     if (selectedProducts.length === 0) return;
     try {
       const res = await axios.post(
-        `${BACKEND_URL}/api/products/bulk-delete`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/products/bulk-delete`,
         { ids: selectedProducts },
         { withCredentials: true },
       );
@@ -606,7 +606,7 @@ const useProducts = (id = null) => {
 
         setLoading(true);
         res = await axios.patch(
-          `${BACKEND_URL}/api/products/${product._id}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/products/${product._id}`,
           formData,
           { withCredentials: true },
         );
@@ -636,7 +636,7 @@ const useProducts = (id = null) => {
         images.forEach((image) => formData.append("image", image.file));
 
         setLoading(true);
-        res = await axios.post(`${BACKEND_URL}/api/products`, formData, {
+        res = await axios.post(`${NEXT_PUBLIC_BACKEND_URL}/api/products`, formData, {
           withCredentials: true,
         });
         setLoading(false);

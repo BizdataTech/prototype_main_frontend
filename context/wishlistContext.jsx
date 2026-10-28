@@ -8,7 +8,7 @@ const WishlistContext = createContext();
 
 const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState(null);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { user } = useContext(UserContext);
 
   // Fetch wishlist whenever the logged-in user state changes
@@ -20,7 +20,7 @@ const WishlistProvider = ({ children }) => {
         return;
       }
       try {
-        const response = await fetch(`${BACKEND_URL}/api/wishlist`, {
+        const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/wishlist`, {
           method: "GET",
           credentials: "include",
         });
@@ -45,7 +45,7 @@ const WishlistProvider = ({ children }) => {
       return false;
     }
     try {
-      const response = await fetch(`${BACKEND_URL}/api/wishlist`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/wishlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -72,7 +72,7 @@ const WishlistProvider = ({ children }) => {
    */
   const removeFromWishlist = async (productId) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/wishlist/${productId}`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/wishlist/${productId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -104,7 +104,7 @@ const WishlistProvider = ({ children }) => {
    */
   const clearWishlist = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/wishlist`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/wishlist`, {
         method: "DELETE",
         credentials: "include",
       });

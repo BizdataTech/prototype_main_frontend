@@ -15,13 +15,13 @@ const Page = () => {
     handleSubmit,
   } = useForm();
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   const signUpUser = async (values) => {
     try {
       setLoading(true);
-      let response = await fetch(`${BACKEND_URL}/api/admin-users/sign-up`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/admin-users/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

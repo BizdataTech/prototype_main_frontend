@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 
 const useBrand = () => {
   let [brands, setBrands] = useState([]);
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // get all brands
   // eslint-disable-next-line react-hooks/exhaustive-deps
   let getBrands = async () => {
     try {
-      let res = await axios.get(`${BACKEND_URL}/api/brands`, {
+      let res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/brands`, {
         withCredentials: true,
       });
       console.log("brands:", res.data?.brands);

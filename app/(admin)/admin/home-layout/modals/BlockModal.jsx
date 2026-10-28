@@ -31,13 +31,13 @@ const BlockModal = ({ close, block, refetch }) => {
   const [blockData, setBlockData] = useState(null);
   const [updateData, setUpdateData] = useState({});
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     const getBlockData = async () => {
       try {
         let res = await axios.get(
-          `${BACKEND_URL}/api/content-blocks/${block}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/content-blocks/${block}`,
           { withCredentials: true },
         );
         setBlockData(res.data?.block);
@@ -155,7 +155,7 @@ const BlockModal = ({ close, block, refetch }) => {
           patch.products = patch.products.map((pro) => pro._id);
         if (patch.title) patch.slug = slug;
         res = await axios.patch(
-          `${BACKEND_URL}/api/content-blocks/${blockData._id}`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/content-blocks/${blockData._id}`,
           {
             ...patch,
             block_type: blockType,
@@ -165,7 +165,7 @@ const BlockModal = ({ close, block, refetch }) => {
         );
       } else {
         res = await axios.post(
-          `${BACKEND_URL}/api/content-blocks`,
+          `${NEXT_PUBLIC_BACKEND_URL}/api/content-blocks`,
           {
             title,
             slug,

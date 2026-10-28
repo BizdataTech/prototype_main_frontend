@@ -9,7 +9,7 @@ export const useSearch = () => {
   let debounce = useRef(null);
   let router = useRouter();
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -25,7 +25,7 @@ export const useSearch = () => {
       setSuggessions([]);
       setOpen(true);
       try {
-        let url = `${BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
+        let url = `${NEXT_PUBLIC_BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
           newQuery,
         )}`;
         const response = await fetch(url);

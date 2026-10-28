@@ -9,7 +9,7 @@ const TableRow = ({ data, slno, refetch }) => {
   const [optionBox, setOptionBox] = useState(false);
   const optionBoxRef = useRef(null);
 
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const TableRow = ({ data, slno, refetch }) => {
     try {
       setLoading(true);
       let res = await axios.delete(
-        `${BACKEND_URL}/api/attribute-collections/${data._id}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/attribute-collections/${data._id}`,
         { withCredentials: true },
       );
       setLoading(false);

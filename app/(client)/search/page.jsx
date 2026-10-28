@@ -12,10 +12,10 @@ const SearchResultContent = () => {
 
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
-    let url = `${BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
+    let url = `${NEXT_PUBLIC_BACKEND_URL}/api/products?filter=search&query=${encodeURIComponent(
       query,
     )}`;
     let fetchProducts = async () => {

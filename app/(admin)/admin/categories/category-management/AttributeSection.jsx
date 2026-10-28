@@ -5,13 +5,13 @@ import { toast } from "sonner";
 
 const AttributeSection = ({ setCollection }) => {
   let [collections, setCollections] = useState([]);
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCollections = async () => {
     try {
       let res = await axios.get(
-        `${BACKEND_URL}/api/attribute-collections/category`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/attribute-collections/category`,
         { withCredentials: true },
       );
       setCollections(res.data.collections);

@@ -17,7 +17,7 @@ const Page = () => {
     handleSubmit,
   } = useForm();
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ const Page = () => {
     try {
       setLoading(true);
       let res = await axios.post(
-        `${BACKEND_URL}/api/admin-users/sign-in`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/admin-users/sign-in`,
         values,
         { withCredentials: true },
       );

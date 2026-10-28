@@ -40,7 +40,7 @@ const Products = () => {
   const [uploadImages, setUploadImages] = useState(false);
   const [importResults, setImportResults] = useState(null);
   const importRef = useRef(null);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const handleImport = async (e) => {
     const file = e.target.files[0];
@@ -62,7 +62,7 @@ const Products = () => {
     const toastId = toast.loading("Importing products...");
     try {
       const res = await axios.post(
-        `${BACKEND_URL}/api/products/import`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/products/import`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -168,7 +168,7 @@ const Products = () => {
                   <button
                     onClick={() => {
                       window.open(
-                        `${BACKEND_URL}/api/products/export?ids=${selectedProducts.join(",")}`,
+                        `${NEXT_PUBLIC_BACKEND_URL}/api/products/export?ids=${selectedProducts.join(",")}`,
                         "_blank",
                       );
                       setExportOpen(false);
@@ -185,7 +185,7 @@ const Products = () => {
                     <button
                       onClick={() => {
                         window.open(
-                          `${BACKEND_URL}/api/products/export`,
+                          `${NEXT_PUBLIC_BACKEND_URL}/api/products/export`,
                           "_blank",
                         );
                         setExportOpen(false);
@@ -197,7 +197,7 @@ const Products = () => {
                     <button
                       onClick={() => {
                         window.open(
-                          `${BACKEND_URL}/api/products/export?type=Simple`,
+                          `${NEXT_PUBLIC_BACKEND_URL}/api/products/export?type=Simple`,
                           "_blank",
                         );
                         setExportOpen(false);
@@ -209,7 +209,7 @@ const Products = () => {
                     <button
                       onClick={() => {
                         window.open(
-                          `${BACKEND_URL}/api/products/export?type=Variable`,
+                          `${NEXT_PUBLIC_BACKEND_URL}/api/products/export?type=Variable`,
                           "_blank",
                         );
                         setExportOpen(false);
@@ -229,7 +229,7 @@ const Products = () => {
                             key={i}
                             onClick={() => {
                               window.open(
-                                `${BACKEND_URL}/api/products/export?category=${cat._id}`,
+                                `${NEXT_PUBLIC_BACKEND_URL}/api/products/export?category=${cat._id}`,
                                 "_blank",
                               );
                               setExportOpen(false);

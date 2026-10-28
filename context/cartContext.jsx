@@ -6,7 +6,7 @@ import axios from "axios";
 const CartContext = createContext();
 const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(null);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { user } = useContext(UserContext);
 
   // Fetch cart data whenever the logged-in user state changes
@@ -18,7 +18,7 @@ const CartProvider = ({ children }) => {
         return;
       }
       try {
-        let response = await fetch(`${BACKEND_URL}/api/cart`, {
+        let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/cart`, {
           method: "GET",
           credentials: "include",
         });
@@ -37,7 +37,7 @@ const CartProvider = ({ children }) => {
 
   const addToCart = async (productId) => {
     try {
-      let response = await fetch(`${BACKEND_URL}/api/cart`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const CartProvider = ({ children }) => {
 
   const removeFromCart = async (productId) => {
     try {
-      let response = await fetch(`${BACKEND_URL}/api/cart/${productId}`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/cart/${productId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -76,7 +76,7 @@ const CartProvider = ({ children }) => {
   const updateQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
     try {
-      let response = await fetch(`${BACKEND_URL}/api/cart`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/cart`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,7 @@ const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      let response = await fetch(`${BACKEND_URL}/api/cart`, {
+      let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/cart`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -12,7 +12,7 @@ const Product = ({ product, refetch, selected, onSelect }) => {
   let [box, setBox] = useState(false);
   let boxRef = useRef(null);
 
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   let [loading, setLoading] = useState(false);
 
   useMouseClick(boxRef, () => setBox(false));
@@ -21,7 +21,7 @@ const Product = ({ product, refetch, selected, onSelect }) => {
     try {
       setLoading(true);
       let res = await axios.delete(
-        `${BACKEND_URL}/api/products/${product._id}`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/products/${product._id}`,
         { withCredentials: true },
       );
       setLoading(false);

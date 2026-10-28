@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 
 const useUsers = () => {
   let [users, setUsers] = useState(null);
-  const BACKEND_URL = process.env.BACKEND_URL;
+  const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getClients = async () => {
     try {
-      let res = await axios.get(`${BACKEND_URL}/api/admin-users/clients`, {
+      let res = await axios.get(`${NEXT_PUBLIC_BACKEND_URL}/api/admin-users/clients`, {
         withCredentials: true,
       });
       setUsers(res.data?.result);

@@ -11,12 +11,12 @@ export const useProduct = () => {
 
   const { user } = useContext(UserContext);
   const { addToCart } = useContext(CartContext);
-  let BACKEND_URL = process.env.BACKEND_URL;
+  let NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     const getProductData = async () => {
       try {
-        let response = await fetch(`${BACKEND_URL}/api/products/${id}`, {
+        let response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`, {
           method: "GET",
         });
         let data = await response.json();
@@ -41,7 +41,7 @@ export const useProduct = () => {
     }
     try {
       const response = await fetch(
-        `${BACKEND_URL}/api/products/${productId}?filter=stock`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/products/${productId}?filter=stock`,
         {
           method: "GET",
           credentials: "include",
